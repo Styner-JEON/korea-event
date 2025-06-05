@@ -1,0 +1,68 @@
+spring:
+
+  application:
+    name: bridge-service
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+    properties:
+      spring.json.add.type.headers: false
+      delivery.timeout.ms: 120000  # 1000 * 60 * 2 = 2? (??? 2?)
+      request.timeout.ms: 30000    # 1000 * 30     = 30? (??? 30?)
+      metadata.max.age.ms: 300000  # 1000 * 60 * 5 = 5? (??? 5?)
+    topic: event-topic
+    timeout-seconds: 2
+
+  datasource:
+    #    url: jdbc:postgresql://postgres-service:25432/${POSTGRES_DB}
+    url: jdbc:postgresql://localhost:25432/${POSTGRES_DB}
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+    hibernate:
+      ddl-auto: create
+
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: always
+
+#logging:
+#  level:
+#    root: debug
+
+server:
+  port: 28080
+
+api:
+  version: v1
+
+public-data-api:
+  base-url: "http://apis.data.go.kr/B551011/KorService1"
+  endpoints:
+    area-based-list: "/areaBasedList1"
+    detail-common: "/detailCommon1"
+    detail-intro: "/detailIntro1"
+  service-key: ${SERVICE_KEY}
+  num-of-rows: 10
+  # ?? ?? ???? ??? ???? ??
+  minus-days: 1
+
+retry:
+  max-attempts: 3
+  #  initial-interval: 60000  # 1000 * 60 * 1 = 1?
+  initial-interval: 5000
+  #  multiplier: 2.0
+  multiplier: 1.1
+  max-interval: 600000     # 1000 * 60 * 10 = 10?
