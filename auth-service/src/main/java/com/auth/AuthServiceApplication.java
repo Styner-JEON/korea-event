@@ -1,13 +1,13 @@
-package com.event_core;
+package com.auth;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class EventCoreApplication {
+public class AuthServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(EventCoreApplication.class, args);
+		SpringApplication.run(AuthServiceApplication.class, args);
 	}
 
 }

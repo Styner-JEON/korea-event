@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: auth-service
+  datasource:
+    url: jdbc:postgresql://localhost:35432/${POSTGRES_DB}
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+    hibernate:
+      ddl-auto: update
+
+server:
+  port: 38080
+
+api:
+  version: v1
+
+#logging:
+#  level:???
+#    root: debug
+
+jwt:
+  # AHomeRunAHomeRunAHomeRunAHomeRun? base64? ???? ?
+  secret-string: ${SECRET_STRING}
+  access-token-expiry: 900000  # 1000 * 60 * 15 = 15?
+  refresh-token-expiry: 1209600000  # 1000 * 60 * 60 * 24 * 14 = 14?
+

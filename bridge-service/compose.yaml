@@ -8,8 +8,8 @@ services:
     networks:
       - bridge_network
     volumes:
-      - ${HOME}/0main/docker-volumes/bridge-service/zookeeper/data:/data
-      - ${HOME}/0main/docker-volumes/bridge-service/zookeeper/datalog:/datalog
+      - /Users/styner/0main/docker-volumes/bridge-service/zookeeper/data:/data
+      - /Users/styner/0main/docker-volumes/bridge-service/zookeeper/datalog:/datalog
 
   bridge-kafka-service:
     image: confluentinc/cp-kafka:latest
@@ -27,35 +27,22 @@ services:
     networks:
       - bridge_network
     volumes:
-      - ${HOME}/0main/docker-volumes/bridge-service/kafka/data:/var/lib/kafka/data
+      - /Users/styner/0main/docker-volumes/bridge-service/kafka/data:/var/lib/kafka/data
 
   bridge-postgres-service:
     image: postgres:16
     container_name: bridge-postgres-container
     environment:
+      POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USERNAME}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "25432:5432"
     networks:
       - bridge_network
     volumes:
-      - ${HOME}/0main/docker-volumes/bridge-service/postgresql/data:/var/lib/postgresql/data
+      - /Users/styner/0main/docker-volumes/bridge-service/postgresql/data:/var/lib/postgresql/data
 
 networks:
   bridge_network:
     driver: bridge
-
-#  postgres:
-#    image: 'postgres:latest'
-#    environment:
-#      - 'POSTGRES_DB=mydatabase'
-#      - 'POSTGRES_PASSWORD=secret'
-#      - 'POSTGRES_USER=myuser'
-#    ports:
-#      - '5432'
-#  redis:
-#    image: 'redis:latest'
-#    ports:
-#      - '6379'
