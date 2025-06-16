@@ -1,0 +1,18 @@
+services:
+  auth-postgres-service:
+    image: postgres:16
+    container_name: auth-postgres-container
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "35432:5432"
+    networks:
+      - auth_network
+    volumes:
+      - /Users/styner/0main/docker-volumes/auth-service/postgresql/data:/var/lib/postgresql/data
+
+networks:
+  auth_network:
+    driver: bridge
