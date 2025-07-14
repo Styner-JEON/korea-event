@@ -1,21 +1,18 @@
 package com.auth.controller;
 
 import com.auth.model.request.LoginRequest;
-import com.auth.model.request.RefreshTokenRequest;
 import com.auth.model.request.SignupRequest;
 import com.auth.model.response.LoginResponse;
 import com.auth.model.response.RefreshTokenResponse;
 import com.auth.model.response.SignupResponse;
 import com.auth.service.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/auth/${api.version}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -26,7 +23,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/signup")
-    public ResponseEntity<SignupResponse> signup(@RequestBody SignupRequest request) {
+    public ResponseEntity<SignupResponse> signup(@Valid @RequestBody SignupRequest request) {
         return ResponseEntity.ok(authService.signup(request));
     }
 
@@ -37,9 +34,9 @@ public class AuthController {
         return ResponseEntity.ok(loginResponse);
     }
 
-    @PostMapping("/refreshToken")
-    public ResponseEntity<RefreshTokenResponse> refreshAccessToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
-        return ResponseEntity.ok(authService.refreshAccessToken(refreshTokenRequest));
+    @PostMapping("/refresh")
+    public ResponseEntity<RefreshTokenResponse> refreshAccessToken(@RequestHeader("x-refresh-token") String refreshToken) {
+        return ResponseEntity.ok(authService.refreshAccessToken(refreshToken));
     }
 
 }

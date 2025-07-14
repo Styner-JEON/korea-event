@@ -21,7 +21,10 @@ public class BatchController {
     private final PublicDataApiClient publicDataApiClient;
 
     /**
-     * 테스트를 위한 것
+     * 지역기반관광정보조회 API 조회
+     *
+     * 테스트를 위한 코드입니다.
+     *
      * @return List of EventDto
      */
     @GetMapping(path = "/batch")

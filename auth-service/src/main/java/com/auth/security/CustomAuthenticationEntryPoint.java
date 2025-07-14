@@ -29,9 +29,9 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
             HttpServletResponse response,
             AuthenticationException authenticationException
     ) throws IOException, ServletException {
-        log.info("Authentication failed: {}", authenticationException.getMessage(), authenticationException);
+        log.warn("Authentication failed: {} | URL: {}", authenticationException.getMessage(), request.getRequestURI(), authenticationException);
 
-        ErrorResponse errorResponse = new ErrorResponse("Authentication required");
+        ErrorResponse errorResponse = new ErrorResponse(authenticationException.getMessage());
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");

@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 public class JacksonConfig {
 
     /**
-     * LocalDate와 LocalDateTime을 문자열로 직렬화 및 역직렬화
+     * LocalDate와 LocalDateTime을 문자열로 직렬화 및 역직렬화합니다.
      */
     @Bean
     public ObjectMapper objectMapper() {
