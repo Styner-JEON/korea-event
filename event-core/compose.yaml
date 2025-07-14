@@ -1,13 +1,18 @@
 services:
-  postgres:
-    image: 'postgres:latest'
+  event-postgres-service:
+    image: postgres:16
+    container_name: event-postgres-container
     environment:
-      - 'POSTGRES_DB=mydatabase'
-      - 'POSTGRES_PASSWORD=secret'
-      - 'POSTGRES_USER=myuser'
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - '5432'
-  redis:
-    image: 'redis:latest'
-    ports:
-      - '6379'
+      - "15432:5432"
+    networks:
+      - event_network
+    volumes:
+      - /Users/styner/0main/docker-volumes/event-core/postgresql/data:/var/lib/postgresql/data
+
+networks:
+  event_network:
+    driver: bridge

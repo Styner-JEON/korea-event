@@ -43,3 +43,7 @@ out/
 ### Next.js ###
 node_modules/
 .next/
+.history/
+
+### Frontend ###
+frontend/

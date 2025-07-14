@@ -20,6 +20,11 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * 배치 스케줄러 설정 클래스
+ *
+ * 주기적으로 이벤트 데이터 수집 및 카프카 전송 배치 작업을 실행합니다.
+ */
 @Configuration
 @EnableScheduling
 @RequiredArgsConstructor
@@ -31,30 +36,37 @@ public class BatchScheduler {
     private final Job eventFetchingAndSendingJob;
 
     /**
-     * 매일 새벽 4시에 Event 데이터를 가져와 Kafka로 전송하는 Job을 실행함
+     * 매일 새벽 4시에 실행합니다.
+     * 
+     * @throws CustomBatchException 배치 작업 실행 실패 시 발생하는 커스텀 예외
      */
-    @Scheduled(cron = "0 24 * * * ?")
+    @Scheduled(cron = "0 57 * * * ?")
 //    @Scheduled(cron = "0 0 4 * * ?")
     public void scheduleEventFetchingAndSendingJob() {
-            ZonedDateTime nowKST = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
-            String formattedTime = nowKST.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        ZonedDateTime nowKST = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
+        String formattedTime = nowKST.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-            JobParameters jobParameters = new JobParametersBuilder()
-                    .addString("koreanTime", formattedTime)
-                    .toJobParameters();
+        // 매번 다른 시간값으로 새로운 JobInstance를 생성
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addString("koreanTime", formattedTime)
+                .toJobParameters();
 
         try {
+            // 배치 작업 실행
             jobLauncher.run(eventFetchingAndSendingJob, jobParameters);
-        } catch (JobExecutionAlreadyRunningException |
-                 JobRestartException |
-                 JobInstanceAlreadyCompleteException |
-                 JobParametersInvalidException e
+
+        } catch (
+                JobExecutionAlreadyRunningException |
+                JobRestartException |
+                JobInstanceAlreadyCompleteException |
+                JobParametersInvalidException e
         ) {
             log.error("Batch job execution failed: {}", e.getMessage(), e);
-            throw new CustomBatchException(HttpStatus.INTERNAL_SERVER_ERROR, "Batch job execution failed: " + e.getMessage());
+            throw new CustomBatchException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Batch job execution failed: " + e.getMessage()
+            );
         }
     }
 
 }
-
-
