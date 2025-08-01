@@ -45,5 +45,5 @@ node_modules/
 .next/
 .history/
 
-### Frontend ###
-frontend/
+### TEST ###
+**/application-test.yml
