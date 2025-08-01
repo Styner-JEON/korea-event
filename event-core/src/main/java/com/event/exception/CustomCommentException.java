@@ -12,4 +12,5 @@ public class CustomCommentException extends RuntimeException {
         super(message);
         this.httpStatus = httpStatus;
     }
+
 }

@@ -50,9 +50,11 @@ public class KafkaProducer {
                     .get(timeoutSeconds, TimeUnit.SECONDS);  // 동기식 전송으로 결과를 기다림 (타임아웃 적용)
 
             // 전송 성공 시 메타데이터 추출 및 로깅
-            RecordMetadata metadata = sendResult.getRecordMetadata();
-            log.info("Kafka message sent successfully. Topic: {}, Partition: {}, Offset: {}, contentId: {}",
-                    metadata.topic(), metadata.partition(), metadata.offset(), eventDto.getContentId());
+            RecordMetadata recordMetadata = sendResult.getRecordMetadata();
+            log.info(
+                    "Kafka message sent successfully. Topic: {}, Partition: {}, Offset: {}, contentId: {}",
+                    recordMetadata.topic(), recordMetadata.partition(), recordMetadata.offset(), eventDto.getContentId()
+            );
         } catch (TimeoutException | ExecutionException | InterruptedException e) {
             // 전송 실패 시 예외 처리
             log.error("Kafka message sending failed (contentId: {}): {}", eventDto.getContentId(), e.getMessage(), e);
