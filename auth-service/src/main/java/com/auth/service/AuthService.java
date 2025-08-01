@@ -29,6 +29,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * 인증 서비스 클래스
+ *
+ * 사용자 회원가입, 로그인, 토큰 갱신 등의 인증 관련 비즈니스 로직을 처리합니다.
+ */
 @Service
 @Slf4j
 public class AuthService {
@@ -50,8 +55,7 @@ public class AuthService {
             JwtUtil jwtUtil,
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            JwtProperties jwtProperties
-    ) {
+            JwtProperties jwtProperties) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
@@ -60,6 +64,13 @@ public class AuthService {
         this.refreshTokenExpiry = jwtProperties.getRefreshTokenExpiry();
     }
 
+    /**
+     * 사용자명과 이메일 중복을 확인하고, 비밀번호를 암호화하여 새 사용자를 생성합니다.
+     * 
+     * @param request 회원가입 요청 정보
+     * @return 회원가입 성공 응답
+     * @throws CustomSignupException 사용자명 또는 이메일이 이미 존재하는 경우
+     */
     @Transactional
     public SignupResponse signup(SignupRequest request) {
         if (userRepository.existsByUsername(request.username())) {
@@ -84,12 +95,21 @@ public class AuthService {
         return new SignupResponse(username, email);
     }
 
+    /**
+     * 사용자 인증을 수행하고 성공 시 액세스 토큰과 리프레시 토큰을 발급합니다.
+     * 
+     * @param response     HTTP 응답 객체
+     * @param loginRequest 로그인 요청 정보
+     * @return 로그인 성공 응답 (토큰 및 사용자 정보 포함)
+     * @throws CustomLoginException 인증 실패 시
+     */
     public LoginResponse login(HttpServletResponse response, LoginRequest loginRequest) {
         String username = loginRequest.username();
         String password = loginRequest.password();
         Authentication authentication = UsernamePasswordAuthenticationToken.unauthenticated(username, password);
         try {
-            authentication = authenticationManager.authenticate(authentication); // CustomUserDetailsService.loadUserByUsername() 실행함
+            // CustomUserDetailsService.loadUserByUsername() 실행함
+            authentication = authenticationManager.authenticate(authentication);
         } catch (AuthenticationException e) {
             log.warn("Authentication failed for user {}: ", loginRequest.username(), e);
             throw new CustomLoginException(HttpStatus.UNAUTHORIZED, "username or password is incorrect");
@@ -105,17 +125,23 @@ public class AuthService {
                 refreshToken,
                 accessTokenExpiry,
                 refreshTokenExpiry,
-                new UserResponse(userId, username, userRole)
-        );
+                new UserResponse(userId, username, userRole));
     }
 
+    /**
+     * 리프레시 토큰을 검증하고 새로운 액세스 토큰을 발급합니다.
+     * 
+     * @param refreshToken 리프레시 토큰
+     * @return 새로운 액세스 토큰과 사용자 정보
+     * @throws CustomJwtException 리프레시 토큰이 없거나 유효하지 않은 경우
+     */
     public RefreshTokenResponse refreshAccessToken(String refreshToken) {
         if (refreshToken == null) {
             log.warn("No refreshToken");
             throw new CustomJwtException(HttpStatus.UNAUTHORIZED, "NO_REFRESH_TOKEN");
         }
 
-        Jws<Claims> jwsClaims  = jwtUtil.readJwt(refreshToken);
+        Jws<Claims> jwsClaims = jwtUtil.readJwt(refreshToken);
         Claims claims = jwsClaims.getPayload();
 
         Long userId = Long.valueOf(claims.getSubject());

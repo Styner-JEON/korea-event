@@ -25,7 +25,6 @@ api:
 #    root: debug
 
 jwt:
-  # AHomeRunAHomeRunAHomeRunAHomeRun를 base64로 인코딩한 값
   secret-string: ${SECRET_STRING}
   access-token-expiry: 3600000      # 1000 * 60 * 60= 60분
   refresh-token-expiry: 1209600000  # 1000 * 60 * 60 * 24 * 14 = 14일
@@ -34,5 +33,5 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*"
-#        include: health, info
+#        include: "*"
+        include: health, info

@@ -1,0 +1,231 @@
+package com.event.service;
+
+import com.event.exception.CustomCommentException;
+import com.event.mapper.CommentMapper;
+import com.event.model.entity.CommentEntity;
+import com.event.model.request.CommentInsertRequest;
+import com.event.model.request.CommentUpdateRequest;
+import com.event.model.response.CommentListResponse;
+import com.event.model.response.CommentResponse;
+import com.event.repository.CommentRepository;
+import com.event.security.CustomPrincipal;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
+
+import java.time.LocalDateTime;
+import java.util.*;
+
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.BDDMockito.*;
+
+@ExtendWith(MockitoExtension.class)
+@DisplayName("CommentService 단위 테스트")
+class CommentServiceTest {
+
+    @InjectMocks
+    private CommentService commentService;
+
+    @Mock
+    private CommentRepository commentRepository;
+
+    @Mock
+    private CommentMapper commentMapper;
+
+    private final CustomPrincipal customPrincipal = new CustomPrincipal(1L, "tester");
+
+    @Nested
+    @DisplayName("getCommentListByContentId")
+    class GetCommentListTest {
+        @Test
+        @DisplayName("댓글 목록 정상 조회 - 2개 반환")
+        void givenTwoComments_whenGetComments_thenReturnsCommentListWithTwo() {
+            // Given
+            Long contentId = 1L;
+            Pageable pageable = PageRequest.of(0, 10);
+
+            CommentEntity commentEntity = createCommentEntity(1L, contentId, 1L, "tester1");
+            CommentEntity commentEntity2 = createCommentEntity(2L, contentId, 2L, "tester2");
+            Slice<CommentEntity> commentEntitySlice = new SliceImpl<>(List.of(commentEntity, commentEntity2), pageable, false);
+
+            CommentListResponse commentListResponse = new CommentListResponse(1L, contentId, 1L, "tester1", "내용1", LocalDateTime.now(), LocalDateTime.now());
+            CommentListResponse commentListResponse2 = new CommentListResponse(2L, contentId, 2L, "tester2", "내용2", LocalDateTime.now(), LocalDateTime.now());
+
+            given(commentRepository.findByContentId(contentId, pageable)).willReturn(commentEntitySlice);
+            given(commentMapper.toCommentListResponse(commentEntity)).willReturn(commentListResponse);
+            given(commentMapper.toCommentListResponse(commentEntity2)).willReturn(commentListResponse2);
+
+            // When
+            Slice<CommentListResponse> commentListResponseSlice = commentService.getCommentsByContentId(contentId, pageable);
+
+            // Then
+            assertThat(commentListResponseSlice).hasSize(2);
+            assertThat(commentListResponseSlice.getContent().get(0).commentId()).isEqualTo(1L);
+            assertThat(commentListResponseSlice.getContent().get(1).commentId()).isEqualTo(2L);
+
+            then(commentRepository).should().findByContentId(contentId, pageable);
+            then(commentMapper).should().toCommentListResponse(commentEntity);
+            then(commentMapper).should().toCommentListResponse(commentEntity2);
+        }
+    }
+
+    @Nested
+    @DisplayName("insertComment")
+    class InsertCommentTest {
+        @Test
+        @DisplayName("댓글 정상 등록")
+        void givenValidRequest_whenInsertComment_thenReturnsResponse() {
+            // Given
+            CommentInsertRequest commentInsertRequest = new CommentInsertRequest("좋은 글입니다.");
+            CommentEntity commentEntity = createCommentEntity(100L, 1L, 1L, "tester");
+            CommentResponse commentResponse = new CommentResponse(100L, 1L, 1L, "tester");
+
+            given(commentRepository.save(any())).willReturn(commentEntity);
+            given(commentMapper.toCommentResponse(commentEntity)).willReturn(commentResponse);
+
+            // When
+            CommentResponse result = commentService.insertComment(1L, commentInsertRequest, customPrincipal);
+
+            // Then
+            assertThat(result.commentId()).isEqualTo(100L);
+            assertThat(result.username()).isEqualTo("tester");
+
+            then(commentRepository).should().save(any());
+            then(commentMapper).should().toCommentResponse(commentEntity);
+        }
+    }
+
+    @Nested
+    @DisplayName("deleteComment")
+    class DeleteCommentTest {
+        @Test
+        @DisplayName("댓글 정상 삭제")
+        void givenAuthorUser_whenDeleteComment_thenSuccess() {
+            // Given
+            CommentEntity commentEntity = createCommentEntity(1L, 10L, 1L, "tester");
+
+            given(commentRepository.findById(1L)).willReturn(Optional.of(commentEntity));
+            willDoNothing().given(commentRepository).delete(commentEntity);
+            given(commentMapper.toCommentResponse(commentEntity)).willReturn(new CommentResponse(1L, 10L, 1L, "tester"));
+
+            // When
+            CommentResponse commentResponse = commentService.deleteComment(1L, customPrincipal);
+
+            // Then
+            assertThat(commentResponse.commentId()).isEqualTo(1L);
+
+            then(commentRepository).should().findById(1L);
+            then(commentRepository).should().delete(commentEntity);
+            then(commentMapper).should().toCommentResponse(commentEntity);
+        }
+
+        @Test
+        @DisplayName("댓글 작성자가 아닌 자가 댓글 삭제 시도")
+        void givenOtherUser_whenDeleteComment_thenThrowsException() {
+            // Given
+            CommentEntity commentEntity = createCommentEntity(1L, 10L, 999L, "notOwner");
+
+            given(commentRepository.findById(1L)).willReturn(Optional.of(commentEntity));
+
+            // When & Then
+            assertThatThrownBy(() -> commentService.deleteComment(1L, customPrincipal)).isInstanceOf(CustomCommentException.class);
+
+            then(commentRepository).should().findById(1L);
+            then(commentRepository).should(never()).delete(any());
+        }
+
+        @Test
+        @DisplayName("없는 댓글을 삭제 시도")
+        void givenInvalidId_whenDeleteComment_thenThrowsException() {
+            // Given
+            Long invalidCommentId = 999L;
+            given(commentRepository.findById(invalidCommentId)).willReturn(Optional.empty());
+
+            // When & Then
+            assertThatThrownBy(() -> commentService.deleteComment(invalidCommentId, customPrincipal)).isInstanceOf(CustomCommentException.class);
+
+            then(commentRepository).should().findById(invalidCommentId);
+            then(commentRepository).should(never()).delete(any());
+        }
+    }
+
+    @Nested
+    @DisplayName("updateComment")
+    class UpdateCommentTest {
+        @Test
+        @DisplayName("댓글 정상 수정")
+        void givenAuthorUser_whenUpdateComment_thenSuccess() {
+            // Given
+            CommentEntity commentEntity = createCommentEntity(1L, 10L, 1L, "tester");
+            CommentUpdateRequest commentUpdateRequest = new CommentUpdateRequest("수정된 댓글입니다.");
+
+            given(commentRepository.findById(1L)).willReturn(Optional.of(commentEntity));
+            given(commentRepository.save(any())).willReturn(commentEntity);
+            given(commentMapper.toCommentResponse(commentEntity)).willReturn(new CommentResponse(1L, 10L, 1L, "tester"));
+
+            // When
+            CommentResponse commentResponse = commentService.updateComment(1L, commentUpdateRequest, customPrincipal);
+
+            // Then
+            assertThat(commentResponse.contentId()).isEqualTo(10L);
+            assertThat(commentEntity.getContent()).isEqualTo("수정된 댓글입니다.");
+            assertThat(commentEntity.getUpdatedAt()).isNotNull();
+
+            then(commentRepository).should().findById(1L);
+            then(commentRepository).should().save(commentEntity);
+            then(commentMapper).should().toCommentResponse(commentEntity);
+        }
+
+        @Test
+        @DisplayName("댓글 작성자가 아닌 자가 댓글 수정 시도")
+        void givenOtherUser_whenUpdateComment_thenThrowsException() {
+            // Given
+            CommentEntity commentEntity = createCommentEntity(1L, 10L, 999L, "notOwner");
+            CommentUpdateRequest commentUpdateRequest = new CommentUpdateRequest("해킹 시도");
+
+            given(commentRepository.findById(1L)).willReturn(Optional.of(commentEntity));
+
+            // When & Then
+            assertThatThrownBy(() -> commentService.updateComment(1L, commentUpdateRequest, customPrincipal))
+                    .isInstanceOf(CustomCommentException.class);
+
+            then(commentRepository).should().findById(1L);
+            then(commentRepository).should(never()).save(any());
+        }
+
+        @Test
+        @DisplayName("없는 댓글을 수정 시도")
+        void givenInvalidId_whenUpdateComment_thenThrowsException() {
+            // Given
+            Long invalidCommentId = 999L;
+            CommentUpdateRequest commentUpdateRequest = new CommentUpdateRequest("없는 댓글 수정");
+
+            given(commentRepository.findById(invalidCommentId)).willReturn(Optional.empty());
+
+            // When & Then
+            assertThatThrownBy(() -> commentService.updateComment(invalidCommentId, commentUpdateRequest, customPrincipal))
+                    .isInstanceOf(CustomCommentException.class);
+
+            then(commentRepository).should().findById(invalidCommentId);
+            then(commentRepository).should(never()).save(any());
+        }
+    }
+
+    private CommentEntity createCommentEntity(Long commentId, Long contentId, Long userId, String username) {
+        CommentEntity commentEntity = new CommentEntity();
+        commentEntity.setCommentId(commentId);
+        commentEntity.setContentId(contentId);
+        commentEntity.setUserId(userId);
+        commentEntity.setUsername(username);
+        commentEntity.setContent("샘플 댓글");
+        commentEntity.setCreatedAt(LocalDateTime.now());
+        commentEntity.setUpdatedAt(LocalDateTime.now());
+        return commentEntity;
+    }
+
+}

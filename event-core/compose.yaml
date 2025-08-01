@@ -12,6 +12,16 @@ services:
       - event_network
     volumes:
       - /Users/styner/0main/docker-volumes/event-core/postgresql/data:/var/lib/postgresql/data
+  event-redis-service:
+    image: redis:7.0-alpine
+    container_name: event-redis-container
+    ports:
+      - "16379:6379"
+    networks:
+      - event_network
+    volumes:
+      - /Users/styner/0main/docker-volumes/event-core/redis/data:/data
+    command: redis-server --appendonly yes # Redis가 AOF 모드로 동작
 
 networks:
   event_network:

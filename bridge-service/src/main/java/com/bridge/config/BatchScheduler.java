@@ -40,7 +40,7 @@ public class BatchScheduler {
      * 
      * @throws CustomBatchException 배치 작업 실행 실패 시 발생하는 커스텀 예외
      */
-    @Scheduled(cron = "0 57 * * * ?")
+    @Scheduled(cron = "0 35 * * * ?")
 //    @Scheduled(cron = "0 0 4 * * ?")
     public void scheduleEventFetchingAndSendingJob() {
         ZonedDateTime nowKST = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
