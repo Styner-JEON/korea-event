@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: event-core-service
+  namespace: event
+  labels:
+    app.kubernetes.io/name: event-core
+    app.kubernetes.io/part-of: event
+  annotations:
+    alb.ingress.kubernetes.io/healthcheck-path: /events/actuator/health/readiness
+    alb.ingress.kubernetes.io/healthcheck-port: traffic-port
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: event-core
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080

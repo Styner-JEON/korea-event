@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.5.0'
 	id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.google.cloud.tools.jib' version '3.4.5'
 }
 
 group = 'com.bridge'
@@ -39,6 +40,7 @@ dependencies {
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 //	developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
 	runtimeOnly 'org.postgresql:postgresql'
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -52,4 +54,16 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+jib {
+    from {
+        image = 'eclipse-temurin:21-jre-noble'
+    }
+    to {
+        image = '235704034905.dkr.ecr.ap-northeast-2.amazonaws.com/bridge-service'
+        tags = ['0.0.1']
+    }
+    container {
+    }
 }

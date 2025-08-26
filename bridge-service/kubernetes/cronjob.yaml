@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: bridge-service-batch
+  namespace: event
+spec:
+#  schedule: "0 4 * * *"
+  schedule: "0,10,20,30,40,50 * * * *"
+  timeZone: "Asia/Seoul"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  startingDeadlineSeconds: 300 # 60 * 5 = 5분
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          containers:
+          - name: bridge-service
+            image: 235704034905.dkr.ecr.ap-northeast-2.amazonaws.com/bridge-service:0.0.1
+            imagePullPolicy: Always
+            args:
+            - --spring.task.scheduling.enabled=false
+            - --spring.main.web-application-type=none
+            envFrom:
+              - configMapRef:
+                  name: bridge-service-config
+              - secretRef:
+                  name: bridge-service-secret
+          restartPolicy: OnFailure

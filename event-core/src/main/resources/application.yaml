@@ -1,0 +1,75 @@
+spring:
+  application:
+    name: event-core
+  datasource:
+    url: jdbc:postgresql://localhost:15432/${POSTGRES_DB}
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    properties:
+      hibernate:
+        #        format_sql: true
+        #        show_sql: true
+        show_sql: false
+    hibernate:
+      ddl-auto: update
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+  data:
+    redis:
+      host: localhost # Redis 호스트 (도커로 띄웠으니 localhost)
+      port: 6379
+      timeout: 5 # 5초
+      database: 0
+  cache:
+    type: redis
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.event.model.dto" # 역직렬화할 객체의 패키지 지정
+        spring.json.value.default.type: "com.event.model.dto.EventDto" # 역직렬화할 객체의 타입 지정
+        reconnect.backoff.ms: 1000 # 1000 * 1  = 1초 (기본값 50)
+        reconnect.backoff.max.ms: 5000 # 1000 * 5 = 5초 (기본값 1000)
+      group-id: event-consumer-group
+      auto-offset-reset: earliest # 오프셋 정보 없으면 가장 처음 메시지부터 읽음
+#      auto-startup: false
+      auto-startup: true # 앱 실행 시 카프카 컨슈머 자동시작
+    topic: event-topic
+  #    listener:
+  #      ack-mode: manual
+
+server:
+  port: 18080
+
+api:
+  version: v1
+
+comment-url:
+  insert: /events/v1/{contentId}/comments
+  delete: /events/v1/{contentId}/comments/{commentId}
+  update: /events/v1/{contentId}/comments/{commentId}
+
+#logging:
+#  level:
+#    root: debug
+
+jwt:
+  secret-string: ${SECRET_STRING}
+
+cors:
+  allowed-origins: "http://localhost:3000"
+
+redis:
+  time-to-live: 600 # 60 * 10 = 10분
+
+management:
+  endpoints:
+    web:
+      base-path: /events/actuator
+      exposure:
+        include: "*"

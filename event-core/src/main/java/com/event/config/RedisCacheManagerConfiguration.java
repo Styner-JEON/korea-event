@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,6 +36,9 @@ public class RedisCacheManagerConfiguration {
 
     private final ObjectMapper objectMapper;
 
+    @Value("${redis.time-to-live}")
+    private long ttlSeconds;
+
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         // CommentAnalysisResponse 전용 직렬화기 생성
@@ -50,8 +54,9 @@ public class RedisCacheManagerConfiguration {
                 .serializeValuesWith(
                         // 값은 JSON으로 직렬화
                         RedisSerializationContext.SerializationPair
-                                .fromSerializer(commentAnalysisResponseSerializer));
-
+                                .fromSerializer(commentAnalysisResponseSerializer))
+                // 캐시 유효기간
+                .entryTtl(Duration.ofSeconds(ttlSeconds));
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(cacheConfiguration)
                 .build();

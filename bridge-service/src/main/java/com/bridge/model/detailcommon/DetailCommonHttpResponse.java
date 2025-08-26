@@ -1,6 +1,5 @@
 package com.bridge.model.detailcommon;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
