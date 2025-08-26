@@ -13,8 +13,12 @@ export default function EventsPage(props: {
 }) {
   return (    
     <div className="space-y-8">
-      <Search placeholder="검색어를 입력할 수 있습니다." />
-      <AreaSelector />
+      <Suspense fallback={<ComponentLoading />}>
+        <Search placeholder="검색어를 입력할 수 있습니다." />
+      </Suspense>
+      <Suspense fallback={<ComponentLoading />}>
+        <AreaSelector />
+      </Suspense>
       <Suspense fallback={<ComponentLoading />}>
         <Main searchParams={props.searchParams} />    
       </Suspense>

@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service-service
+  namespace: event
+  labels:
+    app.kubernetes.io/name: auth-service
+    app.kubernetes.io/part-of: event
+  annotations:
+    alb.ingress.kubernetes.io/healthcheck-path: /auth/actuator/health/readiness
+    alb.ingress.kubernetes.io/healthcheck-port: traffic-port
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: auth-service
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080

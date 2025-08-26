@@ -29,7 +29,7 @@ public class SecurityConfig {
         http
             .csrf((csrf) -> csrf.disable())
             .authorizeHttpRequests((authorize) -> authorize
-                    .requestMatchers("/actuator/**").permitAll()
+                    .requestMatchers("/auth/actuator/**").permitAll()
                     .requestMatchers("/favicon.ico").permitAll()
                     .requestMatchers(HttpMethod.POST, "/auth/" + apiVersion + "/login").permitAll()
                     .requestMatchers(HttpMethod.POST, "/auth/" + apiVersion + "/signup").permitAll()

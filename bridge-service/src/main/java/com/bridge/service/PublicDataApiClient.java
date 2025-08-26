@@ -155,11 +155,11 @@ public class PublicDataApiClient {
             }
 
             // 응답을 AreaBasedListHttpResponse 타입으로 변환
-            AreaBasedListHttpResponse areaBasedListHttpResponse =
-                    parseJsonNode(rootJsonNode, AreaBasedListHttpResponse.class);
+            AreaBasedListHttpResponse areaBasedListHttpResponse = parseJsonNode(rootJsonNode,
+                    AreaBasedListHttpResponse.class);
 
-            List<AreaBasedListItem> areaBasedListItemList =
-                    areaBasedListHttpResponse.getResponse().getBody().getItems().getAreaBasedListItemList();
+            List<AreaBasedListItem> areaBasedListItemList = areaBasedListHttpResponse.getResponse().getBody().getItems()
+                    .getAreaBasedListItemList();
 
             // 각 이벤트 아이템을 EventDto로 변환하여 리스트에 추가
             areaBasedListItemList.forEach(areaBasedListItem -> {
@@ -202,10 +202,10 @@ public class PublicDataApiClient {
         if (isJson(response)) {
             log.debug("DetailCommon Parsing JSON");
             JsonNode rootJsonNode = toJsonNode(apiName, result);
-            DetailCommonHttpResponse detailCommonHttpResponse =
-                    parseJsonNode(rootJsonNode, DetailCommonHttpResponse.class);
-            DetailCommonItem detailCommonItem =
-                    detailCommonHttpResponse.getResponse().getBody().getItems().getDetailCommonItemList().getFirst();
+            DetailCommonHttpResponse detailCommonHttpResponse = parseJsonNode(rootJsonNode,
+                    DetailCommonHttpResponse.class);
+            DetailCommonItem detailCommonItem = detailCommonHttpResponse.getResponse().getBody().getItems()
+                    .getDetailCommonItemList().getFirst();
             setEventDto(eventDto, detailCommonItem);
         } else {
             processErrorResponse(apiName, response, result);
@@ -257,7 +257,8 @@ public class PublicDataApiClient {
                 .queryParam("MobileApp", "event")
                 .queryParam("MobileOS", "ETC")
                 .queryParam("_type", "json")
-                .queryParam("listYN", "Y")
+                // 아래 요소는 '한국관광공사_TourAPI활용매뉴얼(국문)_v4.3'부터 사라짐
+                // .queryParam("listYN", "Y")
                 .queryParam("arrange", "Q")
                 .queryParam("contentTypeId", "15")
                 .queryParam("numOfRows", String.valueOf(numOfRows))
@@ -282,14 +283,15 @@ public class PublicDataApiClient {
                 .queryParam("MobileApp", "event")
                 .queryParam("MobileOS", "ETC")
                 .queryParam("_type", "json")
-                .queryParam("contentTypeId", "15")
-                .queryParam("defaultYN", "Y")
-                .queryParam("firstImageYN", "N")
-                .queryParam("areacodeYN", "N")
-                .queryParam("catcodeYN", "N")
-                .queryParam("addrinfoYN", "N")
-                .queryParam("mapinfoYN", "Y")
-                .queryParam("overviewYN", "Y")
+                // 아래 요소들은 '한국관광공사_TourAPI활용매뉴얼(국문)_v4.3'부터 삭제됨
+                // .queryParam("contentTypeId", "15")
+                // .queryParam("defaultYN", "Y")
+                // .queryParam("firstImageYN", "N")
+                // .queryParam("areacodeYN", "N")
+                // .queryParam("catcodeYN", "N")
+                // .queryParam("addrinfoYN", "N")
+                // .queryParam("mapinfoYN", "Y")
+                // .queryParam("overviewYN", "Y")
                 .queryParam("contentId", contentId)
                 .build(true)
                 .toUri();
@@ -462,8 +464,7 @@ public class PublicDataApiClient {
             log.error("Error parsing JSON response from {}: {}", apiName, e.getMessage(), e);
             throw new CustomPublicDataApiException(
                     HttpStatus.BAD_GATEWAY,
-                    "Error parsing JSON response from " + apiName + ": " + e.getMessage()
-            );
+                    "Error parsing JSON response from " + apiName + ": " + e.getMessage());
         }
     }
 

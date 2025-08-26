@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: event-core-prod
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  devtools:
+    add-properties: false
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+  data:
+    redis:
+      host: my-redis-master.redis.svc.cluster.local
+  kafka:
+    bootstrap-servers: my-kafka.kafka.svc.cluster.local:9092
+
+server:
+  port: 8080
+  forward-headers-strategy: framework
+  shutdown: graceful
+
+jwt:
+  secret-string: ${SECRET_STRING}
+
+cors:
+  allowed-origins: "http://localhost:3000"
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
