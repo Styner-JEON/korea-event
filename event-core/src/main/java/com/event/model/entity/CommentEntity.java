@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "comment_table")
@@ -22,9 +22,13 @@ public class CommentEntity {
     private Long contentId;
 
     private Long userId;
+
     private String username;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private Instant createdAt;
+
+    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private Instant updatedAt;
 
 }

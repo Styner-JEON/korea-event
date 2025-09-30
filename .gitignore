@@ -41,9 +41,9 @@ out/
 **/.env
 
 ### Next.js ###
-node_modules/
-.next/
-.history/
+**/.history/
+**/.next/
+**/node_modules/
 
 ### TEST ###
 **/application-test.yml

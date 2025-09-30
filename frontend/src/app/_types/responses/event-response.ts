@@ -23,7 +23,3 @@ export interface EventResponse {
   sponsor2Tel: string;
   dbUpdatedAt: string;
 }
-
-export interface ErrorResponse { 
-  message: string;
-};

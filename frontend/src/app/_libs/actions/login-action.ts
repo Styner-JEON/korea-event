@@ -3,7 +3,8 @@
 import { redirect } from "next/navigation";
 import { createSession } from "../session";
 import { LoginFormSchema, LoginFormState } from "./definitions/login-form-definition";
-import { ErrorResponse, LoginResponse } from "../../_types/responses/login-response";
+import { LoginResponse } from "../../_types/responses/login-response";
+import { ErrorResponse } from "../../_types/responses/error-response";
 
 // export const dynamic = 'force-dynamic';
 
@@ -33,8 +34,7 @@ export async function loginAction(state: LoginFormState, formData: FormData) {
       body: JSON.stringify({ 
         username, 
         password,
-      }),
-      cache: 'no-store',
+      }),      
     });    
   } catch (error) {
     console.error('[Network ERROR]', error);
@@ -74,7 +74,8 @@ export async function loginAction(state: LoginFormState, formData: FormData) {
     console.error('[Response Parsing ERROR]', error);
     return { message };
   }
-  console.log('[로그인 완료]', responseJson);
+  
+  console.log(`[${responseJson.user.name} 로그인 완료]`);
 
   const { accessToken, refreshToken, accessTokenExpiry, refreshTokenExpiry, user } = responseJson;
   await createSession('username', user.name, '/', accessTokenExpiry);

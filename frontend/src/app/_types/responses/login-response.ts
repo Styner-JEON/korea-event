@@ -11,7 +11,3 @@ export interface LoginResponse {
   refreshTokenExpiry: number; 
   user: UserResponse;
 }
-
-export interface ErrorResponse { 
-  message: string;
-};

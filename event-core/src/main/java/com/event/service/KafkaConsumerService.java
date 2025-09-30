@@ -27,7 +27,7 @@ public class KafkaConsumerService {
     @KafkaListener(topics = "${spring.kafka.topic}", groupId = "${spring.kafka.consumer.group-id}", autoStartup = "${spring.kafka.consumer.auto-startup}")
     public void consumeEvent(EventDto eventDto) {
         log.info("Consumed contentId: {}", eventDto.getContentId());
-        eventService.insertEvent(eventDto);
+        eventService.upsertEvent(eventDto);
     }
 
 }

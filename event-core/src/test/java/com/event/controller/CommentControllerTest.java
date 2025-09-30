@@ -2,8 +2,9 @@ package com.event.controller;
 
 import com.event.model.request.CommentInsertRequest;
 import com.event.model.request.CommentUpdateRequest;
-import com.event.model.response.CommentListResponse;
+// removed unused import
 import com.event.model.response.CommentResponse;
+import com.event.model.response.CommentScrollResponse;
 import com.event.security.CustomPrincipal;
 import com.event.security.JwtAuthenticationFilter;
 import com.event.service.CommentService;
@@ -12,7 +13,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.data.domain.*;
+// removed unused import
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,7 +21,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+// removed unused import
 import java.util.List;
 
 import static org.mockito.BDDMockito.*;
@@ -49,12 +51,10 @@ class CommentControllerTest {
 
     @BeforeEach
     void setUpSecurityContext() {
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-                new UsernamePasswordAuthenticationToken(
-                        customPrincipal,
-                        null,
-                        List.of()
-                );
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+                customPrincipal,
+                null,
+                List.of());
         SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
     }
 
@@ -67,15 +67,20 @@ class CommentControllerTest {
     @DisplayName("getCommentsByContentId")
     class GetCommentListTest {
         @Test
-        @DisplayName("댓글 목록 정상 조회 - 2개 반환")
-        void givenTwoComments_whenGetCommentList_thenReturnsTwo() throws Exception {
+        @DisplayName("댓글 Keyset 스크롤 정상 조회 - 2개 반환")
+        void givenTwoComments_whenGetCommentScroll_thenReturnsTwo() throws Exception {
             // Given
-            CommentListResponse commentListResponse = new CommentListResponse(1L, 1L, 1L, "tester1", "내용1", LocalDateTime.now(), LocalDateTime.now());
-            CommentListResponse commentListResponse2 = new CommentListResponse(2L, 1L, 2L, "tester2", "내용2", LocalDateTime.now(), LocalDateTime.now());
-            PageRequest pageRequest = PageRequest.of(0, 20);
-            Slice<CommentListResponse> commentListResponseSlice = new SliceImpl<>(List.of(commentListResponse, commentListResponse2), pageRequest, false);
+            CommentResponse commentResponse = new CommentResponse(
+                    1L, "내용1", 1L, 1L, "tester1", Instant.now(), Instant.now()
+            );
+            CommentResponse commentResponse2 = new CommentResponse(
+                    2L, "내용2", 1L, 2L, "tester2", Instant.now(), Instant.now()
+            );
+            CommentScrollResponse scroll = new com.event.model.response.CommentScrollResponse(
+                    List.of(commentResponse, commentResponse2), null
+            );
 
-            given(commentService.getCommentsByContentId(eq(1L), any())).willReturn(commentListResponseSlice);
+            given(commentService.getCommentScrollByContentId(eq(1L), any())).willReturn(scroll);
 
             // When
             ResultActions resultActions = mockMvc.perform(get("/events/v1/1/comments").contentType(MediaType.APPLICATION_JSON));
@@ -83,11 +88,11 @@ class CommentControllerTest {
             // Then
             resultActions.andDo(print())
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.content.length()").value(2))
-                    .andExpect(jsonPath("$.content[0].commentId").value(1L))
-                    .andExpect(jsonPath("$.content[1].commentId").value(2L));
+                    .andExpect(jsonPath("$.commentResponseList.length()").value(2))
+                    .andExpect(jsonPath("$.commentResponseList[0].commentId").value(1L))
+                    .andExpect(jsonPath("$.commentResponseList[1].commentId").value(2L));
 
-            then(commentService).should().getCommentsByContentId(eq(1L), any());
+            then(commentService).should().getCommentScrollByContentId(eq(1L), any());
         }
     }
 
@@ -99,7 +104,14 @@ class CommentControllerTest {
         void givenValidRequest_whenInsertComment_thenReturns200() throws Exception {
             // Given
             CommentInsertRequest commentInsertRequest = new CommentInsertRequest("내용입니다");
-            CommentResponse commentResponse = new CommentResponse(1L, 1L, 1L, "tester");
+            CommentResponse commentResponse = new CommentResponse(
+                    1L,
+                    "내용입니다",
+                    1L,
+                    1L,
+                    "tester",
+                    Instant.now(),
+                    Instant.now());
 
             given(commentService.insertComment(eq(1L), any(), any())).willReturn(commentResponse);
 
@@ -143,7 +155,14 @@ class CommentControllerTest {
         @DisplayName("정상적인 댓글 삭제")
         void givenAuthor_whenDeleteComment_thenReturns200() throws Exception {
             // Given
-            CommentResponse commentResponse = new CommentResponse(1L, 1L, 1L, "tester");
+            CommentResponse commentResponse = new CommentResponse(
+                    1L,
+                    "삭제된 댓글",
+                    1L,
+                    1L,
+                    "tester",
+                    Instant.now(),
+                    Instant.now());
 
             given(commentService.deleteComment(eq(1L), any())).willReturn(commentResponse);
 
@@ -167,7 +186,14 @@ class CommentControllerTest {
         void givenValidRequest_whenUpdateComment_thenReturns200() throws Exception {
             // Given
             CommentUpdateRequest commentUpdateRequest = new CommentUpdateRequest("수정 내용");
-            CommentResponse commentResponse = new CommentResponse(1L, 1L, 1L, "tester");
+            CommentResponse commentResponse = new CommentResponse(
+                    1L,
+                    "수정 내용",
+                    1L,
+                    1L,
+                    "tester",
+                    Instant.now(),
+                    Instant.now());
 
             given(commentService.updateComment(eq(1L), any(), any())).willReturn(commentResponse);
 
@@ -200,7 +226,6 @@ class CommentControllerTest {
 
             then(commentService).shouldHaveNoInteractions();
         }
-
     }
 
 }

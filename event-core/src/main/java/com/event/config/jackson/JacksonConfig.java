@@ -14,8 +14,7 @@ import java.time.LocalDateTime;
 /**
  * Jackson 직렬화/역직렬화 설정 클래스
  * 
- * 이 클래스는 Spring Boot 애플리케이션에서 JSON 직렬화/역직렬화를 담당하는
- * Jackson ObjectMapper의 전역 설정을 정의합니다.
+ * 이 클래스는 Spring Boot 애플리케이션에서 JSON 직렬화/역직렬화를 담당하는 Jackson ObjectMapper의 전역 설정을 정의합니다.
  * 
  * 주요 기능:
  * - Java 8 시간 API (LocalDate, LocalDateTime) 처리

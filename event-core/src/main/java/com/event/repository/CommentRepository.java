@@ -1,20 +1,28 @@
 package com.event.repository;
 
 import com.event.model.entity.CommentEntity;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
 public interface CommentRepository extends JpaRepository<CommentEntity, Long> {
 
-    Slice<CommentEntity> findByContentId(Long contentId, Pageable pageable);
+    int countByContentId(Long contentId);
+
+    Page<CommentEntity> findPageByContentId(Long contentId, Pageable pageable);
+
+    Slice<CommentEntity> findSliceByContentId(Long contentId, Pageable pageable);
 
     List<CommentEntity> findAllByContentId(Long contentId);
 
-    int countByContentId(Long contentId);
+    List<CommentEntity> findByContentIdOrderByUpdatedAtDesc(Long contentId, Pageable pageable);
 
-    List<CommentEntity> findTop10ByContentIdOrderByUpdatedAtDesc(Long contentId);
+    Window<CommentEntity> findScrollByContentId(
+            Long contentId,
+            Sort sort,
+            Limit limit,
+            KeysetScrollPosition keysetScrollPosition
+    );
 
 }

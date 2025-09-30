@@ -1,4 +1,5 @@
-import { ErrorResponse, EventListResponse } from "../../_types/responses/event-list-response";
+import { EventListResponse } from "../../_types/responses/event-list-response";
+import { ErrorResponse } from "../../_types/responses/error-response";
 
 export async function fetchEventList(pageNumber: number, query: string, area?: string): Promise<{
   eventListResponse?: EventListResponse;

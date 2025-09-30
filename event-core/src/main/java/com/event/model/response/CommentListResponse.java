@@ -1,6 +1,6 @@
 package com.event.model.response;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public record CommentListResponse(
         Long commentId,
@@ -8,7 +8,7 @@ public record CommentListResponse(
         Long userId,
         String username,
         String content,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        Instant createdAt,
+        Instant updatedAt
 ) {
 }

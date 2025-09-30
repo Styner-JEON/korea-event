@@ -1,7 +1,8 @@
 import { createSession } from "@/app/_libs/session";
-import { ErrorResponse, RefreshAccessTokenResponse } from "@/app/_types/responses/refresh-access-token-response";
+import { RefreshAccessTokenResponse } from "@/app/_types/responses/refresh-access-token-response";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { ErrorResponse } from "@/app/_types/responses/error-response";
 
 export async function GET(request: NextRequest) {
   const cookieStore = await cookies();
@@ -57,7 +58,7 @@ export async function GET(request: NextRequest) {
   await createSession('username', user.name, '/', accessTokenExpiry);
   await createSession('access-token', accessToken, '/', accessTokenExpiry);  
 
-  console.log('[토큰 갱신 완료]', responseJson);
+  console.log('[토큰 갱신 완료]');
   return redirectToHome(request);
 }
 

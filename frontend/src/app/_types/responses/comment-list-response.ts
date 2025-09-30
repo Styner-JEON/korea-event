@@ -1,12 +1,12 @@
 export interface CommentListResponse {
   content: Comment[];
-  pageable: Pageable;
-  last: boolean;
-  totalPages: number;
-  totalElements: number;
+  pageable: Pageable;  
   first: boolean;
+  last: boolean;
   size: number;
   number: number;
+  // totalPages: number;
+  // totalElements: number; 
   sort: Sort;
   numberOfElements: number;
   empty: boolean;
@@ -24,11 +24,11 @@ export interface Comment {
 
 interface Pageable {
   pageNumber: number;
-  pageSize: number;
-  sort: PageableSort;
+  pageSize: number;  
+  sort: Sort;
   offset: number;
   unpaged: boolean;
-  paged: boolean;
+  paged: boolean;  
 }
 
 interface Sort {
@@ -36,13 +36,3 @@ interface Sort {
   sorted: boolean;
   unsorted: boolean;
 }
-
-interface PageableSort {
-  empty: boolean;
-  sorted: boolean;
-  unsorted: boolean;
-}
-
-export interface ErrorResponse { 
-  message: string;
-};

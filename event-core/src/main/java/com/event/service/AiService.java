@@ -10,6 +10,8 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +35,9 @@ public class AiService {
 
     private final ObjectMapper objectMapper;
 
+    @Value("${size.ai-comment}")
+    private int requiredCommentCount;
+
     public AiService(
             ChatClient.Builder chatClientBuilder,
             CommentRepository commentRepository,
@@ -43,8 +48,8 @@ public class AiService {
     }
 
     /**
-     * 최소 10개 이상의 댓글이 있을 때만 분석을 수행하며,
-     * 최신 10개 댓글을 기준으로 요약, 키워드 추출, 감정 분석을 진행합니다.
+     * 최소 특정한 개수 이상의 댓글이 있을 때만 분석을 수행하며,
+     * 최신 특정한 개수의 댓글을 기준으로 요약, 키워드 추출, 감정 분석을 진행합니다.
      * 결과는 레디스 캐쉬에 저장되어 동일한 요청에 대해 빠른 응답을 제공합니다.
      * 
      * @param contentId 분석할 이벤트의 컨텐츠 ID
@@ -54,16 +59,17 @@ public class AiService {
     @Transactional(readOnly = true)
     @Cacheable(value = "comment-analysis", key = "#contentId")
     public CommentAnalysisResponse analyzeComments(Long contentId) {
-        // 댓글 수 확인 - 최소 10개 이상이어야 분석함
+        // 댓글 수 확인
         int commentCount = commentRepository.countByContentId(contentId);
-        if (commentCount < 10) {
-            log.warn("Less than 10 comments found. contentId: {}, comment count: {}", contentId, commentCount);
+        if (commentCount < requiredCommentCount) {
+            log.warn("Not enough comments found. contentId: {}, required comment count: {}, comment count: {}", contentId, requiredCommentCount, commentCount);
             throw new CustomAiException(HttpStatus.BAD_REQUEST,
-                    "Comment analysis is available only when there are 10 or more comments.");
+                    "Comment analysis is available only when there are " + requiredCommentCount + " or more comments.");
         }
 
-        // 최신 10개 댓글 조회
-        List<CommentEntity> commentEntityList = commentRepository.findTop10ByContentIdOrderByUpdatedAtDesc(contentId);
+        // 최신 댓글들 조회
+        Pageable pageable = PageRequest.of(0, requiredCommentCount);
+        List<CommentEntity> commentEntityList = commentRepository.findByContentIdOrderByUpdatedAtDesc(contentId, pageable);
 
         // 댓글 내용만 추출하여 하나의 문자열로 결합
         String commentListContent = commentEntityList.stream()

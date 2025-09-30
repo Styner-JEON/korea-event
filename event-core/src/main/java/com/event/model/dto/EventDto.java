@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -55,9 +56,6 @@ public class EventDto {
     private String sponsor2Tel;
 
     // content-service에서만 추가
-    private LocalDateTime dbUpdatedAt;
-
-    // dto에서만 추가
-    private String imagePath;
+    private Instant dbUpsertedAt;
 
 }

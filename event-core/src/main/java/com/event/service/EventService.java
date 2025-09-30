@@ -16,7 +16,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDateTime;
+
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,31 +37,31 @@ public class EventService {
     private final EventRepository eventRepository;
 
     /**
-     * 새로운 이벤트를 데이터베이스에 저장합니다.
+     * 이벤트를 데이터베이스에 upsert 합니다.
+     * 동일한 contentId가 존재하면 UPDATE, 없으면 INSERT 됩니다.
      * 
      * @param eventDto 저장할 이벤트 정보
      */
     @Transactional
-    public void insertEvent(EventDto eventDto) {
+    public void upsertEvent(EventDto eventDto) {
         EventEntity eventEntity = eventMapper.toEventEntity(eventDto);
-        eventEntity.setDbUpdatedAt(LocalDateTime.now());
+        eventEntity.setDbUpsertedAt(Instant.now());
 
         eventRepository.save(eventEntity);
-        log.info("DB insert completed for contentId: {}", eventDto.getContentId());
+        log.info("DB upsert completed for contentId: {}", eventDto.getContentId());
     }
 
-    // @Transactional(readOnly = true)
-    // public Page<EventListResponse> selectEventList(Pageable pageable, String
-    // query) {
-    // Page<EventEntity> eventEntitiyPage;
-    // if (query == null || query.trim().isEmpty()) {
-    // eventEntitiyPage = eventRepository.findAll(pageable);
-    // } else {
-    // eventEntitiyPage = eventRepository.searchEvents(pageable, query);
-    //
-    // }
-    // return eventEntitiyPage.map(eventMapper::toEventListResponse);
-    // }
+//     @Transactional(readOnly = true)
+//     public Page<EventListResponse> selectEventList(Pageable pageable, String query) {
+//         Page<EventEntity> eventEntitiyPage;
+//         if (query == null || query.trim().isEmpty()) {
+//            eventEntitiyPage = eventRepository.findAll(pageable);
+//         } else {
+//            eventEntitiyPage = eventRepository.searchEvents(pageable, query);
+//         }
+//
+//         return eventEntitiyPage.map(eventMapper::toEventListResponse);
+//     }
 
     /**
      * 이벤트 목록을 조회합니다.

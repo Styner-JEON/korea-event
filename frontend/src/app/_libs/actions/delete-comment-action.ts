@@ -1,6 +1,8 @@
 'use server';
 
 import { checkAccessToken } from "@/app/_libs/check-access-token";
+import { CommentResponse } from "@/app/_types/responses/comment-response";
+import { ErrorResponse } from "@/app/_types/responses/error-response";
 import { revalidatePath } from "next/cache";
 
 export async function deleteCommentAction(contentId: string, commentId: number) {
@@ -21,8 +23,7 @@ export async function deleteCommentAction(contentId: string, commentId: number) 
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${accessToken}`,
-      },
-      cache: 'no-store',
+      },      
     });    
   } catch (error) {
     console.error('[Network ERROR]', error);
@@ -30,7 +31,7 @@ export async function deleteCommentAction(contentId: string, commentId: number) 
   }
 
   if (!response.ok) {
-    let errorJson;
+    let errorJson: ErrorResponse;
     try {
       errorJson = await response.json();      
     } catch (error) {
@@ -59,10 +60,16 @@ export async function deleteCommentAction(contentId: string, commentId: number) 
     return { message: detailedMessage };      
   }  
 
-  console.log('[댓글 삭제 완료]');
-  revalidatePath(`/events/${contentId}`, 'page');  
-  // redirect(`/events/${contentId}`);
+  let responseJson: CommentResponse;
+  try {
+    responseJson = await response.json();
+  } catch (error) {
+    console.error('[Response Parsing ERROR]', error);
+    return { message };
+  }
 
-  return { success: true };
+  console.log(`[댓글 ${responseJson.commentId} 삭제 완료]`);
+
+  revalidatePath(`/events/${contentId}`, 'page');
+  return { commentResponse: responseJson };
 }
-

@@ -1,9 +1,11 @@
 'use server';
 
-import { Comment, ErrorResponse } from "../../_types/responses/comment-list-response";
+import { Comment } from "../../_types/responses/comment-list-response";
 import { CommentSchema, CommentState } from "./definitions/comment-definition";
 import { checkAccessToken } from "../check-access-token";
 import { revalidatePath } from "next/cache";
+import { ErrorResponse } from "../../_types/responses/error-response";
+import { CommentResponse } from "@/app/_types/responses/comment-response";
 
 export async function updateCommentAction(comment: Comment, contentId: string, prevState: CommentState, formData: FormData) {   
   const beforeLoginMessage = '댓글을 수정하려면 로그인이 필요합니다.';
@@ -36,8 +38,7 @@ export async function updateCommentAction(comment: Comment, contentId: string, p
       },
       body: JSON.stringify({ 
         content        
-      }),
-      cache: 'no-store',
+      }),      
     });    
   } catch (error) {
     console.error('[Network ERROR]', error);
@@ -70,12 +71,18 @@ export async function updateCommentAction(comment: Comment, contentId: string, p
     console.error('[Backend ERROR]', httpStatus, errorJson.message);
     return { message: detailedMessage };      
   }  
-
-  console.log('[댓글 수정 완료]');
   
-  revalidatePath(`/events/${contentId}`, 'page');  
-  // redirect(`/events/${contentId}`);
+  let responseJson: CommentResponse;
+  try {
+    responseJson = await response.json();
+  } catch (error) {
+    console.error('[Response Parsing ERROR]', error);
+    return { message };
+  }
 
-  return { success: true };
+  console.log(`[댓글 ${responseJson.commentId} 수정 완료]`);
+
+  revalidatePath(`/events/${contentId}`, 'page');
+  return { commentResponse: responseJson };
 }
 

@@ -1,4 +1,5 @@
-import { ErrorResponse, EventResponse } from "@/app/_types/responses/event-response";
+import { EventResponse } from "@/app/_types/responses/event-response";
+import { ErrorResponse } from "../../_types/responses/error-response";
 
 export async function fetchEvent(contentId: string): Promise<{ 
   eventResponse?: EventResponse; 

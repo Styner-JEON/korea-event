@@ -16,7 +16,7 @@ export default async function Main(props: {
   const area = searchParams?.area || '';
   
   const { eventListResponse, error } = await fetchEventList(pageNumber, query, area);
-// console.log('eventListResponse', eventListResponse);
+  // console.log('eventListResponse', eventListResponse);
 
   if (error) {
     return <div className="text-red-500 p-4">{error.message}</div>;

@@ -9,6 +9,8 @@ spring:
   jpa:
     properties:
       hibernate:
+        jdbc:
+          time_zone: UTC
         #        format_sql: true
         #        show_sql: true
         show_sql: false
@@ -19,9 +21,9 @@ spring:
       api-key: ${OPENAI_API_KEY}
   data:
     redis:
-      host: localhost # Redis 호스트 (도커로 띄웠으니 localhost)
+      host: localhost
       port: 6379
-      timeout: 5 # 5초
+      timeout: 5000 # 5초
       database: 0
   cache:
     type: redis
@@ -31,9 +33,9 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
-        spring.json.trusted.packages: "com.event.model.dto" # 역직렬화할 객체의 패키지 지정
+        spring.json.trusted.packages: "com.event.model.dto"            # 역직렬화할 객체의 패키지 지정
         spring.json.value.default.type: "com.event.model.dto.EventDto" # 역직렬화할 객체의 타입 지정
-        reconnect.backoff.ms: 1000 # 1000 * 1  = 1초 (기본값 50)
+        reconnect.backoff.ms: 1000     # 1000 * 1  = 1초 (기본값 50)
         reconnect.backoff.max.ms: 5000 # 1000 * 5 = 5초 (기본값 1000)
       group-id: event-consumer-group
       auto-offset-reset: earliest # 오프셋 정보 없으면 가장 처음 메시지부터 읽음
@@ -54,9 +56,9 @@ comment-url:
   delete: /events/v1/{contentId}/comments/{commentId}
   update: /events/v1/{contentId}/comments/{commentId}
 
-#logging:
-#  level:
-#    root: debug
+logging:
+  level:
+    root: info
 
 jwt:
   secret-string: ${SECRET_STRING}
@@ -64,8 +66,21 @@ jwt:
 cors:
   allowed-origins: "http://localhost:3000"
 
+size:
+  event: 20
+  comment: 5
+  ai-comment: 10
+
+sort:
+  event:
+    direction: DESC
+    property: modifiedTime
+  comment:
+    direction: DESC
+    property: commentId
+
 redis:
-  time-to-live: 600 # 60 * 10 = 10분
+  time-to-live: 60 # 60 * 1 = 1분
 
 management:
   endpoints:

@@ -127,9 +127,15 @@ public class AreaBasedListItem {
     @JsonProperty("mapy")
     private Double mapY;
 
+    /**
+     * 맵 레벨
+     */
     @JsonProperty("mlevel")
     private Integer mLevel;
 
+    /**
+     * 시군구코드
+     */
     @JsonProperty("sigungucode")
     private Integer siGunGuCode;
 

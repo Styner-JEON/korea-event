@@ -7,6 +7,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -57,6 +58,7 @@ public class EventEntity {
     private String sponsor2;
     private String sponsor2Tel;
 
-    private LocalDateTime dbUpdatedAt;
+    @Column(columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private Instant dbUpsertedAt;
 
 }

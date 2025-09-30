@@ -22,7 +22,7 @@ export default function Search({ placeholder }: { placeholder: string }) {
       params.delete('query');
     }
     replace(`${pathname}?${params.toString()}`); // push()가 아닌 replace()로 main.tsx를 요청함
-  }, 1500); // 1.5초 딜레이
+  }, 300); // 0.3초 딜레이
 
   return (
     <div className="flex justify-center items-center h-full">

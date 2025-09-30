@@ -9,7 +9,3 @@ interface UserResponse {
   name: string;
   role: string;
 }
-
-export interface ErrorResponse { 
-  message: string;
-};

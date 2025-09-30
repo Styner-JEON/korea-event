@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import javax.crypto.SecretKey;
 import java.lang.reflect.Field;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -178,7 +179,7 @@ class EventIntegrationTest {
         eventEntity.setModifiedTime(LocalDateTime.now());
         eventEntity.setEventStartDate(LocalDate.now());
         eventEntity.setEventEndDate(LocalDate.now().plusDays(1));
-        eventEntity.setDbUpdatedAt(LocalDateTime.now());
+        eventEntity.setDbUpsertedAt(Instant.now());
         return eventEntity;
     }
 

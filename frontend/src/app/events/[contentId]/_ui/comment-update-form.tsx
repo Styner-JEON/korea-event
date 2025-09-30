@@ -5,16 +5,45 @@ import TextareaAutosize from "react-textarea-autosize";
 import { Comment } from "../../../_types/responses/comment-list-response";
 import { updateCommentAction } from "../../../_libs/actions/update-comment-action";
 import { useEffect } from "react";
+import { CommentScrollResponse } from "@/app/_types/responses/comment-scroll-response";
+import { SWRInfiniteResponse } from "swr/infinite";
 
-export default function CommentUpdateForm({ comment, contentId, onCancel }: { comment: Comment, contentId: string, onCancel: () => void }) {
+export default function CommentUpdateForm({ comment, contentId, onCancel, commentMutate }: { 
+  comment: Comment;
+  contentId: string; 
+  onCancel: () => void;
+  commentMutate: SWRInfiniteResponse<CommentScrollResponse>["mutate"];
+}) {
   const bindedUpdateComment = updateCommentAction.bind(null, comment, contentId);
   const [state, action, pending] = useActionState(bindedUpdateComment, undefined);  
-  
+
+  const commentResponse = state?.commentResponse;
+
   useEffect(() => {
-    if (state?.success) {
+    if (commentResponse) {
       onCancel();
-    }
-  }, [state, onCancel]);
+      
+      commentMutate(
+        (commentScrollResponseList) => {
+          if (!commentScrollResponseList) {
+            return commentScrollResponseList;
+          }
+
+          return commentScrollResponseList.map((commentScrollResponse: CommentScrollResponse) => ({
+            ...commentScrollResponse,
+            commentResponseList: commentScrollResponse.commentResponseList.map((existingComment) =>
+              existingComment.commentId === comment.commentId
+                ? { ...existingComment, ...commentResponse }
+                : existingComment
+            )
+          }));
+        },
+        {
+          revalidate: false
+        }
+      );
+    }   
+  }, [commentResponse, onCancel, commentMutate, comment.commentId]);
   
   return (   
     <form action={action} className="border border-gray-400 rounded-md w-120">      

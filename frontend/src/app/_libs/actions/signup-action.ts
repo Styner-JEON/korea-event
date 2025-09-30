@@ -2,7 +2,8 @@
 
 import { SignupFormSchema, SignupFormState } from "./definitions/signup-form-definition";
 import { redirect } from "next/navigation";
-import { ErrorResponse, SignupResponse } from "../../_types/responses/signup-response";
+import { SignupResponse } from "../../_types/responses/signup-response";
+import { ErrorResponse } from "../../_types/responses/error-response";
 
 export async function signupAction(state: SignupFormState, formData: FormData) {    
   const validatedFields = SignupFormSchema.safeParse({
@@ -32,8 +33,7 @@ export async function signupAction(state: SignupFormState, formData: FormData) {
         username,
         email,        
         password,
-      }),
-      cache: 'no-store',
+      }),      
     });
   } catch (error) {
     console.error('[Network ERROR]', error);
@@ -74,6 +74,6 @@ export async function signupAction(state: SignupFormState, formData: FormData) {
     return { message };
   }
 
-  console.log('[회원가입 완료]', responseJson);
+  console.log(`[${responseJson.username} 회원가입 완료]`);
   redirect('/');
 }
