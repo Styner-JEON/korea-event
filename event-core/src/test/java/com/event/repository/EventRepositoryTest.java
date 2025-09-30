@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.*;
-import org.springframework.test.context.ActiveProfiles;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,7 +24,7 @@ class EventRepositoryTest {
     private EventRepository eventRepository;
 
     @Nested
-    @DisplayName("findAll (페이징)")
+    @DisplayName("findAll")
     class FindAllTest {
         @Test
         @DisplayName("이벤트 15개가 존재할 때, 0페이지 10개 조회, hasNext는 true")
@@ -136,7 +136,7 @@ class EventRepositoryTest {
         eventEntity.setModifiedTime(LocalDateTime.now());
         eventEntity.setEventStartDate(LocalDate.now().plusDays(10));
         eventEntity.setEventEndDate(LocalDate.now().plusDays(12));
-        eventEntity.setDbUpdatedAt(LocalDateTime.now());
+        eventEntity.setDbUpsertedAt(Instant.now());
         return eventEntity;
     }
 

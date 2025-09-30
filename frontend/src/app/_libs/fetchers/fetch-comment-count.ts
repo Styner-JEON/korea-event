@@ -1,27 +1,12 @@
-import { CommentAnalysisResponse } from "@/app/_types/responses/comment-analysis-response";
 import { ErrorResponse } from "../../_types/responses/error-response";
 
-export async function analyzeComment(contentId: string): Promise<{
-  commentAnalysisResponse?: CommentAnalysisResponse;
-  error?: ErrorResponse;
-}> {
-  const message = '지금은 댓글 분석 결과를 불러올 수 없습니다.';
-  const url = `${process.env.NEXT_PUBLIC_AI_BASE_URL}/ai/${process.env.NEXT_PUBLIC_AI_API_VERSION}/${contentId}/summary`;
-  let response: Response;
-
-  const revalidateSeconds = Number(process.env.NEXT_PUBLIC_COMMENT_ANALYSIS_REVALIDATE_SECONDS);
+export async function fetchCommentCount(contentId: string) {
+  const message = '지금은 댓글 개수를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.';
+  const url = `${process.env.NEXT_PUBLIC_EVENT_BASE_URL}/events/${process.env.NEXT_PUBLIC_EVENT_API_VERSION}/${contentId}/comments/count`;
   
-  try {
-    response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },      
-      next: {        
-        revalidate: revalidateSeconds,
-        tags: [`analysis:${contentId}`],
-      },
-    });
+  let response: Response;  
+  try {        
+    response = await fetch(url); 
   } catch (error) {
     console.error('[Network ERROR]', error);
     return { error: new Error(message) };
@@ -42,6 +27,9 @@ export async function analyzeComment(contentId: string): Promise<{
       case 404:
         detailedMessage = '요청하신 데이터를 찾을 수 없습니다.'; 
         break;
+      case 401:
+        detailedMessage = '권한이 필요합니다.'; 
+        break;
       case 500:
         detailedMessage = '서버 에러가 발생했습니다. 잠시 후 다시 시도해 주세요.'; 
         break;
@@ -50,7 +38,7 @@ export async function analyzeComment(contentId: string): Promise<{
     return { error: new Error(detailedMessage) };
   }
 
-  let responseJson: CommentAnalysisResponse;
+  let responseJson: number;
   try {
     responseJson = await response.json();
   } catch (error) {
@@ -58,5 +46,5 @@ export async function analyzeComment(contentId: string): Promise<{
     return { error: new Error(message) };
   }
 
-  return { commentAnalysisResponse: responseJson};
+  return { commentCount: responseJson };
 }

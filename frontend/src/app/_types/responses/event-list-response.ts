@@ -41,7 +41,3 @@ export interface EventList {
   eventStartDate: string;
   eventEndDate: string;
 }
-
-export interface ErrorResponse { 
-  message: string;
-};

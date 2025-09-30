@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -87,8 +88,7 @@ class EventServiceTest {
                     1L, "행사 제목", LocalDateTime.now(), LocalDateTime.now(),
                     "주소1", "주소2", "서울", null, null,
                     0.0, 0.0, "12345", "homepage", "설명",
-                    null, null, "시간", "이용시간", "주최1", "010", "주최2", "020", LocalDateTime.now()
-            );
+                    null, null, "시간", "이용시간", "주최1", "010", "주최2", "020", Instant.now());
 
             given(eventRepository.findById(contentId)).willReturn(Optional.of(eventEntity));
             given(eventMapper.toEventResponse(eventEntity)).willReturn(eventResponse);
@@ -120,12 +120,12 @@ class EventServiceTest {
     }
 
     @Nested
-    @DisplayName("insertEvent")
-    class InsertEventTest {
+    @DisplayName("upsertEvent")
+    class UpsertEventTest {
 
         @Test
-        @DisplayName("이벤트 저장 성공 시 저장 로그 출력 및 DB 저장")
-        void givenEventDto_whenInsertEvent_thenSavesEntity() {
+        @DisplayName("이벤트 업서트 시 DB 저장 또는 갱신")
+        void givenEventDto_whenUpsertEvent_thenSavesEntity() {
             // Given
             EventDto eventDto = new EventDto();
             EventEntity eventEntity = new EventEntity();
@@ -134,7 +134,7 @@ class EventServiceTest {
             given(eventRepository.save(eventEntity)).willReturn(eventEntity);
 
             // When
-            eventService.insertEvent(eventDto);
+            eventService.upsertEvent(eventDto);
 
             // Then
             then(eventMapper).should().toEventEntity(eventDto);

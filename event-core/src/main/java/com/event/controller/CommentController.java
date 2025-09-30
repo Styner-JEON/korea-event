@@ -2,17 +2,13 @@ package com.event.controller;
 
 import com.event.model.request.CommentInsertRequest;
 import com.event.model.request.CommentUpdateRequest;
-import com.event.model.response.CommentListResponse;
 import com.event.model.response.CommentResponse;
+import com.event.model.response.CommentScrollResponse;
 import com.event.security.CustomPrincipal;
 import com.event.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,19 +28,42 @@ public class CommentController {
     private final CommentService commentService;
 
     /**
-     * 특정 이벤트의 댓글 목록을 페이지네이션과 함께 조회합니다.
+     * 특정 이벤트의 댓글 수를 조회합니다.
      *
      * @param contentId 이벤트 컨텐츠 ID
-     * @param pageable  페이지네이션 정보
-     * @return 댓글 목록 슬라이스
+     * @return 댓글 수
+     */
+    @GetMapping("/count")
+    public ResponseEntity<Integer> getCommentCount(@PathVariable Long contentId) {
+        return ResponseEntity.ok(commentService.getCommentCount(contentId));
+    }
+
+//    @GetMapping
+//    public ResponseEntity<Page<CommentListResponse>> getCommentPageByContentId(
+//            @PathVariable Long contentId,
+//            @PageableDefault(size = 5, sort = "commentId", direction = Sort.Direction.DESC) Pageable pageable) {
+//        return ResponseEntity.ok(commentService.getCommentPageByContentId(contentId, pageable));
+//    }
+
+//    @GetMapping
+//    public ResponseEntity<Slice<CommentListResponse>> getCommentSliceByContentId(
+//            @PathVariable Long contentId,
+//            @PageableDefault(size = 5, sort = "commentId", direction = Sort.Direction.DESC) Pageable pageable) {
+//        return ResponseEntity.ok(commentService.getCommentSliceByContentId(contentId, pageable));
+//    }
+
+    /**
+     * 특정 이벤트의 댓글 목록을 Keyset-Filtering 방식으로 조회합니다.
+     * @param contentId
+     * @param cursor
+     * @return
      */
     @GetMapping
-    public ResponseEntity<Slice<CommentListResponse>> getCommentsByContentId(
+    public ResponseEntity<CommentScrollResponse> getCommentScrollByContentId(
             @PathVariable Long contentId,
-            @PageableDefault(size = 50,
-                    // page = 0,
-                    sort = "createdAt", direction = Sort.Direction.ASC) Pageable pageable) {
-        return ResponseEntity.ok(commentService.getCommentsByContentId(contentId, pageable));
+            @RequestParam(required = false) String cursor
+    ) {
+        return ResponseEntity.ok(commentService.getCommentScrollByContentId(contentId, cursor));
     }
 
     /**

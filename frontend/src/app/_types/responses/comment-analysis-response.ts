@@ -8,7 +8,3 @@ export interface CommentEmotion {
   ratio: Record<string, number>;
   mainEmotions: string[];
 }
-
-export interface ErrorResponse {
-  message: string;
-}

@@ -5,10 +5,11 @@ import com.event.mapper.CommentMapper;
 import com.event.model.entity.CommentEntity;
 import com.event.model.request.CommentInsertRequest;
 import com.event.model.request.CommentUpdateRequest;
-import com.event.model.response.CommentListResponse;
 import com.event.model.response.CommentResponse;
+import com.event.model.response.CommentScrollResponse;
 import com.event.repository.CommentRepository;
 import com.event.security.CustomPrincipal;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,9 +17,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.KeysetScrollPosition;
+import org.springframework.data.domain.ScrollPosition;
+import org.springframework.data.domain.Window;
+import org.springframework.test.util.ReflectionTestUtils;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.*;
@@ -42,35 +46,44 @@ class CommentServiceTest {
     @Nested
     @DisplayName("getCommentListByContentId")
     class GetCommentListTest {
+
+        @BeforeEach
+        void init() {
+            ReflectionTestUtils.setField(commentService, "commentSize", 20);
+            ReflectionTestUtils.setField(commentService, "commentSortDirection", "DESC");
+            ReflectionTestUtils.setField(commentService, "commentSortProperty", "commentId");
+        }
+
         @Test
-        @DisplayName("댓글 목록 정상 조회 - 2개 반환")
-        void givenTwoComments_whenGetComments_thenReturnsCommentListWithTwo() {
+        @DisplayName("Keyset 스크롤 조회 시 댓글 2개 반환(마지막 페이지)")
+        void givenTwoComments_whenGetCommentScroll_thenReturnsTwo() {
             // Given
-            Long contentId = 1L;
-            Pageable pageable = PageRequest.of(0, 10);
+            CommentEntity commentEntity = createCommentEntity(1L, 10L, 1L, "tester1");
+            CommentEntity commentEntity2 = createCommentEntity(2L, 10L, 2L, "tester2");
+            List<CommentEntity> commentEntityList = List.of(commentEntity, commentEntity2);
 
-            CommentEntity commentEntity = createCommentEntity(1L, contentId, 1L, "tester1");
-            CommentEntity commentEntity2 = createCommentEntity(2L, contentId, 2L, "tester2");
-            Slice<CommentEntity> commentEntitySlice = new SliceImpl<>(List.of(commentEntity, commentEntity2), pageable, false);
+            Window<CommentEntity> commentEntityWindow = Window.<CommentEntity>from(commentEntityList, i -> ScrollPosition.keyset(), false);
 
-            CommentListResponse commentListResponse = new CommentListResponse(1L, contentId, 1L, "tester1", "내용1", LocalDateTime.now(), LocalDateTime.now());
-            CommentListResponse commentListResponse2 = new CommentListResponse(2L, contentId, 2L, "tester2", "내용2", LocalDateTime.now(), LocalDateTime.now());
+            CommentResponse commentResponse = new CommentResponse(1L, "내용1", 10L, 1L, "tester1", Instant.now(), Instant.now());
+            CommentResponse commentResponse2 = new CommentResponse(2L, "내용2", 10L, 2L, "tester2", Instant.now(), Instant.now());
 
-            given(commentRepository.findByContentId(contentId, pageable)).willReturn(commentEntitySlice);
-            given(commentMapper.toCommentListResponse(commentEntity)).willReturn(commentListResponse);
-            given(commentMapper.toCommentListResponse(commentEntity2)).willReturn(commentListResponse2);
+            given(commentRepository.findScrollByContentId(eq(10L), any(), any(), any()))
+                    .willReturn(commentEntityWindow);
+            given(commentMapper.toCommentResponse(commentEntity)).willReturn(commentResponse);
+            given(commentMapper.toCommentResponse(commentEntity2)).willReturn(commentResponse2);
 
             // When
-            Slice<CommentListResponse> commentListResponseSlice = commentService.getCommentsByContentId(contentId, pageable);
+            CommentScrollResponse result = commentService.getCommentScrollByContentId(10L, null);
 
             // Then
-            assertThat(commentListResponseSlice).hasSize(2);
-            assertThat(commentListResponseSlice.getContent().get(0).commentId()).isEqualTo(1L);
-            assertThat(commentListResponseSlice.getContent().get(1).commentId()).isEqualTo(2L);
+            assertThat(result.commentResponseList()).hasSize(2);
+            assertThat(result.commentResponseList().get(0).commentId()).isEqualTo(1L);
+            assertThat(result.commentResponseList().get(1).commentId()).isEqualTo(2L);
+            assertThat(result.nextCursor()).isNull();
 
-            then(commentRepository).should().findByContentId(contentId, pageable);
-            then(commentMapper).should().toCommentListResponse(commentEntity);
-            then(commentMapper).should().toCommentListResponse(commentEntity2);
+            then(commentRepository).should().findScrollByContentId(eq(10L), any(), any(), any());
+            then(commentMapper).should().toCommentResponse(commentEntity);
+            then(commentMapper).should().toCommentResponse(commentEntity2);
         }
     }
 
@@ -83,7 +96,14 @@ class CommentServiceTest {
             // Given
             CommentInsertRequest commentInsertRequest = new CommentInsertRequest("좋은 글입니다.");
             CommentEntity commentEntity = createCommentEntity(100L, 1L, 1L, "tester");
-            CommentResponse commentResponse = new CommentResponse(100L, 1L, 1L, "tester");
+            CommentResponse commentResponse = new CommentResponse(
+                    100L,
+                    "좋은 글입니다.",
+                    1L,
+                    1L,
+                    "tester",
+                    Instant.now(),
+                    Instant.now());
 
             given(commentRepository.save(any())).willReturn(commentEntity);
             given(commentMapper.toCommentResponse(commentEntity)).willReturn(commentResponse);
@@ -111,7 +131,15 @@ class CommentServiceTest {
 
             given(commentRepository.findById(1L)).willReturn(Optional.of(commentEntity));
             willDoNothing().given(commentRepository).delete(commentEntity);
-            given(commentMapper.toCommentResponse(commentEntity)).willReturn(new CommentResponse(1L, 10L, 1L, "tester"));
+            given(commentMapper.toCommentResponse(commentEntity))
+                    .willReturn(new CommentResponse(
+                            1L,
+                            "샘플 댓글",
+                            10L,
+                            1L,
+                            "tester",
+                            Instant.now(),
+                            Instant.now()));
 
             // When
             CommentResponse commentResponse = commentService.deleteComment(1L, customPrincipal);
@@ -133,7 +161,8 @@ class CommentServiceTest {
             given(commentRepository.findById(1L)).willReturn(Optional.of(commentEntity));
 
             // When & Then
-            assertThatThrownBy(() -> commentService.deleteComment(1L, customPrincipal)).isInstanceOf(CustomCommentException.class);
+            assertThatThrownBy(() -> commentService.deleteComment(1L, customPrincipal))
+                    .isInstanceOf(CustomCommentException.class);
 
             then(commentRepository).should().findById(1L);
             then(commentRepository).should(never()).delete(any());
@@ -147,7 +176,8 @@ class CommentServiceTest {
             given(commentRepository.findById(invalidCommentId)).willReturn(Optional.empty());
 
             // When & Then
-            assertThatThrownBy(() -> commentService.deleteComment(invalidCommentId, customPrincipal)).isInstanceOf(CustomCommentException.class);
+            assertThatThrownBy(() -> commentService.deleteComment(invalidCommentId, customPrincipal))
+                    .isInstanceOf(CustomCommentException.class);
 
             then(commentRepository).should().findById(invalidCommentId);
             then(commentRepository).should(never()).delete(any());
@@ -166,7 +196,15 @@ class CommentServiceTest {
 
             given(commentRepository.findById(1L)).willReturn(Optional.of(commentEntity));
             given(commentRepository.save(any())).willReturn(commentEntity);
-            given(commentMapper.toCommentResponse(commentEntity)).willReturn(new CommentResponse(1L, 10L, 1L, "tester"));
+            given(commentMapper.toCommentResponse(commentEntity))
+                    .willReturn(new CommentResponse(
+                            1L,
+                            "수정된 댓글입니다.",
+                            10L,
+                            1L,
+                            "tester",
+                            Instant.now(),
+                            Instant.now()));
 
             // When
             CommentResponse commentResponse = commentService.updateComment(1L, commentUpdateRequest, customPrincipal);
@@ -208,7 +246,8 @@ class CommentServiceTest {
             given(commentRepository.findById(invalidCommentId)).willReturn(Optional.empty());
 
             // When & Then
-            assertThatThrownBy(() -> commentService.updateComment(invalidCommentId, commentUpdateRequest, customPrincipal))
+            assertThatThrownBy(
+                    () -> commentService.updateComment(invalidCommentId, commentUpdateRequest, customPrincipal))
                     .isInstanceOf(CustomCommentException.class);
 
             then(commentRepository).should().findById(invalidCommentId);
@@ -223,8 +262,8 @@ class CommentServiceTest {
         commentEntity.setUserId(userId);
         commentEntity.setUsername(username);
         commentEntity.setContent("샘플 댓글");
-        commentEntity.setCreatedAt(LocalDateTime.now());
-        commentEntity.setUpdatedAt(LocalDateTime.now());
+        commentEntity.setCreatedAt(Instant.now());
+        commentEntity.setUpdatedAt(Instant.now());
         return commentEntity;
     }
 

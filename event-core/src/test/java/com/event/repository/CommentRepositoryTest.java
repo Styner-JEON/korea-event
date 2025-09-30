@@ -5,9 +5,8 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.*;
-import org.springframework.test.context.ActiveProfiles;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +34,7 @@ class CommentRepositoryTest {
             Pageable pageable = PageRequest.of(0, 10);
 
             // When: 페이징된 댓글 목록 조회
-            Slice<CommentEntity> commentEntitySlice = commentRepository.findByContentId(contentId, pageable);
+            Slice<CommentEntity> commentEntitySlice = commentRepository.findPageByContentId(contentId, pageable);
 
             // Then: 10개가 반환되며, 다음 페이지가 존재함을 의미하는 hasNext()는 true
             assertThat(commentEntitySlice).hasSize(10);
@@ -85,25 +84,31 @@ class CommentRepositoryTest {
     }
 
     @Nested
-    @DisplayName("findTop10ByContentIdOrderByUpdatedAtDesc")
-    class FindTop10ByContentIdOrderByUpdatedAtDescTest {
+    @DisplayName("findByContentIdOrderByUpdatedAtDesc")
+    class FindByContentIdOrderByUpdatedAtDescTest {
         @Test
         @DisplayName("최신순으로 댓글 10개만 조회하고 정렬이 정확해야 한다")
-        void given20Comments_whenFindTop10ByContentIdOrderByUpdatedAtDesc_thenReturnsSortedTop10() {
+        void given20Comments_whenFindByContentIdOrderByUpdatedAtDesc_withLimit10_thenReturnsSortedTop10() {
             // Given: contentId가 같은 댓글 20개를 저장하고, 각 댓글의 updatedAt을 1분 단위로 다르게 설정
             Long contentId = 4L;
+            Instant base = Instant.parse("2025-01-01T00:00:00Z"); // 기준 시각 고정
             for (int i = 0; i < 20; i++) {
                 CommentEntity commentEntity = createComment(contentId, i);
-                commentEntity.setUpdatedAt(LocalDateTime.now().minusMinutes(i));
+                commentEntity.setUpdatedAt(base.minusSeconds(i * 60L));
                 commentRepository.save(commentEntity);
             }
 
-            // When: 최신순으로 10개만 조회
-            List<CommentEntity> commentEntityList = commentRepository.findTop10ByContentIdOrderByUpdatedAtDesc(contentId);
+            int limit = 10;
+            Pageable pageable = PageRequest.of(0, limit);
+
+            // When: 최신순으로 limit 개수만 조회
+            List<CommentEntity> commentEntityList =
+                    commentRepository.findByContentIdOrderByUpdatedAtDesc(contentId, pageable);
 
             // Then: 총 10개 반환, 첫번째 댓글이 가장 최신임을 검증
-            assertThat(commentEntityList).hasSize(10);
-            assertThat(commentEntityList.get(0).getUpdatedAt()).isAfter(commentEntityList.get(9).getUpdatedAt());
+            assertThat(commentEntityList).hasSize(limit);
+            assertThat(commentEntityList.get(0).getUpdatedAt())
+                    .isAfter(commentEntityList.get(limit - 1).getUpdatedAt());
         }
     }
 
@@ -113,7 +118,7 @@ class CommentRepositoryTest {
         commentEntity.setContentId(contentId);
         commentEntity.setUserId(1L);
         commentEntity.setUsername("tester");
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
         commentEntity.setCreatedAt(now);
         commentEntity.setUpdatedAt(now);
         return commentEntity;

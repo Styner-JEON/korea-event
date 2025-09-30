@@ -3,10 +3,10 @@ package com.event.integration;
 import com.event.model.entity.CommentEntity;
 import com.event.repository.CommentRepository;
 import com.event.security.JwtUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -16,11 +16,9 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import javax.crypto.SecretKey;
 import java.lang.reflect.Field;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Date;
-import java.util.stream.IntStream;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -32,9 +30,6 @@ class AiIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Autowired
     private CommentRepository commentRepository;
@@ -50,6 +45,9 @@ class AiIntegrationTest {
 
     private String jwt;
 
+    @Value("${size.ai-comment}")
+    private int commentSize;
+
     @BeforeEach
     void setUp() throws Exception {
         jwt = generateJwt();
@@ -64,10 +62,10 @@ class AiIntegrationTest {
     @DisplayName("댓글 AI 요약 요청")
     class AnalyzeCommentsTest {
         @Test
-        @DisplayName("댓글이 10개 이상일 때, AI 분석 결과가 정상적으로 반환된다")
-        void given10Comments_whenGetSummary_thenReturnsAnalysis() throws Exception {
+        @DisplayName("댓글이 limit개 이상일 때, AI 분석 결과가 정상적으로 반환된다")
+        void givenLimitComments_whenGetSummary_thenReturnsAnalysis() throws Exception {
             // Given
-            for (int i = 1; i <= 10; i++) {
+            for (int i = 1; i <= commentSize; i++) {
                 commentRepository.save(createCommentEntity("AI 댓글 " + i));
             }
 
@@ -86,10 +84,10 @@ class AiIntegrationTest {
         }
 
         @Test
-        @DisplayName("댓글이 10개 미만일 경우 400 반환한다")
-        void givenLessThan10Comments_whenGetSummary_thenReturns400() throws Exception {
+        @DisplayName("댓글이 limit개 미만일 경우 400 반환한다")
+        void givenLessThanLimitComments_whenGetSummary_thenReturns400() throws Exception {
             // Given
-            for (int i = 1; i <= 9; i++) {
+            for (int i = 1; i < commentSize; i++) {
                 commentRepository.save(createCommentEntity("댓글 " + i));
             }
 
@@ -138,8 +136,8 @@ class AiIntegrationTest {
         commentEntity.setContent(content);
         commentEntity.setUserId(TEST_USER_ID);
         commentEntity.setUsername(TEST_USERNAME);
-        commentEntity.setCreatedAt(LocalDateTime.now());
-        commentEntity.setUpdatedAt(LocalDateTime.now());
+        commentEntity.setCreatedAt(Instant.now());
+        commentEntity.setUpdatedAt(Instant.now());
         return commentEntity;
     }
 

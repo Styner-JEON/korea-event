@@ -4,19 +4,49 @@ import { useActionState, useEffect, useState } from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
 import { insertCommentAction } from '../../../_libs/actions/insert-comment-action';
 import { useRouter } from 'next/navigation';
+import { SWRInfiniteResponse } from 'swr/infinite';
+import { CommentScrollResponse } from '@/app/_types/responses/comment-scroll-response';
 
-export default function CommentInsertForm({ contentId, isLoggedIn }: { contentId: string; isLoggedIn: boolean }) {    
+export default function CommentInsertForm({ contentId, isLoggedIn, commentMutate }: { 
+  contentId: string; 
+  isLoggedIn: boolean;
+  commentMutate: SWRInfiniteResponse<CommentScrollResponse>["mutate"];
+}) {    
   const router = useRouter();
   const [content, setContent] = useState('');
   
   const bindedCreateComment = insertCommentAction.bind(null, contentId);
-  const [state, action, pending] = useActionState(bindedCreateComment, undefined);  
+  const [state, action, pending] = useActionState(bindedCreateComment, undefined);
+
+  const commentResponse = state?.commentResponse;
 
   useEffect(() => {
-    if (state?.success) {
-      setContent('');
+    if (commentResponse) {      
+      commentMutate(
+        (commentScrollResponseList) => {
+          if (!commentScrollResponseList || commentScrollResponseList.length === 0) {      
+            return [{
+              commentResponseList: [commentResponse],
+              nextCursor: null
+            }];
+          }
+      
+          const newCommentScrollResponseList = [...commentScrollResponseList];
+          newCommentScrollResponseList[0] = {
+            ...newCommentScrollResponseList[0],
+            commentResponseList: [commentResponse, ...newCommentScrollResponseList[0].commentResponseList]
+          };
+
+          return newCommentScrollResponseList;
+        },
+        {
+          revalidate: false
+        }
+      );
+
+      setContent('');    
     }
-  }, [state]);
+  }, [commentResponse, commentMutate]);
 
   const handleFocus = () => {
     if (!isLoggedIn) {

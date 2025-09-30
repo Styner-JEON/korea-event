@@ -15,6 +15,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -100,7 +101,7 @@ class EventControllerTest {
                     "02-0000-0000",
                     "부산시",
                     "051-0000-0000",
-                    LocalDateTime.now()
+                    Instant.now()
             );
 
             given(eventService.selectEvent(1L)).willReturn(eventResponse);

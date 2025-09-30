@@ -18,6 +18,10 @@ server:
 public-data-api:
   service-key: ${SERVICE_KEY}
 
+logging:
+  level:
+    root: info
+
 management:
   endpoint:
     health:
@@ -26,4 +30,4 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,prometheus
+        include: health

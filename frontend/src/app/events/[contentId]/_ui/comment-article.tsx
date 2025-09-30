@@ -1,23 +1,33 @@
 'use client';
 
 import React, { useState } from "react";
-import { Comment } from "../../../_types/responses/comment-list-response";
 import CommentUpdateForm from "./comment-update-form";
 import CommentDeleteForm from "./comment-delete-form";
+import { CommentResponse } from "../../../_types/responses/comment-response";
+import { SWRInfiniteResponse } from "swr/infinite";
+import { CommentScrollResponse } from "@/app/_types/responses/comment-scroll-response";
 
-export default function CommentArticle({ comment, contentId, isOwner }: { comment: Comment, contentId: string, isOwner: boolean }) {
-  const [isUpdating, setIsUpdating] = useState(false);  
+export default function CommentArticle({ comment, contentId, isOwner, commentMutate }: {
+  comment: CommentResponse;
+  contentId: string;
+  isOwner: boolean;
+  commentMutate: SWRInfiniteResponse<CommentScrollResponse>["mutate"];
+}) {
+  const [isUpdating, setIsUpdating] = useState(false);
 
   return (
     <div className="border-t pt-2 text-sm text-gray-800">
-      
+
       {isUpdating ? (
+        // 댓글 수정 모드인 경우
         <CommentUpdateForm
           comment={comment}
           contentId={contentId}
-          onCancel={() => setIsUpdating(false)}          
+          onCancel={() => setIsUpdating(false)}
+          commentMutate={commentMutate}
         />
       ) : (
+        // 댓글 수정 모드가 아닌 경우
         <>
           <div className="font-semibold">{comment.username}</div>
           {/* 줄바꿈(\n)을 <br />로 변환 */}
@@ -28,14 +38,19 @@ export default function CommentArticle({ comment, contentId, isOwner }: { commen
                 <br />
               </React.Fragment>
             ))}
-          </div>          
+          </div>
           <div className="text-xs text-gray-500">
-            {comment.createdAt}            
+            {comment.createdAt}
           </div>
 
           {isOwner && (
+            // 댓글 작성작인 경우, 댓글 삭제 버튼과 수정 버튼          
             <div className="flex gap-2 mt-1">
-              <CommentDeleteForm contentId={contentId} commentId={comment.commentId} />
+              <CommentDeleteForm 
+                contentId={contentId} 
+                commentId={comment.commentId}             
+                commentMutate={commentMutate}
+              />
               <button
                 type="button"
                 className="px-2 py-1 text-xs bg-gray-200 rounded hover:bg-gray-300"

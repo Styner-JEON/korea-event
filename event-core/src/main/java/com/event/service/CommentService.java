@@ -5,20 +5,23 @@ import com.event.mapper.CommentMapper;
 import com.event.model.entity.CommentEntity;
 import com.event.model.request.CommentInsertRequest;
 import com.event.model.request.CommentUpdateRequest;
-import com.event.model.response.CommentListResponse;
 import com.event.model.response.CommentResponse;
+import com.event.model.response.CommentScrollResponse;
 import com.event.repository.CommentRepository;
 import com.event.security.CustomPrincipal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 댓글 관련 비즈니스 로직을 처리하는 서비스
@@ -35,16 +38,115 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
 
+    @Value("${size.comment}")
+    private int commentSize;
+
+    @Value("${sort.comment.direction}")
+    private String commentSortDirection;
+
+    @Value("${sort.comment.property}")
+    private String commentSortProperty;
+
+    /**
+     * 특정 이벤트의 댓글 수를 조회합니다.
+     * 
+     * @param contentId 이벤트 컨텐츠 ID
+     * @return 댓글 수
+     */
+    @Transactional(readOnly = true)
+    public int getCommentCount(Long contentId) {
+        return commentRepository.countByContentId(contentId);
+    }
+
     /**
      * 특정 이벤트의 댓글 목록을 조회합니다.
      * 
      * @param contentId 이벤트 컨텐츠 ID
      * @param pageable  페이지네이션 정보
+     * @return 댓글 목록 페이지
+     */
+    // @Transactional(readOnly = true)
+    // public Page<CommentListResponse> getCommentPageByContentId(Long contentId,
+    // Pageable pageable) {
+    // return commentRepository.findPageByContentId(contentId,
+    // pageable).map(commentMapper::toCommentListResponse);
+    // }
+
+    /**
+     * 특정 이벤트의 댓글 목록을 Slice로 조회합니다.
+     *
+     * @param contentId 이벤트 컨텐츠 ID
+     * @param pageable  페이지네이션 정보
      * @return 댓글 목록 슬라이스
      */
+    // @Transactional(readOnly = true)
+    // public Slice<CommentListResponse> getCommentSliceByContentId(Long contentId,
+    // Pageable pageable) {
+    // return commentRepository.findSliceByContentId(contentId,
+    // pageable).map(commentMapper::toCommentListResponse);
+    // }
+
+    /**
+     * 특정 이벤트의 댓글 목록을 Keyset-Filtering 방식으로 조회합니다.
+     * 
+     * @param contentId
+     * @param cursor
+     * @return
+     */
     @Transactional(readOnly = true)
-    public Slice<CommentListResponse> getCommentsByContentId(Long contentId, Pageable pageable) {
-        return commentRepository.findByContentId(contentId, pageable).map(commentMapper::toCommentListResponse);
+    public CommentScrollResponse getCommentScrollByContentId(Long contentId, String cursor) {
+        KeysetScrollPosition keysetScrollPosition = (cursor == null || cursor.isBlank())
+                ? ScrollPosition.keyset()
+                : decodeCursor(cursor);
+
+        Sort.Direction direction = Sort.Direction.fromString(commentSortDirection);
+        Sort sort = Sort.by(direction, commentSortProperty);
+
+        Limit limit = Limit.of(commentSize);
+
+        Window<CommentEntity> commentEntityWindow = commentRepository.findScrollByContentId(contentId, sort, limit,
+                keysetScrollPosition);
+
+        List<CommentResponse> commentResponseList = commentEntityWindow.getContent().stream()
+                .map(commentMapper::toCommentResponse).toList();
+
+        String nextCursor = null;
+        // 조회한 페이지가 비어 있지 않고, 마지막 페이지가 아닌 경우
+        if (!commentEntityWindow.isEmpty() && !commentEntityWindow.isLast()) {
+            CommentEntity lastCommentEntity = commentEntityWindow.getContent().get(commentEntityWindow.size() - 1);
+            nextCursor = encodeCursor(lastCommentEntity.getCommentId());
+        }
+
+        return new CommentScrollResponse(commentResponseList, nextCursor);
+    }
+
+    /**
+     * 커서를 인코딩합니다.
+     * @param commentId
+     * @return
+     */
+    private String encodeCursor(Long commentId) {
+        return String.valueOf(commentId);
+    }
+
+    /**
+     * 커서를 디코딩합니다.
+     * @param cursor
+     * @return
+     */
+    private KeysetScrollPosition decodeCursor(String cursor) {
+        long longCommentId;
+        try {
+            longCommentId = Long.parseLong(cursor);
+        } catch (NumberFormatException e) {
+            log.error("Invalid cursor numeric value: {}", cursor, e);
+            throw new CustomCommentException(HttpStatus.BAD_REQUEST, "Invalid cursor numeric value");
+        }
+
+        Map<String, Object> key = new LinkedHashMap<>();
+        key.put("commentId", longCommentId);
+
+        return ScrollPosition.forward(key);
     }
 
     /**
@@ -57,7 +159,7 @@ public class CommentService {
      * @return 등록된 댓글 정보
      */
     @Transactional
-    @CacheEvict(value = "comment-analysis", key = "#contentId")
+    // @CacheEvict(value = "comment-analysis", key = "#contentId")
     public CommentResponse insertComment(Long contentId, CommentInsertRequest commentInsertRequest,
             CustomPrincipal customPrincipal) {
         CommentEntity commentEntity = createCommentEntity(contentId, commentInsertRequest, customPrincipal);
@@ -86,8 +188,12 @@ public class CommentService {
                     "Delete attempt failed. Comment not found with commentId: " + commentId);
         });
 
-        if (!commentEntity.getUserId().equals(customPrincipal.userId())) {
-            throw new CustomCommentException(HttpStatus.FORBIDDEN, "No permission to delete this comment.");
+        long userId = customPrincipal.userId();
+        if (!commentEntity.getUserId().equals(userId)) {
+            log.error("No permission to delete this comment. userId={} commentId={}", userId, commentId);
+            throw new CustomCommentException(
+                    HttpStatus.FORBIDDEN,
+                    "No permission to delete this comment. userId=" + userId + " commentId=" + commentId);
         }
 
         commentRepository.delete(commentEntity);
@@ -115,12 +221,16 @@ public class CommentService {
                     "Update attempt failed. Comment not found with commentId: " + commentId);
         });
 
-        if (!commentEntity.getUserId().equals(customPrincipal.userId())) {
-            throw new CustomCommentException(HttpStatus.FORBIDDEN, "No permission to update this comment.");
+        long userId = customPrincipal.userId();
+        if (!commentEntity.getUserId().equals(userId)) {
+            log.error("No permission to update this comment. userId={} commentId={}", userId, commentId);
+            throw new CustomCommentException(
+                    HttpStatus.FORBIDDEN,
+                    "No permission to update this comment. userId=" + userId + " commentId=" + commentId);
         }
 
         commentEntity.setContent(commentUpdateRequest.content());
-        commentEntity.setUpdatedAt(LocalDateTime.now());
+        commentEntity.setUpdatedAt(Instant.now());
         commentRepository.save(commentEntity);
 
         return commentMapper.toCommentResponse(commentEntity);
@@ -129,15 +239,14 @@ public class CommentService {
     private CommentEntity createCommentEntity(
             Long contentId,
             CommentInsertRequest commentInsertRequest,
-            CustomPrincipal customPrincipal
-    ) {
+            CustomPrincipal customPrincipal) {
         CommentEntity commentEntity = new CommentEntity();
         commentEntity.setCommentId(null);
         commentEntity.setContent(commentInsertRequest.content());
         commentEntity.setContentId(contentId);
         commentEntity.setUserId(customPrincipal.userId());
         commentEntity.setUsername(customPrincipal.username());
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
         commentEntity.setCreatedAt(now);
         commentEntity.setUpdatedAt(now);
         return commentEntity;

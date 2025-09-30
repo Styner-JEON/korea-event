@@ -1,6 +1,7 @@
 
 import { createSession } from "@/app/_libs/session";
-import { ErrorResponse, RefreshAccessTokenResponse } from "../_types/responses/refresh-access-token-response";
+import { RefreshAccessTokenResponse } from "../_types/responses/refresh-access-token-response";
+import { ErrorResponse } from "../_types/responses/error-response";
 
 export async function refreshAccessToken(refreshToken: string): Promise<{
   data?: string;
@@ -61,6 +62,6 @@ export async function refreshAccessToken(refreshToken: string): Promise<{
   await createSession('username', user.name, '/', accessTokenExpiry);
   await createSession('access-token', accessToken, '/', accessTokenExpiry);  
 
-  console.log('[액세스 토큰 갱신 완료]', responseJson);
+  console.log('[액세스 토큰 갱신 완료]');
   return { data: accessToken };
 }

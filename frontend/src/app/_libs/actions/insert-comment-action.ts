@@ -1,9 +1,10 @@
 'use server';
 
 import { CommentSchema, CommentState } from "./definitions/comment-definition";
-import { ErrorResponse } from "../../_types/responses/comment-list-response";
+import { ErrorResponse } from "../../_types/responses/error-response";
 import { checkAccessToken } from "../check-access-token";
 import { revalidatePath } from "next/cache";
+import { CommentResponse } from "@/app/_types/responses/comment-response";
 
 export async function insertCommentAction(contentId: string, prevState: CommentState, formData: FormData) {   
   const beforeLoginMessage = '댓글을 작성하려면 로그인이 필요합니다.';
@@ -13,9 +14,9 @@ export async function insertCommentAction(contentId: string, prevState: CommentS
   }
 
   const validatedFields = CommentSchema.safeParse({
-    content: formData.get('content'),          
+    content: formData.get('content'),
   });
-  if (!validatedFields.success) {
+  if (!validatedFields.success) { 
     return {        
       validationError: validatedFields.error.flatten().fieldErrors
     }
@@ -36,8 +37,7 @@ export async function insertCommentAction(contentId: string, prevState: CommentS
       },
       body: JSON.stringify({ 
         content        
-      }),
-      cache: 'no-store',
+      }),      
     });    
   } catch (error) {
     console.error('[Network ERROR]', error);
@@ -69,13 +69,22 @@ export async function insertCommentAction(contentId: string, prevState: CommentS
 
     console.error('[Backend ERROR]', httpStatus, errorJson.message);
     return { message: detailedMessage };      
-  }  
-
-  console.log('[댓글 작성 완료]');
+  }
   
+  let responseJson: CommentResponse;
+  try {
+    responseJson = await response.json();
+  } catch (error) {
+    console.error('[Response Parsing ERROR]', error);
+    return { message };
+  }
+
+  console.log(`[댓글 ${responseJson.commentId} 작성 완료]`);
+
   revalidatePath(`/events/${contentId}`, 'page');
+  // revalidateTag(`comments:${contentId}`);
   // redirect(`/events/${contentId}`);
 
-  return { success: true };
+  return { commentResponse: responseJson };
 }
 

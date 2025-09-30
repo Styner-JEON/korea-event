@@ -4,8 +4,8 @@ metadata:
   name: bridge-service-batch
   namespace: event
 spec:
-#  schedule: "0 4 * * *"
-  schedule: "0,10,20,30,40,50 * * * *"
+#  schedule: "0,10,20,30,40,50 * * * *"
+  schedule: "0 4 * * *"
   timeZone: "Asia/Seoul"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3

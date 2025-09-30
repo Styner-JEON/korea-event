@@ -13,11 +13,15 @@ server:
   forward-headers-strategy: framework
   shutdown: graceful
 
+logging:
+  level:
+    root: info
+
 jwt:
   secret-string: ${SECRET_STRING}
 
 cors:
-  allowed-origins: "http://localhost:3000"
+  allowed-origins: "https://www.koreaevent.click"
 
 management:
   endpoint:
@@ -27,4 +31,4 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,prometheus
+        include: health

@@ -11,6 +11,7 @@ export default function EventLink({ eventList }: { eventList: EventList }) {
             src={eventList.firstImage}
             alt={eventList.title}        
             fill={true}
+            sizes="250px"
             className="object-cover"
           />
         )}

@@ -18,10 +18,12 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import javax.crypto.SecretKey;
 import java.lang.reflect.Field;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -78,9 +80,9 @@ class CommentIntegrationTest {
             // Then
             resultActions
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.content.length()").value(2))
-                    .andExpect(jsonPath("$.content[0].content").value("댓글 1"))
-                    .andExpect(jsonPath("$.content[1].content").value("댓글 2"));
+                    .andExpect(jsonPath("$.commentResponseList.length()").value(2))
+                    .andExpect(jsonPath("$.commentResponseList[*].content",
+                            containsInAnyOrder("댓글 1", "댓글 2")));
         }
 
         @Test
@@ -93,7 +95,8 @@ class CommentIntegrationTest {
             // Then
             resultActions
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.content.length()").value(0));
+                    .andExpect(jsonPath("$.commentResponseList.length()").value(0))
+                    .andExpect(jsonPath("$.nextCursor").value((Object) null));
         }
     }
 
@@ -249,8 +252,8 @@ class CommentIntegrationTest {
         commentEntity.setContent(content);
         commentEntity.setUserId(userId);
         commentEntity.setUsername(username);
-        commentEntity.setCreatedAt(LocalDateTime.now());
-        commentEntity.setUpdatedAt(LocalDateTime.now());
+        commentEntity.setCreatedAt(Instant.now());
+        commentEntity.setUpdatedAt(Instant.now());
         return commentEntity;
     }
 
