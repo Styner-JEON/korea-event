@@ -75,7 +75,6 @@ jib {
     }
     to {
         image = '235704034905.dkr.ecr.ap-northeast-2.amazonaws.com/event-core'
-//        credHelper = 'osxkeychain'
         tags = ['0.0.1']
     }
     container {

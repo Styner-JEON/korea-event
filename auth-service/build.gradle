@@ -65,11 +65,5 @@ jib {
         tags = ['0.0.1']
     }
     container {
-//        jvmFlags = ['-Dmy.property=example.value', '-Xms512m', '-Xdebug']
-//        mainClass = 'mypackage.MyApp'
-//        args = ['some', 'args']
-//        ports = ['1000', '2000-2003/udp']
-//        labels = [key1:'value1', key2:'value2']
-//        format = 'OCI'
     }
 }

@@ -22,6 +22,11 @@ server:
 api:
   version: v1
 
+auth-url:
+  login: /auth/v1/login
+  signup: /auth/v1/signup
+  refresh: /auth/v1/refresh
+
 logging:
   level:
     root: info

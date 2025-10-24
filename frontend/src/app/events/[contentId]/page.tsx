@@ -8,7 +8,9 @@ import CommentSection from "./_ui/comment-section";
  
 // export const dynamic = 'force-dynamic';
 
-export default async function DetailPage({ params }: { params: Promise<{ contentId: string }> }) {  
+export default async function DetailPage({ params }: { 
+  params: Promise<{ contentId: string }> 
+}) {  
   const { contentId } = await params;
   const { eventResponse, error } = await fetchEvent(contentId);  
 

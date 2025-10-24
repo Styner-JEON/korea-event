@@ -7,6 +7,7 @@ import { ErrorResponse } from "@/app/_types/responses/error-response";
 export async function GET(request: NextRequest) {
   const cookieStore = await cookies();
   const refreshToken = cookieStore.get('refresh-token')?.value;   
+  const username = cookieStore.get('username')?.value;
   if (!refreshToken) {    
     return redirectToHome(request);
   }
@@ -58,7 +59,7 @@ export async function GET(request: NextRequest) {
   await createSession('username', user.name, '/', accessTokenExpiry);
   await createSession('access-token', accessToken, '/', accessTokenExpiry);  
 
-  console.log('[토큰 갱신 완료]');
+  console.log(`[${username} 토큰 갱신 완료]`);  
   return redirectToHome(request);
 }
 

@@ -5,8 +5,6 @@ spring:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
-  devtools:
-    add-properties: false
 
 server:
   port: 8080
@@ -30,5 +28,10 @@ management:
         enabled: true
   endpoints:
     web:
+      base-path: /auth/actuator
       exposure:
-        include: health
+        include: health, prometheus
+#  metrics:
+#    tags:
+#      application: ${spring.application.name}
+#      pod: ${HOSTNAME:unknown}
