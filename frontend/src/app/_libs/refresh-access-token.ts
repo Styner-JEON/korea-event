@@ -62,6 +62,6 @@ export async function refreshAccessToken(refreshToken: string): Promise<{
   await createSession('username', user.name, '/', accessTokenExpiry);
   await createSession('access-token', accessToken, '/', accessTokenExpiry);  
 
-  console.log('[액세스 토큰 갱신 완료]');
+  console.log(`[${user.name} 액세스 토큰 갱신 완료]`);  
   return { data: accessToken };
 }

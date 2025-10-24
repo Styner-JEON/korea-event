@@ -23,9 +23,6 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Value("${api.version}")
-    private String apiVersion;
-
     @Value("${comment-url.insert}")
     private String commentInsertUrl;
 

@@ -19,8 +19,14 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Value("${api.version}")
-    private String apiVersion;
+    @Value("${auth-url.login}")
+    private String loginUrl;
+
+    @Value("${auth-url.signup}")
+    private String signupUrl;
+
+    @Value("${auth-url.refresh}")
+    private String refreshUrl;
 
     private final AuthenticationEntryPoint customAuthenticationEntryPoint;
 
@@ -31,9 +37,9 @@ public class SecurityConfig {
             .authorizeHttpRequests((authorize) -> authorize
                     .requestMatchers("/auth/actuator/**").permitAll()
                     .requestMatchers("/favicon.ico").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/auth/" + apiVersion + "/login").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/auth/" + apiVersion + "/signup").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/auth/" + apiVersion + "/refresh").permitAll()
+                    .requestMatchers(HttpMethod.POST, loginUrl).permitAll()
+                    .requestMatchers(HttpMethod.POST, signupUrl).permitAll()
+                    .requestMatchers(HttpMethod.POST, refreshUrl).permitAll()
                     .anyRequest().authenticated()
             )
             .httpBasic(basic -> basic.disable())

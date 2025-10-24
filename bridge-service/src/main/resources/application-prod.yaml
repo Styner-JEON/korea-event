@@ -5,8 +5,6 @@ spring:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
-  devtools:
-    add-properties: false
   kafka:
     bootstrap-servers: my-kafka.kafka.svc.cluster.local:9092
 
@@ -29,5 +27,6 @@ management:
         enabled: true
   endpoints:
     web:
+      base-path: /bridge/actuator
       exposure:
-        include: health
+        include: health, prometheus

@@ -30,8 +30,7 @@ export default async function CommentAnalysisArticle({ contentId }: { contentId:
   const { commentAnalysisResponse, error } = await analyzeComment(contentId);
   if (error) {
     return (
-      <div className="px-4 py-6 bg-red-50 border border-red-200 rounded-lg">
-        <h3 className="text-lg font-semibold text-red-800 mb-2">댓글 분석 에러가 발생했습니다.</h3>
+      <div className="px-4 py-6 bg-red-50 border border-red-200 rounded-lg">        
         <p className="text-red-600">{error.message}</p>
       </div>
     );

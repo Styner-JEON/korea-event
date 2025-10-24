@@ -126,7 +126,7 @@ public class AiService {
         }
 
         String textContent = chatResponse.getResult().getOutput().getText().trim();
-        log.info("Extracted AI response text: {}", textContent);
+//        log.info("Extracted AI response text: {}", textContent);
 
         // 마크다운 형식의 JSON인 경우에는, 순수 JSON로 변경
         try {
