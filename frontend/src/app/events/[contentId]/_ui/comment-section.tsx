@@ -9,7 +9,7 @@ export default async function CommentSection({ contentId, isLoggedIn, username }
   username?: string;
 }) {
   return (
-    <section>
+    <section className="space-y-5">
       <Suspense fallback={
         <div className="px-4 py-6 bg-blue-50 border border-blue-200 rounded-lg">
           <div className="animate-pulse space-y-4">
@@ -28,12 +28,12 @@ export default async function CommentSection({ contentId, isLoggedIn, username }
         <CommentAnalysisArticle contentId={contentId} />
       </Suspense>
       <Suspense fallback={<ComponentLoading />}>
-        <CommentListSection          
+        <CommentListSection
           contentId={contentId}
           isLoggedIn={isLoggedIn}
-          username={username}        
+          username={username}
         />
-      </Suspense>      
+      </Suspense>
     </section>
   );
 }

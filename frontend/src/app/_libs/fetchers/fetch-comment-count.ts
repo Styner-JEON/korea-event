@@ -6,7 +6,11 @@ export async function fetchCommentCount(contentId: string) {
   
   let response: Response;  
   try {        
-    response = await fetch(url); 
+    response = await fetch(url, {
+      next: {
+        tags: [`event:${contentId}:commentCount`],
+      },
+    }); 
   } catch (error) {
     console.error('[Network ERROR]', error);
     return { error: new Error(message) };

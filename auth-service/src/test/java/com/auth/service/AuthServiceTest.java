@@ -77,7 +77,7 @@ class AuthServiceTest {
             SignupRequest signupRequest = new SignupRequest("tester", "password123", "tester@email.com");
             UserEntity userEntity = new UserEntity("tester", passwordEncoder.encode("password123"), "tester@email.com", UserRole.ROLE_USER);
 
-            given(userRepository.existsByUsername("tester")).willReturn(false);
+            given(userRepository.existsByUsernameIgnoreCase("tester")).willReturn(false);
             given(userRepository.existsByEmail("tester@email.com")).willReturn(false);
             given(userRepository.save(any())).willReturn(userEntity);
 
@@ -97,7 +97,7 @@ class AuthServiceTest {
             // Given
             SignupRequest signupRequest = new SignupRequest("tester", "password123", "new@email.com");
 
-            given(userRepository.existsByUsername("tester")).willReturn(true);
+            given(userRepository.existsByUsernameIgnoreCase("tester")).willReturn(true);
 
             // When & Then
             assertThatThrownBy(() -> authService.signup(signupRequest)).isInstanceOf(CustomSignupException.class);
@@ -111,7 +111,7 @@ class AuthServiceTest {
             // Given
             SignupRequest signupRequest = new SignupRequest("tester", "password123", "dup@email.com");
 
-            given(userRepository.existsByUsername("tester")).willReturn(false);
+            given(userRepository.existsByUsernameIgnoreCase("tester")).willReturn(false);
             given(userRepository.existsByEmail("dup@email.com")).willReturn(true);
 
             // When & Then

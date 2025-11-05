@@ -12,7 +12,7 @@ export default function EventsPage({ searchParams }: {
   }>;
 }) {
   return (
-    <div className="space-y-8">
+    <div className="mx-auto max-w-6xl px-6 py-8 space-y-8">
       <Suspense fallback={<ComponentLoading />}>
         <Search placeholder="검색어를 입력할 수 있습니다." />
       </Suspense>

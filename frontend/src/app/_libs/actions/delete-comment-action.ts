@@ -3,7 +3,7 @@
 import { checkAccessToken } from "@/app/_libs/check-access-token";
 import { CommentResponse } from "@/app/_types/responses/comment-response";
 import { ErrorResponse } from "@/app/_types/responses/error-response";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 export async function deleteCommentAction(contentId: string, commentId: number) {
   const beforeLoginMessage = '댓글을 삭제하려면 로그인이 필요합니다.';
@@ -24,6 +24,7 @@ export async function deleteCommentAction(contentId: string, commentId: number) 
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${accessToken}`,
       },      
+      cache: 'no-store',
     });    
   } catch (error) {
     console.error('[Network ERROR]', error);
@@ -70,6 +71,8 @@ export async function deleteCommentAction(contentId: string, commentId: number) 
 
   console.log(`[댓글 ${responseJson.commentId} 삭제 완료]`);
 
+  revalidateTag(`event:${contentId}:commentCount`);
+  revalidateTag(`analysis:${contentId}`);
   revalidatePath(`/events/${contentId}`, 'page');
   return { commentResponse: responseJson };
 }

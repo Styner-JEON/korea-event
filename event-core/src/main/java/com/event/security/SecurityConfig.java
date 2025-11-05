@@ -44,7 +44,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorize) -> authorize
                         // 댓글 작성, 수정, 삭제는 인증된 사용자만 가능
                         .requestMatchers(HttpMethod.POST, commentInsertUrl).authenticated()
-                        .requestMatchers(HttpMethod.PUT, commentUpdateUrl).authenticated()
+                        .requestMatchers(HttpMethod.PATCH, commentUpdateUrl).authenticated()
                         .requestMatchers(HttpMethod.DELETE, commentDeleteUrl).authenticated()
                         // 나머지 모든 요청은 허용
                         .anyRequest().permitAll())

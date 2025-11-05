@@ -67,8 +67,8 @@ cors:
   allowed-origins: "http://localhost:3000"
 
 size:
-  event: 20
-  comment: 5
+  event: 32
+  comment: 10
   ai-comment: 10
 
 sort:
@@ -77,10 +77,10 @@ sort:
     property: modifiedTime
   comment:
     direction: DESC
-    property: commentId
+    property: updatedAt
 
 redis:
-  time-to-live: 60 # 60 * 1 = 1분
+  time-to-live: 1800 # 60 * 30 = 30분
 
 management:
   endpoints:

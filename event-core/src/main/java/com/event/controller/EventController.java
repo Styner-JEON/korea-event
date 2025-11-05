@@ -3,6 +3,7 @@ package com.event.controller;
 import com.event.model.response.EventListResponse;
 import com.event.model.response.EventResponse;
 import com.event.service.EventService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,6 +46,7 @@ public class EventController {
      * @return 이벤트 목록 페이지
      */
     @GetMapping
+    @Operation(summary = "이벤트 목록 조회")
     public ResponseEntity<Page<EventListResponse>> getEventList(
             Pageable pageable,
             @RequestParam(required = false) String query,
@@ -67,6 +69,7 @@ public class EventController {
      * @return 이벤트 상세 정보
      */
     @GetMapping("/{contentId}")
+    @Operation(summary = "이벤트 상세 조회")
     public ResponseEntity<EventResponse> getEvent(@PathVariable Long contentId) {
         return ResponseEntity.ok(eventService.selectEvent(contentId));
     }

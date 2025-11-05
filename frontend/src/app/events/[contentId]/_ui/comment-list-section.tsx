@@ -18,8 +18,8 @@ export default function CommentListSection({ contentId, isLoggedIn, username }: 
 
   const { data, error, isValidating, size, setSize, mutate } = useSWRInfinite<CommentScrollResponse>(
     getKey,
-    fetchCommentListInRcc, 
-    {      
+    fetchCommentListInRcc,
+    {
       initialSize: 0,
       revalidateAll: false,
       revalidateFirstPage: false,
@@ -31,9 +31,10 @@ export default function CommentListSection({ contentId, isLoggedIn, username }: 
     }
   );
 
-  // console.log('data', data);
+  console.log('data', data);
 
   const pages = data ?? [];
+  const flatComments: CommentResponse[] = pages.flatMap((p) => p?.commentResponseList ?? []);
 
   let hasMoreComments = true;
   if (pages.length > 0) {
@@ -44,30 +45,29 @@ export default function CommentListSection({ contentId, isLoggedIn, username }: 
   }
 
   const validatingRef = useRef(isValidating);
-  useEffect(() => {     
+  useEffect(() => {
     validatingRef.current = isValidating;
   }, [isValidating]);
 
   // 무한 스크롤
-  useEffect(() => {    
-
-    if (!hasMoreComments) {      
+  useEffect(() => {
+    if (!hasMoreComments) {
       return;
     }
 
     const targetElement = document.getElementById("targetElement");
-    if (!targetElement) {      
+    if (!targetElement) {
       return;
     }
-    
-    const observer = new IntersectionObserver((entries) => {    
-      entries.forEach((entry) => {         
-        if (entry.isIntersecting && !validatingRef.current && hasMoreComments) {                  
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && !validatingRef.current && hasMoreComments) {
           observer.unobserve(entry.target);
           setSize((size) => size + 1);
         }
       });
-    },{
+    }, {
       root: null,
       rootMargin: "300px 0px",
       threshold: 0,
@@ -75,7 +75,7 @@ export default function CommentListSection({ contentId, isLoggedIn, username }: 
     observer.observe(targetElement);
 
     return () => {
-      observer.disconnect();      
+      observer.disconnect();
     };
   }, [hasMoreComments, size, setSize]);
 
@@ -83,32 +83,28 @@ export default function CommentListSection({ contentId, isLoggedIn, username }: 
     return <div className="text-red-500 p-4">지금은 댓글을 불러올 수 없습니다.</div>;
   }
 
-  return (    
-    <section>
+  return (
+    <section className="space-y-4">
       <CommentInsertForm
         contentId={contentId}
         isLoggedIn={isLoggedIn}
         commentMutate={mutate}
       />
-      <article>
-        {pages.map((CommentScrollResponse, index) => (
-          <div key={`page-${index}`}>
-            {CommentScrollResponse?.commentResponseList?.map((commentResponse: CommentResponse) => (
-              <CommentArticle
-                key={commentResponse.commentId}
-                comment={commentResponse}
-                contentId={contentId}
-                isOwner={username === commentResponse.username}
-                commentMutate={mutate}
-              />
-            ))}          
-          </div>
+      <article className="space-y-5">
+        {flatComments.map((commentResponse) => (
+          <CommentArticle
+            key={commentResponse.commentId}
+            comment={commentResponse}
+            contentId={contentId}
+            isOwner={username === commentResponse.username}
+            commentMutate={mutate}
+          />
         ))}
 
         {isValidating && hasMoreComments && (
           <div className="p-3 text-center text-xs text-gray-500">LOADING…</div>
         )}
-   
+
         <div id="targetElement" className="h-2" />
       </article>
     </section>

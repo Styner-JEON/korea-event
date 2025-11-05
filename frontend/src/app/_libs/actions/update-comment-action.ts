@@ -3,7 +3,7 @@
 import { Comment } from "../../_types/responses/comment-list-response";
 import { CommentSchema, CommentState } from "./definitions/comment-definition";
 import { checkAccessToken } from "../check-access-token";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { ErrorResponse } from "../../_types/responses/error-response";
 import { CommentResponse } from "@/app/_types/responses/comment-response";
 
@@ -31,7 +31,7 @@ export async function updateCommentAction(comment: Comment, contentId: string, p
 
   try {    
     response = await fetch(url, {
-      method: 'PUT',
+      method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${accessToken}`,
@@ -39,6 +39,7 @@ export async function updateCommentAction(comment: Comment, contentId: string, p
       body: JSON.stringify({ 
         content        
       }),      
+      cache: 'no-store',
     });    
   } catch (error) {
     console.error('[Network ERROR]', error);
@@ -82,6 +83,7 @@ export async function updateCommentAction(comment: Comment, contentId: string, p
 
   console.log(`[댓글 ${responseJson.commentId} 수정 완료]`);
 
+  revalidateTag(`analysis:${contentId}`);
   revalidatePath(`/events/${contentId}`, 'page');
   return { commentResponse: responseJson };
 }

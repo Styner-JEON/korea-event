@@ -87,7 +87,7 @@ class AuthIntegrationTest {
                     .andExpect(jsonPath("$.username").value(USERNAME))
                     .andExpect(jsonPath("$.email").value(EMAIL));
 
-            assertThat(userRepository.existsByUsername(USERNAME)).isTrue();
+            assertThat(userRepository.existsByUsernameIgnoreCase(USERNAME)).isTrue();
         }
 
         @Test

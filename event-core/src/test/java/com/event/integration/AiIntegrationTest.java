@@ -70,7 +70,7 @@ class AiIntegrationTest {
             }
 
             // When
-            ResultActions resultActions = mockMvc.perform(get("/ai/v1/1/summary")
+            ResultActions resultActions = mockMvc.perform(get("/ai/v1/1/analysis")
                     .header("Authorization", "Bearer " + jwt)
                     .contentType(MediaType.APPLICATION_JSON));
 
@@ -92,7 +92,7 @@ class AiIntegrationTest {
             }
 
             // When
-            ResultActions resultActions = mockMvc.perform(get("/ai/v1/1/summary")
+            ResultActions resultActions = mockMvc.perform(get("/ai/v1/1/analysis")
                     .header("Authorization", "Bearer " + jwt)
                     .contentType(MediaType.APPLICATION_JSON));
 

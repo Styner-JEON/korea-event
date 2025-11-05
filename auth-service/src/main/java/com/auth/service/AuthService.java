@@ -18,7 +18,6 @@ import com.auth.security.JwtUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -67,32 +66,33 @@ public class AuthService {
     /**
      * 사용자명과 이메일 중복을 확인하고, 비밀번호를 암호화하여 새 사용자를 생성합니다.
      * 
-     * @param request 회원가입 요청 정보
+     * @param signupRequest 회원가입 요청 정보
      * @return 회원가입 성공 응답
      * @throws CustomSignupException 사용자명 또는 이메일이 이미 존재하는 경우
      */
     @Transactional
-    public SignupResponse signup(SignupRequest request) {
-        if (userRepository.existsByUsername(request.username())) {
-            log.warn("Username {} already exists", request.username());
-            throw new CustomSignupException(HttpStatus.CONFLICT, "Username already exists");
-        }
+    public SignupResponse signup(SignupRequest signupRequest) {
+        String email = signupRequest.email().toLowerCase();
+        String username = signupRequest.username();
 
-        if (userRepository.existsByEmail(request.email())) {
-            log.warn("Email {} already exists", request.email());
+        if (userRepository.existsByEmail(email)) {
+            log.warn("Email {} already exists", email);
             throw new CustomSignupException(HttpStatus.CONFLICT, "Email already exists");
         }
 
-        String encodedPassword = passwordEncoder.encode(request.password());
-        String username = request.username();
-        String email = request.email();
+        if (userRepository.existsByUsernameIgnoreCase(username)) {
+            log.warn("Username {} already exists", username);
+            throw new CustomSignupException(HttpStatus.CONFLICT, "Username already exists");
+        }
+
+        String encodedPassword = passwordEncoder.encode(signupRequest.password());
         UserRole userRole = UserRole.ROLE_USER;
-        UserEntity userEntity = new UserEntity(username, encodedPassword, email, userRole);
 
+        UserEntity userEntity = new UserEntity(email, encodedPassword, username, userRole);
         userRepository.save(userEntity);
-        log.info("User signed up: {}", request.username());
+        log.info("User signed up: {}", email);
 
-        return new SignupResponse(username, email);
+        return new SignupResponse(email, username);
     }
 
     /**
@@ -104,18 +104,19 @@ public class AuthService {
      * @throws CustomLoginException 인증 실패 시
      */
     public LoginResponse login(HttpServletResponse response, LoginRequest loginRequest) {
-        String username = loginRequest.username();
+        String email = loginRequest.email().toLowerCase();
         String password = loginRequest.password();
-        Authentication authentication = UsernamePasswordAuthenticationToken.unauthenticated(username, password);
+        Authentication authentication = UsernamePasswordAuthenticationToken.unauthenticated(email, password);
         try {
             // CustomUserDetailsService.loadUserByUsername() 실행함
             authentication = authenticationManager.authenticate(authentication);
         } catch (AuthenticationException e) {
-            log.warn("Authentication failed for user {}: ", loginRequest.username(), e);
-            throw new CustomLoginException(HttpStatus.UNAUTHORIZED, "username or password is incorrect");
+            log.warn("Authentication failed for user {}: ", email, e);
+            throw new CustomLoginException(HttpStatus.UNAUTHORIZED, "Incorrect email or password");
         }
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
         Long userId = customUserDetails.getUserEntity().getUserId();
+        String username = authentication.getName();
         String userRole = customUserDetails.getUserEntity().getUserRole().name();
 
         String accessToken = jwtUtil.createJwt(userId, username, userRole, accessTokenExpiry);

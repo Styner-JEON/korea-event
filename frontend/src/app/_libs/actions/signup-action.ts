@@ -7,9 +7,9 @@ import { ErrorResponse } from "../../_types/responses/error-response";
 
 export async function signupAction(state: SignupFormState, formData: FormData) {    
   const validatedFields = SignupFormSchema.safeParse({
-    username: formData.get('username'),
     email: formData.get('email'),
-    password: formData.get('password'),
+    username: formData.get('username'),
+    password: formData.get('password')
   });
  
   if (!validatedFields.success) {
@@ -18,7 +18,7 @@ export async function signupAction(state: SignupFormState, formData: FormData) {
     };
   }
  
-  const { username, email, password } = validatedFields.data;
+  const { email, username, password } = validatedFields.data;
 
   const message = '지금은 회원가입을 할 수 없습니다. 잠시 후 다시 시도해주세요.';
   const url = `${process.env.NEXT_PUBLIC_AUTH_BASE_URL}/auth/${process.env.NEXT_PUBLIC_AUTH_API_VERSION}/signup`;
@@ -30,10 +30,11 @@ export async function signupAction(state: SignupFormState, formData: FormData) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        username,
-        email,        
-        password,
+        email,
+        username,                
+        password
       }),      
+      cache: 'no-store',
     });
   } catch (error) {
     console.error('[Network ERROR]', error);
@@ -56,7 +57,7 @@ export async function signupAction(state: SignupFormState, formData: FormData) {
         detailedMessage = '요청하신 데이터를 찾을 수 없습니다.'; 
         break;
       case 409:
-        detailedMessage = '아이디나 이메일이 이미 존재합니다.'; 
+        detailedMessage = '이메일 또는 유저명이 이미 존재합니다.'; 
         break;
       case 500:
         detailedMessage = '서버 에러가 발생했습니다. 잠시 후 다시 시도해 주세요.'; 

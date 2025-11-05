@@ -2,17 +2,17 @@ import { fetchEvent } from "@/app/_libs/fetchers/fetch-event";
 import Image from "next/image";
 import Link from 'next/link';
 import { cookies } from "next/headers";
-import GoBackButton from "./_ui/go-back-button";
 import EmbeddedMap from "./_ui/embedded-map";
 import CommentSection from "./_ui/comment-section";
- 
+import { formatDateToDot } from "@/libs/utils";
+
 // export const dynamic = 'force-dynamic';
 
-export default async function DetailPage({ params }: { 
-  params: Promise<{ contentId: string }> 
-}) {  
+export default async function DetailPage({ params }: {
+  params: Promise<{ contentId: string }>
+}) {
   const { contentId } = await params;
-  const { eventResponse, error } = await fetchEvent(contentId);  
+  const { eventResponse, error } = await fetchEvent(contentId);
 
   const cookieStore = await cookies();
   const accessToken = cookieStore.get('access-token');
@@ -25,88 +25,128 @@ export default async function DetailPage({ params }: {
 
   if (error) {
     return (
-      <>
-        <GoBackButton />
-        <main>
-          <p className="text-red-500">{error.message}</p>
-        </main>
-      </>
+      <main>
+        <p className="text-red-500">{error.message}</p>
+      </main>
     );
   }
 
   if (!eventResponse) {
     return (
-      <>
-        <GoBackButton />
-        <main>
-          <p className="p-4">지금은 데이터가 존재하지 않습니다.</p>
-        </main>
-      </>
+      <main>
+        <p className="p-4">지금은 데이터가 존재하지 않습니다.</p>
+      </main>
     );
   }
 
   const { href, label } = parseHomepage(eventResponse.homepage);
 
   return (
-    <>
-      <GoBackButton />
-      <main className="p-8 space-y-6">
-        <h1 className="text-2xl font-bold">{eventResponse.title}</h1>
-        <p className="relative w-150 h-100">        
-          <Image
-            src={eventResponse.firstImage}
-            alt={eventResponse.title}
-            fill
-            className="object-cover rounded-md"
-          />        
-        </p>
-        <p>
-          <strong>주최:</strong> {eventResponse.sponsor1}
-        </p>
-        <p>
-          <strong>주소:</strong> {eventResponse.addr1}
-        </p>
-        <p>
-          <strong>전화번호:</strong> {replaceBrWithSpace(eventResponse.sponsor1Tel)}          
-        </p>      
-        <p>
-          <strong>시작일:</strong> {eventResponse.eventStartDate}
-        </p>
-        <p>
-          <strong>종료일:</strong> {eventResponse.eventEndDate}
-        </p>
-        <p>
-          <strong>시간:</strong> {replaceBrWithSpace(eventResponse.playTime)}
-        </p>
-        <p>
-          <strong>이용요금:</strong> {replaceBrWithSpace(eventResponse.useTimeFestival)}          
-        </p>
-        <p>
-          <strong>상세정보:</strong> {parseOverview(eventResponse.overview)}          
-        </p>
-        <p>
-          <strong>웹사이트: </strong>
-          <Link
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 hover:underline"
-          >
-            {label}
-          </Link>
-        </p>            
+    <main className="mx-auto max-w-5xl px-6 py-8 space-y-8">
+      <h1 className="text-3xl font-semibold tracking-tight">{eventResponse.title}</h1>
+      <section className="relative w-full h-96 rounded-xl overflow-hidden border border-gray-200 bg-gray-100">
+        <Image
+          src={eventResponse.firstImage}
+          alt={eventResponse.title}
+          fill
+          className="object-cover"
+        />
+      </section>
+
+      <section className="rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div className="p-6">
+          <div role="list" className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+            <div role="group" aria-label="주최">
+              <div className="font-semibold text-gray-800 flex items-center gap-2">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-800"></span>
+                <span>주최</span>
+              </div>
+              <div className="mt-1 text-gray-500">{eventResponse.sponsor1}</div>
+            </div>
+            <div role="group" aria-label="전화번호">
+              <div className="font-semibold text-gray-800 flex items-center gap-2">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-800"></span>
+                <span>전화번호</span>
+              </div>
+              <div className="mt-1 text-gray-500">{replaceBrWithSpace(eventResponse.sponsor1Tel)}</div>
+            </div>
+            <div role="group" aria-label="시작일">
+              <div className="font-semibold text-gray-800 flex items-center gap-2">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-800"></span>
+                <span>시작일</span>
+              </div>
+              <div className="mt-1 text-gray-500">{formatDateToDot(eventResponse.eventStartDate)}</div>
+            </div>
+            <div role="group" aria-label="종료일">
+              <div className="font-semibold text-gray-800 flex items-center gap-2">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-800"></span>
+                <span>종료일</span>
+              </div>
+              <div className="mt-1 text-gray-500">{formatDateToDot(eventResponse.eventEndDate)}</div>
+            </div>
+            <div role="group" aria-label="시간">
+              <div className="font-semibold text-gray-800 flex items-center gap-2">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-800"></span>
+                <span>시간</span>
+              </div>
+              <div className="mt-1 text-gray-500">{replaceBrWithSpace(eventResponse.playTime)}</div>
+            </div>
+            <div role="group" aria-label="이용요금">
+              <div className="font-semibold text-gray-800 flex items-center gap-2">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-800"></span>
+                <span>이용요금</span>
+              </div>
+              <div className="mt-1 text-gray-500">{replaceBrWithSpace(eventResponse.useTimeFestival)}</div>
+            </div>
+            <div role="group" aria-label="주소" className="col-span-2">
+              <div className="font-semibold text-gray-800 flex items-center gap-2">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-800"></span>
+                <span>주소</span>
+              </div>
+              <div className="mt-1 text-gray-500">{eventResponse.addr1}</div>
+            </div>
+            <div role="group" aria-label="웹사이트" className="col-span-2">
+              <div className="font-semibold text-gray-800 flex items-center gap-2">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-800"></span>
+                <span>웹사이트</span>
+              </div>
+              <div className="mt-1">
+                <Link
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sky-600 hover:underline"
+                >
+                  {label}
+                </Link>
+              </div>
+            </div>
+            <div role="group" aria-label="상세정보" className="col-span-2">
+              <div className="font-semibold text-gray-800 flex items-center gap-2">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-gray-800"></span>
+                <span>상세정보</span>
+              </div>
+              <div className="mt-1 text-gray-400">
+                {parseOverview(eventResponse.overview)}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-xl border border-gray-200 overflow-hidden">
         <EmbeddedMap
           title={eventResponse.title}
           mapX={eventResponse.mapX}
-          mapY={eventResponse.mapY}          
-        />                
-        <CommentSection
-          contentId={contentId}
-          isLoggedIn={isLoggedIn}
-          username={username?.value}
-        />        
-      </main>
-    </>
+          mapY={eventResponse.mapY}
+        />
+      </section>
+      <CommentSection
+        contentId={contentId}
+        isLoggedIn={isLoggedIn}
+        username={username?.value}
+      />
+    </main>
   );
 }
 
