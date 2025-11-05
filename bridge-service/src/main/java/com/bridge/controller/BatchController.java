@@ -2,6 +2,7 @@ package com.bridge.controller;
 
 import com.bridge.model.dto.EventDto;
 import com.bridge.service.PublicDataApiClient;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -28,6 +29,7 @@ public class BatchController {
      * @return List of EventDto
      */
     @GetMapping(path = "/batch")
+    @Operation(summary = "공공데이터 이벤트 목록 적재")
     public ResponseEntity<List<EventDto>> setEventDtoList() {
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(publicDataApiClient.getEventDtoList());
     }

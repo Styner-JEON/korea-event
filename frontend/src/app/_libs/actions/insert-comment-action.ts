@@ -3,7 +3,7 @@
 import { CommentSchema, CommentState } from "./definitions/comment-definition";
 import { ErrorResponse } from "../../_types/responses/error-response";
 import { checkAccessToken } from "../check-access-token";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { CommentResponse } from "@/app/_types/responses/comment-response";
 
 export async function insertCommentAction(contentId: string, prevState: CommentState, formData: FormData) {   
@@ -38,6 +38,7 @@ export async function insertCommentAction(contentId: string, prevState: CommentS
       body: JSON.stringify({ 
         content        
       }),      
+      cache: 'no-store',
     });    
   } catch (error) {
     console.error('[Network ERROR]', error);
@@ -81,8 +82,9 @@ export async function insertCommentAction(contentId: string, prevState: CommentS
 
   console.log(`[댓글 ${responseJson.commentId} 작성 완료]`);
 
+  revalidateTag(`event:${contentId}:commentCount`);
+  revalidateTag(`analysis:${contentId}`);
   revalidatePath(`/events/${contentId}`, 'page');
-  // revalidateTag(`comments:${contentId}`);
   // redirect(`/events/${contentId}`);
 
   return { commentResponse: responseJson };

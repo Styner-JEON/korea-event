@@ -6,6 +6,7 @@ import com.event.model.response.CommentResponse;
 import com.event.model.response.CommentScrollResponse;
 import com.event.security.CustomPrincipal;
 import com.event.service.CommentService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,35 +35,41 @@ public class CommentController {
      * @return 댓글 수
      */
     @GetMapping("/count")
+    @Operation(summary = "댓글 수 조회")
     public ResponseEntity<Integer> getCommentCount(@PathVariable Long contentId) {
         return ResponseEntity.ok(commentService.getCommentCount(contentId));
     }
 
-//    @GetMapping
-//    public ResponseEntity<Page<CommentListResponse>> getCommentPageByContentId(
-//            @PathVariable Long contentId,
-//            @PageableDefault(size = 5, sort = "commentId", direction = Sort.Direction.DESC) Pageable pageable) {
-//        return ResponseEntity.ok(commentService.getCommentPageByContentId(contentId, pageable));
-//    }
+    // @GetMapping
+    // public ResponseEntity<Page<CommentListResponse>> getCommentPageByContentId(
+    // @PathVariable Long contentId,
+    // @PageableDefault(size = 5, sort = "commentId", direction =
+    // Sort.Direction.DESC) Pageable pageable) {
+    // return ResponseEntity.ok(commentService.getCommentPageByContentId(contentId,
+    // pageable));
+    // }
 
-//    @GetMapping
-//    public ResponseEntity<Slice<CommentListResponse>> getCommentSliceByContentId(
-//            @PathVariable Long contentId,
-//            @PageableDefault(size = 5, sort = "commentId", direction = Sort.Direction.DESC) Pageable pageable) {
-//        return ResponseEntity.ok(commentService.getCommentSliceByContentId(contentId, pageable));
-//    }
+    // @GetMapping
+    // public ResponseEntity<Slice<CommentListResponse>> getCommentSliceByContentId(
+    // @PathVariable Long contentId,
+    // @PageableDefault(size = 5, sort = "commentId", direction =
+    // Sort.Direction.DESC) Pageable pageable) {
+    // return ResponseEntity.ok(commentService.getCommentSliceByContentId(contentId,
+    // pageable));
+    // }
 
     /**
      * 특정 이벤트의 댓글 목록을 Keyset-Filtering 방식으로 조회합니다.
+     * 
      * @param contentId
      * @param cursor
      * @return
      */
     @GetMapping
+    @Operation(summary = "댓글 목록 조회")
     public ResponseEntity<CommentScrollResponse> getCommentScrollByContentId(
             @PathVariable Long contentId,
-            @RequestParam(required = false) String cursor
-    ) {
+            @RequestParam(required = false) String cursor) {
         return ResponseEntity.ok(commentService.getCommentScrollByContentId(contentId, cursor));
     }
 
@@ -75,6 +82,7 @@ public class CommentController {
      * @return 등록된 댓글 정보
      */
     @PostMapping
+    @Operation(summary = "댓글 등록")
     public ResponseEntity<CommentResponse> insertComment(
             @PathVariable Long contentId,
             @Valid @RequestBody CommentInsertRequest commentInsertRequest,
@@ -91,6 +99,7 @@ public class CommentController {
      * @return 삭제된 댓글 정보
      */
     @DeleteMapping("/{commentId}")
+    @Operation(summary = "댓글 삭제")
     public ResponseEntity<CommentResponse> deleteComment(
             @PathVariable Long commentId,
             @AuthenticationPrincipal CustomPrincipal customPrincipal) {
@@ -105,7 +114,8 @@ public class CommentController {
      * @param customPrincipal      인증된 사용자 정보
      * @return 수정된 댓글 정보
      */
-    @PutMapping("/{commentId}")
+    @PatchMapping("/{commentId}")
+    @Operation(summary = "댓글 수정")
     public ResponseEntity<CommentResponse> updateComment(
             @PathVariable Long commentId,
             @Valid @RequestBody CommentUpdateRequest commentUpdateRequest,

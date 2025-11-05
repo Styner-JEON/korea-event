@@ -18,11 +18,11 @@ export default async function CommentAnalysisArticle({ contentId }: { contentId:
   if (commentCount < requiredCommentCount) {
     return (
       <div className="px-4 py-6 bg-yellow-50 border border-yellow-200 rounded-lg space-y-2">
-        <h3 className="text-lg font-semibold text-yellow-800"> AI 댓글 분석 대기</h3>
+        <h1 className="text-lg font-semibold text-yellow-800"> AI 댓글 분석</h1>
+        <p className="text-yellow-700">댓글 분석은 댓글이 {requiredCommentCount}개 이상일 때 제공됩니다.</p>
         <p className="text-yellow-700">
           현재 댓글 수: <span className="font-semibold">{commentCount}</span>개
-        </p>
-        <p className="text-yellow-700">댓글 분석은 댓글이 {requiredCommentCount}개 이상일 때 제공됩니다.</p>
+        </p>        
       </div>
     );
   }
@@ -58,7 +58,7 @@ export default async function CommentAnalysisArticle({ contentId }: { contentId:
       {/* 요약 */}
       <div className="space-y-2">
         <h4 className="font-medium text-gray-800">📝 요약</h4>
-        <p className="text-gray-700 leading-relaxed bg-white p-3 rounded border">
+        <p className="text-sm text-gray-500 leading-relaxed bg-white p-3 rounded border">
           {summary}
         </p>
       </div>
@@ -110,7 +110,7 @@ export default async function CommentAnalysisArticle({ contentId }: { contentId:
             <div className="space-y-2">
               {Object.entries(emotion.ratio).map(([emotionType, ratio]) => (
                 <div key={emotionType} className="flex items-center gap-3">
-                  <span className="text-sm w-16 text-gray-700">
+                  <span className="text-sm w-16 text-gray-500">
                     {emotionLabelMap[emotionType] ?? emotionType}
                   </span>
                   <div className="flex-1 bg-gray-200 rounded-full h-2">

@@ -70,7 +70,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 댓글 수정 요청인지 확인
         boolean isUpdate = PathPatternRequestMatcher.withDefaults()
-                .matcher(HttpMethod.PUT, commentUpdateUrl)
+                .matcher(HttpMethod.PATCH, commentUpdateUrl)
                 .matches(request);
 
         // 댓글 삭제 요청인지 확인

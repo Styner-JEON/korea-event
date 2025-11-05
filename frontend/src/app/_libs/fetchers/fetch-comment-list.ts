@@ -60,10 +60,6 @@ export async function fetchCommentListInRcc([path]: [string, number]) {
   let response: Response;
   try {
     response = await fetch(url);
-    // response = await fetch(url, {       
-      // cache: 'default'      
-      // cache: 'no-store',
-    // }); 
   } catch (error) {
     console.error('[Network ERROR]', error);
     throw new Error(message);

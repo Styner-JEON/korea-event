@@ -6,10 +6,10 @@ export async function analyzeComment(contentId: string): Promise<{
   error?: ErrorResponse;
 }> {
   const message = '지금은 댓글 분석 결과를 불러올 수 없습니다.';
-  const url = `${process.env.NEXT_PUBLIC_AI_BASE_URL}/ai/${process.env.NEXT_PUBLIC_AI_API_VERSION}/${contentId}/summary`;
+  const url = `${process.env.NEXT_PUBLIC_AI_BASE_URL}/ai/${process.env.NEXT_PUBLIC_AI_API_VERSION}/${contentId}/analysis`;
   let response: Response;
 
-  const revalidateSeconds = Number(process.env.NEXT_PUBLIC_COMMENT_ANALYSIS_REVALIDATE_SECONDS);
+  // const revalidateSeconds = Number(process.env.NEXT_PUBLIC_COMMENT_ANALYSIS_REVALIDATE_SECONDS);
   
   try {
     response = await fetch(url, {
@@ -18,7 +18,7 @@ export async function analyzeComment(contentId: string): Promise<{
         'Content-Type': 'application/json',
       },      
       next: {        
-        revalidate: revalidateSeconds,
+        // revalidate: revalidateSeconds,
         tags: [`analysis:${contentId}`],
       },
     });

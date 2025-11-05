@@ -11,10 +11,10 @@ import lombok.NoArgsConstructor;
 @Getter
 public class UserEntity {
 
-    public UserEntity(String username, String password, String email, UserRole userRole) {
-        this.username = username;
-        this.password = password;
+    public UserEntity(String email, String password, String username, UserRole userRole) {
         this.email = email;
+        this.password = password;
+        this.username = username;
         this.userRole = userRole;
     }
 
@@ -22,11 +22,11 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
-    private String username;
+    private String email;
 
     private String password;
 
-    private String email;
+    private String username;
 
     @Enumerated(EnumType.STRING)
     private UserRole userRole;

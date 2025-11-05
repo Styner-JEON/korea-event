@@ -17,20 +17,20 @@ spring:
       ddl-auto: update
   batch:
     job:
-      enabled: false             # 앱 실행 시 배치 실행할 것인지 여부
+      enabled: false            # 앱 실행 시 배치 실행할 것인지 여부
     jdbc:
-      initialize-schema: always  # Spring Batch 메타데이터 테이블들을 생성함
+      initialize-schema: always # Spring Batch 메타데이터 테이블들을 생성함
   kafka:
     bootstrap-servers: localhost:9092
     producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer         # 키는 문자열
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer  # 값은 JSON
-      acks: all  # 리더 브로커 뿐 아니라 모든 팔로워 브로커들까지 저장해야 acks를 프로듀서에게 보냄
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer        # 키는 문자열
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer # 값은 JSON
+      acks: all # 리더 브로커 뿐 아니라 모든 팔로워 브로커들까지 저장해야 acks를 프로듀서에게 보냄
     properties:
       spring.json.add.type.headers: false
-      delivery.timeout.ms: 120000  # 1000 * 60 * 2 = 2분  (기본값 2분)
-      request.timeout.ms: 30000    # 1000 * 30     = 30분 (기본값 30분)
-      metadata.max.age.ms: 300000  # 1000 * 60 * 5 = 5분  (기본값 5분), 프로듀서가 클러스터에게 메터데이터를 요청하는 주기
+      delivery.timeout.ms: 120000 # 1000 * 60 * 2 = 2분  (기본값 2분)
+      request.timeout.ms: 30000   # 1000 * 30     = 30분 (기본값 30분)
+      metadata.max.age.ms: 300000 # 1000 * 60 * 5 = 5분  (기본값 5분), 프로듀서가 클러스터에게 메터데이터를 요청하는 주기
     topic: event-topic
     timeout-seconds: 2
 
@@ -45,14 +45,14 @@ api:
   version: v1
 
 public-data-api:
-  base-url: "http://apis.data.go.kr/B551011/KorService2"
+  base-url: "https://apis.data.go.kr/B551011/KorService2"
   endpoints:
     area-based-list: "/areaBasedList2" # 지역기반관광정보조회 API
     detail-common: "/detailCommon2"    # 공통정보조회 API
     detail-intro: "/detailIntro2"      # 소개정보조회 API
   service-key: ${SERVICE_KEY}
-  num-of-rows: 10  # 공공데이터 API 호출로 응답받을 데이터의 개수
-  minus-days: 3    # 며칠 전의 데이터를 전송할 것인지를 설정
+  num-of-rows: 10 # 공공데이터 API 호출로 응답받을 데이터의 개수
+  minus-days: 2   # 며칠 전의 데이터를 전송할 것인지를 설정
 
 retry:
   max-attempts: 3

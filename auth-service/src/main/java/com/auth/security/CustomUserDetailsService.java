@@ -26,14 +26,14 @@ public class CustomUserDetailsService implements UserDetailsService {
      * 사용자명으로 사용자 정보 로드합니다.
      * AuthService.login() 내의 authenticationManager.authenticate(authentication)에 의해 실행됩니다.
      * 
-     * @param username 조회할 사용자명
+     * @param email 조회할 이메일
      * @return 사용자 정보를 담은 UserDetails 객체
      * @throws UsernameNotFoundException 사용자를 찾을 수 없는 경우
      */
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserEntity userEntity = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Username " + username + " not found"));
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        UserEntity userEntity = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException(email + " not found"));
         return new CustomUserDetails(userEntity);
     }
 

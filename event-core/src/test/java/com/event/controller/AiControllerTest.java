@@ -61,7 +61,7 @@ class AiControllerTest {
             given(aiService.analyzeComments(contentId)).willReturn(commentAnalysisResponse);
 
             // When
-            ResultActions result = mockMvc.perform(get("/ai/v1/{contentId}/summary", contentId)
+            ResultActions result = mockMvc.perform(get("/ai/v1/{contentId}/analysis", contentId)
                     .contentType(MediaType.APPLICATION_JSON));
 
             // Then

@@ -10,7 +10,7 @@ import { ErrorResponse } from "../../_types/responses/error-response";
 
 export async function loginAction(state: LoginFormState, formData: FormData) { 
   const validatedFields = LoginFormSchema.safeParse({
-    username: formData.get('username'),    
+    email: formData.get('email'),    
     password: formData.get('password')
   });
  
@@ -20,7 +20,7 @@ export async function loginAction(state: LoginFormState, formData: FormData) {
     };
   }
 
-  const { username, password } = validatedFields.data;  
+  const { email, password } = validatedFields.data;  
 
   const message = '지금은 로그인을 할 수 없습니다. 잠시 후 다시 시도해주세요.';
   const url = `${process.env.NEXT_PUBLIC_AUTH_BASE_URL}/auth/${process.env.NEXT_PUBLIC_AUTH_API_VERSION}/login`;
@@ -32,9 +32,10 @@ export async function loginAction(state: LoginFormState, formData: FormData) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ 
-        username, 
+        email, 
         password,
       }),      
+      cache: 'no-store',
     });    
   } catch (error) {
     console.error('[Network ERROR]', error);
@@ -57,7 +58,7 @@ export async function loginAction(state: LoginFormState, formData: FormData) {
         detailedMessage = '요청하신 데이터를 찾을 수 없습니다.'; 
         break;
       case 401:
-        detailedMessage = 'ID와 password를 정확히 입력해주세요.'; 
+        detailedMessage = '이메일과 비밀번호를 정확히 입력해주세요.'; 
         break;
       case 500:
         detailedMessage = '서버 에러가 발생했습니다. 잠시 후 다시 시도해 주세요.'; 

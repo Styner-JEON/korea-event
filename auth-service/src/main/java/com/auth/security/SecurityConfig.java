@@ -28,6 +28,14 @@ public class SecurityConfig {
     @Value("${auth-url.refresh}")
     private String refreshUrl;
 
+    private static final String[] SWAGGER_WHITELIST = {
+            "/swagger-ui.html",
+            "/swagger-ui/**",
+            "/v3/api-docs",
+            "/v3/api-docs/**",
+            "/v3/api-docs.yaml"
+    };
+
     private final AuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
@@ -35,6 +43,7 @@ public class SecurityConfig {
         http
             .csrf((csrf) -> csrf.disable())
             .authorizeHttpRequests((authorize) -> authorize
+                    .requestMatchers(SWAGGER_WHITELIST).permitAll()
                     .requestMatchers("/auth/actuator/**").permitAll()
                     .requestMatchers("/favicon.ico").permitAll()
                     .requestMatchers(HttpMethod.POST, loginUrl).permitAll()

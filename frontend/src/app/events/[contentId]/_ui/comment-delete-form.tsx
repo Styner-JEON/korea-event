@@ -16,17 +16,17 @@ export default function CommentDeleteForm({ contentId, commentId, commentMutate 
   const commentResponse = state?.commentResponse;
 
   useEffect(() => {
-    if (commentResponse) {           
+    if (commentResponse) {
       commentMutate(
-        (commentScrollResponseList) => {          
-          if (!commentScrollResponseList) {
-            return commentScrollResponseList;
+        (commentScrollResponseList) => {
+          if (!Array.isArray(commentScrollResponseList) || commentScrollResponseList.length === 0) {
+            return commentScrollResponseList ?? [];
           }
 
           return commentScrollResponseList.map((commentScrollResponse: CommentScrollResponse) => ({
             ...commentScrollResponse,
-            commentResponseList: commentScrollResponse.commentResponseList.filter((comment) => 
-              comment.commentId !== commentId
+            commentResponseList: commentScrollResponse.commentResponseList.filter((c) =>
+              c.commentId !== commentId
             )
           }));
         },
@@ -44,7 +44,7 @@ export default function CommentDeleteForm({ contentId, commentId, commentMutate 
         disabled={pending}
         className={`rounded-md border p-2 transition-colors ${pending
           ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          : 'hover:bg-gray-100 hover:text-gray-700'
+          : 'hover:bg-gray-100 hover:text-gray-700 hover:cursor-pointer'
           }`}
       >
         <p>{pending ? '삭제 중...' : '삭제'}</p>

@@ -1,6 +1,5 @@
 package com.bridge.service;
 
-import com.bridge.exception.CustomBatchException;
 import com.bridge.exception.CustomPublicDataApiException;
 import com.bridge.model.areabasedlist.AreaBasedListHttpResponse;
 import com.bridge.model.areabasedlist.AreaBasedListItem;
@@ -87,7 +86,6 @@ public class PublicDataApiClient {
 
     /**
      * 현재 날짜에서 이 일수만큼 뺀 날짜 이후에 수정된 데이터만 조회합니다.
-     * ex) 값이 7이면 지난 7일 동안 수정된 이벤트만 조회합니다.
      */
     @Value("${public-data-api.minus-days}")
     private long minusDays;

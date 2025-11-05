@@ -5,7 +5,6 @@ import com.auth.model.role.UserRole;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Optional;
 
@@ -29,7 +28,7 @@ class AuthRepositoryTest {
             userRepository.save(userEntity);
 
             // When
-            boolean result = userRepository.existsByUsername("testuser");
+            boolean result = userRepository.existsByUsernameIgnoreCase("testuser");
 
             // Then
             assertThat(result).isTrue();
@@ -41,7 +40,7 @@ class AuthRepositoryTest {
             // Given
 
             // When
-            boolean result = userRepository.existsByUsername("nonexistent");
+            boolean result = userRepository.existsByUsernameIgnoreCase("nonexistent");
 
             // Then
             assertThat(result).isFalse();
@@ -89,7 +88,7 @@ class AuthRepositoryTest {
             userRepository.save(userEntity);
 
             // When
-            Optional<UserEntity> result = userRepository.findByUsername("findme");
+            Optional<UserEntity> result = userRepository.findByEmail("findme");
 
             // Then
             assertThat(result).isPresent();
@@ -102,7 +101,7 @@ class AuthRepositoryTest {
             // Given
 
             // When
-            Optional<UserEntity> result = userRepository.findByUsername("missing");
+            Optional<UserEntity> result = userRepository.findByEmail("missing");
 
             // Then
             assertThat(result).isEmpty();

@@ -18,7 +18,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -91,7 +95,7 @@ public class CommentService {
      * 
      * @param contentId
      * @param cursor
-     * @return
+     * @return 댓글 목록과 다음 커서
      */
     @Transactional(readOnly = true)
     public CommentScrollResponse getCommentScrollByContentId(Long contentId, String cursor) {
@@ -100,12 +104,16 @@ public class CommentService {
                 : decodeCursor(cursor);
 
         Sort.Direction direction = Sort.Direction.fromString(commentSortDirection);
-        Sort sort = Sort.by(direction, commentSortProperty);
+        Sort sort = Sort.by(direction, commentSortProperty).and(Sort.by(Sort.Direction.DESC, "commentId"));
 
         Limit limit = Limit.of(commentSize);
 
-        Window<CommentEntity> commentEntityWindow = commentRepository.findScrollByContentId(contentId, sort, limit,
-                keysetScrollPosition);
+        Window<CommentEntity> commentEntityWindow = commentRepository.findScrollByContentId(
+                contentId,
+                sort,
+                limit,
+                keysetScrollPosition
+        );
 
         List<CommentResponse> commentResponseList = commentEntityWindow.getContent().stream()
                 .map(commentMapper::toCommentResponse).toList();
@@ -114,7 +122,10 @@ public class CommentService {
         // 조회한 페이지가 비어 있지 않고, 마지막 페이지가 아닌 경우
         if (!commentEntityWindow.isEmpty() && !commentEntityWindow.isLast()) {
             CommentEntity lastCommentEntity = commentEntityWindow.getContent().get(commentEntityWindow.size() - 1);
-            nextCursor = encodeCursor(lastCommentEntity.getCommentId());
+            nextCursor = encodeCursor(
+                    lastCommentEntity.getUpdatedAt(),
+                    lastCommentEntity.getCommentId()
+            );
         }
 
         return new CommentScrollResponse(commentResponseList, nextCursor);
@@ -122,31 +133,42 @@ public class CommentService {
 
     /**
      * 커서를 인코딩합니다.
+     *
+     * @param updatedAt
      * @param commentId
-     * @return
+     * @return Base64URL 인코딩된 커서 문자열
      */
-    private String encodeCursor(Long commentId) {
-        return String.valueOf(commentId);
+    private String encodeCursor(Instant updatedAt, Long commentId) {
+        long epochMillis = updatedAt.toEpochMilli();
+        String rawCursor = epochMillis + "|" + commentId;
+
+        return Base64.getUrlEncoder().encodeToString(rawCursor.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
      * 커서를 디코딩합니다.
+     *
      * @param cursor
-     * @return
+     * @return KeysetScrollPosition 객체
      */
     private KeysetScrollPosition decodeCursor(String cursor) {
-        long longCommentId;
         try {
-            longCommentId = Long.parseLong(cursor);
+            String rawCursor = new String(Base64.getUrlDecoder().decode(cursor), StandardCharsets.UTF_8);
+            String[] parts = rawCursor.split("\\|", 2);
+            long epochMillis = Long.parseLong(parts[0]);
+            long commentId = Long.parseLong(parts[1]);
+
+            Instant updatedAt = Instant.ofEpochMilli(epochMillis);
+
+            Map<String, Object> key = new LinkedHashMap<>();
+            key.put(commentSortProperty, updatedAt);
+            key.put("commentId", commentId);
+
+            return ScrollPosition.forward(key);
         } catch (NumberFormatException e) {
-            log.error("Invalid cursor numeric value: {}", cursor, e);
-            throw new CustomCommentException(HttpStatus.BAD_REQUEST, "Invalid cursor numeric value");
+            log.error("Invalid cursor format: {}", cursor, e);
+            throw new CustomCommentException(HttpStatus.BAD_REQUEST, "Invalid cursor format");
         }
-
-        Map<String, Object> key = new LinkedHashMap<>();
-        key.put("commentId", longCommentId);
-
-        return ScrollPosition.forward(key);
     }
 
     /**
@@ -159,7 +181,7 @@ public class CommentService {
      * @return 등록된 댓글 정보
      */
     @Transactional
-    // @CacheEvict(value = "comment-analysis", key = "#contentId")
+    @CacheEvict(value = "comment-analysis", key = "#contentId")
     public CommentResponse insertComment(Long contentId, CommentInsertRequest commentInsertRequest,
             CustomPrincipal customPrincipal) {
         CommentEntity commentEntity = createCommentEntity(contentId, commentInsertRequest, customPrincipal);
