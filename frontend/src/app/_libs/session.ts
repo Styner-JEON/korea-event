@@ -11,14 +11,25 @@ export async function createSession(key: string, value: string, path: string, ex
     expiryDate = new Date(Date.now() + expires);
   }
 
+  const isProd = process.env.NODE_ENV === 'production';
   const domain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN;
-
-  cookieStore.set(key, value, {        
-    expires: expiryDate,    
-    path: path,
-    secure: process.env.NODE_ENV === 'production',
-    httpOnly: true,
-    sameSite: 'lax',
-    ...(domain ? { domain } : {}),
-  });
+  
+  if (isProd) {    
+    cookieStore.set(key, value, {
+      expires: expiryDate,  
+      domain: domain,  
+      path: path,
+      secure: true,
+      httpOnly: true,
+      sameSite: 'lax',      
+    });
+  } else {    
+    cookieStore.set(key, value, {
+      expires: expiryDate,        
+      path: path,
+      secure: true,
+      httpOnly: true,
+      sameSite: 'lax',    
+    });
+  }
 }
