@@ -83,5 +83,5 @@ export async function loginAction(state: LoginFormState, formData: FormData) {
   await createSession('access-token', accessToken, '/', accessTokenExpiry);
   await createSession('refresh-token', refreshToken, '/', refreshTokenExpiry);
 
-  redirect('/')
+  redirect('/events');
 }
