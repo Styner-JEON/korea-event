@@ -12,7 +12,7 @@ export default async function MainHeader() {
   async function handleLogout() {
     'use server';
     await logout();
-    redirect('/');
+    redirect('/events');
   }
 
   if (refreshToken && (!username || !accessToken)) {
