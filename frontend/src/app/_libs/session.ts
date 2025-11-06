@@ -27,7 +27,7 @@ export async function createSession(key: string, value: string, path: string, ex
     cookieStore.set(key, value, {
       expires: expiryDate,        
       path: path,
-      secure: true,
+      secure: false,
       httpOnly: true,
       sameSite: 'lax',    
     });
