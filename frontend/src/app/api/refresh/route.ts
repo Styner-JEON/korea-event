@@ -72,7 +72,27 @@ function redirectToHome(request: NextRequest) {
 }
 
 async function deleteCookies(cookieStore: Awaited<ReturnType<typeof cookies>>) {
-  cookieStore.set('access-token', '', { maxAge: 0 });
-  cookieStore.set('refresh-token', '', { maxAge: 0 });
-  cookieStore.set('username', '', { maxAge: 0 });
+  const domain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN; 
+  const isProd = process.env.NODE_ENV === 'production';
+  if (isProd) {
+    cookieStore.set('access-token', '', {        
+      domain: domain,  
+      path: '/',
+      maxAge: 0,
+    });
+    cookieStore.set('refresh-token', '', {        
+      domain: domain,  
+      path: '/',
+      maxAge: 0,
+    });
+    cookieStore.set('username', '', {        
+      domain: domain,  
+      path: '/',
+      maxAge: 0,
+    });
+  } else {
+    cookieStore.set('access-token', '', { maxAge: 0 });
+    cookieStore.set('refresh-token', '', { maxAge: 0 });
+    cookieStore.set('username', '', { maxAge: 0 });
+  }
 }
