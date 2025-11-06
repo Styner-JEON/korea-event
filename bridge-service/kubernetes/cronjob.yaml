@@ -4,8 +4,8 @@ metadata:
   name: bridge-service-batch
   namespace: event
 spec:
-#  schedule: "0,10,20,30,40,50 * * * *"
-  schedule: "0 4 * * *"
+#  schedule: "*/5 * * * *"
+  schedule: "0 3 * * *"
   timeZone: "Asia/Seoul"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
@@ -18,7 +18,7 @@ spec:
         spec:
           containers:
           - name: bridge-service
-            image: 235704034905.dkr.ecr.ap-northeast-2.amazonaws.com/bridge-service:0.0.1
+            image: 235704034905.dkr.ecr.ap-northeast-2.amazonaws.com/bridge-service:0.0.2
             imagePullPolicy: Always
             args:
             - --spring.task.scheduling.enabled=false
