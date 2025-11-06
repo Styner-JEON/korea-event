@@ -62,7 +62,7 @@ jib {
     }
     to {
         image = '235704034905.dkr.ecr.ap-northeast-2.amazonaws.com/auth-service'
-        tags = ['0.0.1']
+        tags = ['0.0.2']
     }
     container {
     }

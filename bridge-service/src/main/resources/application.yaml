@@ -17,7 +17,7 @@ spring:
       ddl-auto: update
   batch:
     job:
-      enabled: false            # 앱 실행 시 배치 실행할 것인지 여부
+      enabled: true             # 앱 실행 시 배치 실행할 것인지 여부
     jdbc:
       initialize-schema: always # Spring Batch 메타데이터 테이블들을 생성함
   kafka:
@@ -52,11 +52,11 @@ public-data-api:
     detail-intro: "/detailIntro2"      # 소개정보조회 API
   service-key: ${SERVICE_KEY}
   num-of-rows: 10 # 공공데이터 API 호출로 응답받을 데이터의 개수
-  minus-days: 2   # 며칠 전의 데이터를 전송할 것인지를 설정
+  minus-days: 1   # 며칠 전의 데이터를 전송할 것인지를 설정
 
 retry:
   max-attempts: 3
-  initial-interval: 60000 # 1000 * 60 * 1 = 1분
+  initial-interval: 60000 # 1000 * 60 * 1  = 1분
   multiplier: 2.0
   max-interval: 600000    # 1000 * 60 * 10 = 10분
 
