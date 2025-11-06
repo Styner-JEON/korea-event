@@ -71,8 +71,8 @@ function redirectToHome(request: NextRequest) {
   return NextResponse.redirect(redirectUrl);
 }
 
-async function deleteCookies(cookieStore: Awaited<ReturnType<typeof cookies>>) {    
-  cookieStore.delete('access-token');
-  cookieStore.delete('username');
-  cookieStore.delete('refresh-token');
+async function deleteCookies(cookieStore: Awaited<ReturnType<typeof cookies>>) {
+  cookieStore.set('access-token', '', { maxAge: 0, path: '/' });
+  cookieStore.set('refresh-token', '', { maxAge: 0, path: '/' });
+  cookieStore.set('username', '', { maxAge: 0, path: '/' });
 }
