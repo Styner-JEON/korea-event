@@ -43,8 +43,8 @@ class AuthControllerTest {
         @DisplayName("회원가입 요청이 유효하면 200 응답과 사용자 정보 반환")
         void givenValidSignupRequest_whenSignup_thenReturnsSignupResponse() throws Exception {
             // Given
-            SignupRequest signupRequest = new SignupRequest("tester", "password123", "tester@email.com");
-            SignupResponse signupResponse = new SignupResponse("tester", "tester@email.com");
+            SignupRequest signupRequest = new SignupRequest("tester@email.com", "password123", "tester");
+            SignupResponse signupResponse = new SignupResponse("tester@email.com", "tester");
 
             given(authService.signup(any())).willReturn(signupResponse);
 

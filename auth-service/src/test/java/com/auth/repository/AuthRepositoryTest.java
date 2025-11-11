@@ -24,7 +24,7 @@ class AuthRepositoryTest {
         @DisplayName("저장된 유저 이름이 존재하면 true를 반환한다")
         void givenUsernameExists_whenExistsByUsername_thenReturnsTrue() {
             // Given
-            UserEntity userEntity = new UserEntity("testuser", "pass1234", "test@email.com", UserRole.ROLE_USER);
+            UserEntity userEntity = new UserEntity("test@email.com", "pass1234", "testuser", UserRole.ROLE_USER);
             userRepository.save(userEntity);
 
             // When
@@ -54,7 +54,7 @@ class AuthRepositoryTest {
         @DisplayName("저장된 이메일이 존재하면 true를 반환한다")
         void givenEmailExists_whenExistsByEmail_thenReturnsTrue() {
             // Given
-            UserEntity userEntity = new UserEntity("user", "pass1234", "test@example.com", UserRole.ROLE_USER);
+            UserEntity userEntity = new UserEntity("test@example.com", "pass1234", "user", UserRole.ROLE_USER);
             userRepository.save(userEntity);
 
             // When
@@ -84,11 +84,11 @@ class AuthRepositoryTest {
         @DisplayName("유저 이름으로 조회하면 UserEntity를 반환한다")
         void givenUsernameExists_whenFindByUsername_thenReturnsUser() {
             // Given
-            UserEntity userEntity = new UserEntity("findme", "password123", "findme@example.com", UserRole.ROLE_USER);
+            UserEntity userEntity = new UserEntity("findme@example.com", "password123", "findme", UserRole.ROLE_USER);
             userRepository.save(userEntity);
 
             // When
-            Optional<UserEntity> result = userRepository.findByEmail("findme");
+            Optional<UserEntity> result = userRepository.findByEmail("findme@example.com");
 
             // Then
             assertThat(result).isPresent();
@@ -101,7 +101,7 @@ class AuthRepositoryTest {
             // Given
 
             // When
-            Optional<UserEntity> result = userRepository.findByEmail("missing");
+            Optional<UserEntity> result = userRepository.findByEmail("missing@example.com");
 
             // Then
             assertThat(result).isEmpty();

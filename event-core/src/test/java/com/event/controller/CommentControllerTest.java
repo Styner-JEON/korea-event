@@ -21,7 +21,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 // removed unused import
 import java.util.List;
 
@@ -71,10 +71,10 @@ class CommentControllerTest {
         void givenTwoComments_whenGetCommentScroll_thenReturnsTwo() throws Exception {
             // Given
             CommentResponse commentResponse = new CommentResponse(
-                    1L, "내용1", 1L, 1L, "tester1", Instant.now(), Instant.now()
+                    1L, "내용1", 1L, 1L, "tester1", LocalDateTime.now(), LocalDateTime.now()
             );
             CommentResponse commentResponse2 = new CommentResponse(
-                    2L, "내용2", 1L, 2L, "tester2", Instant.now(), Instant.now()
+                    2L, "내용2", 1L, 2L, "tester2", LocalDateTime.now(), LocalDateTime.now()
             );
             CommentScrollResponse scroll = new com.event.model.response.CommentScrollResponse(
                     List.of(commentResponse, commentResponse2), null
@@ -110,8 +110,8 @@ class CommentControllerTest {
                     1L,
                     1L,
                     "tester",
-                    Instant.now(),
-                    Instant.now());
+                    LocalDateTime.now(),
+                    LocalDateTime.now());
 
             given(commentService.insertComment(eq(1L), any(), any())).willReturn(commentResponse);
 
@@ -161,8 +161,8 @@ class CommentControllerTest {
                     1L,
                     1L,
                     "tester",
-                    Instant.now(),
-                    Instant.now());
+                    LocalDateTime.now(),
+                    LocalDateTime.now());
 
             given(commentService.deleteComment(eq(1L), any())).willReturn(commentResponse);
 
@@ -192,13 +192,13 @@ class CommentControllerTest {
                     1L,
                     1L,
                     "tester",
-                    Instant.now(),
-                    Instant.now());
+                    LocalDateTime.now(),
+                    LocalDateTime.now());
 
             given(commentService.updateComment(eq(1L), any(), any())).willReturn(commentResponse);
 
             // When
-            ResultActions resultActions = mockMvc.perform(put("/events/v1/1/comments/1")
+            ResultActions resultActions = mockMvc.perform(patch("/events/v1/1/comments/1")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(commentUpdateRequest)));
 
@@ -217,7 +217,7 @@ class CommentControllerTest {
             CommentUpdateRequest commentUpdateRequest = new CommentUpdateRequest("");
 
             // When
-            ResultActions resultActions = mockMvc.perform(put("/events/v1/1/comments/1")
+            ResultActions resultActions = mockMvc.perform(patch("/events/v1/1/comments/1")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(commentUpdateRequest)));
 

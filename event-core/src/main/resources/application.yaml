@@ -39,7 +39,7 @@ spring:
         reconnect.backoff.max.ms: 5000 # 1000 * 5 = 5초 (기본값 1000)
       group-id: event-consumer-group
       auto-offset-reset: earliest # 오프셋 정보 없으면 가장 처음 메시지부터 읽음
-      auto-startup: false # 앱 실행 시 카프카 컨슈머 자동시작
+      auto-startup: true # 카프카 컨슈머 자동시작
     topic: event-topic
   #    listener:
   #      ack-mode: manual
