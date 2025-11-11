@@ -19,7 +19,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import javax.crypto.SecretKey;
 import java.lang.reflect.Field;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -184,7 +183,7 @@ class CommentIntegrationTest {
             CommentUpdateRequest commentUpdateRequest = new CommentUpdateRequest("수정 완료!");
 
             // When
-            ResultActions resultActions = mockMvc.perform(put("/events/v1/1/comments/" + commentEntity.getCommentId())
+            ResultActions resultActions = mockMvc.perform(patch("/events/v1/1/comments/" + commentEntity.getCommentId())
                     .header("Authorization", "Bearer " + jwt)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(commentUpdateRequest)));
@@ -207,7 +206,7 @@ class CommentIntegrationTest {
             CommentUpdateRequest commentUpdateRequest = new CommentUpdateRequest("수정 시도");
 
             // When
-            ResultActions resultActions = mockMvc.perform(put("/events/v1/1/comments/" + commentEntity.getCommentId())
+            ResultActions resultActions = mockMvc.perform(patch("/events/v1/1/comments/" + commentEntity.getCommentId())
                     .header("Authorization", "Bearer " + jwt)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(commentUpdateRequest)));

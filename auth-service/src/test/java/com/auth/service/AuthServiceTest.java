@@ -74,7 +74,7 @@ class AuthServiceTest {
         @DisplayName("정상적으로 회원가입 시 SignupResponse 반환")
         void givenValidRequest_whenSignup_thenReturnsResponse() {
             // Given
-            SignupRequest signupRequest = new SignupRequest("tester", "password123", "tester@email.com");
+            SignupRequest signupRequest = new SignupRequest("tester@email.com", "password123", "tester");
             UserEntity userEntity = new UserEntity("tester", passwordEncoder.encode("password123"), "tester@email.com", UserRole.ROLE_USER);
 
             given(userRepository.existsByUsernameIgnoreCase("tester")).willReturn(false);
@@ -95,7 +95,7 @@ class AuthServiceTest {
         @DisplayName("이미 존재하는 사용자명일 경우 예외 발생")
         void givenDuplicateUsername_whenSignup_thenThrowsException() {
             // Given
-            SignupRequest signupRequest = new SignupRequest("tester", "password123", "new@email.com");
+            SignupRequest signupRequest = new SignupRequest("new@email.com", "password123", "tester");
 
             given(userRepository.existsByUsernameIgnoreCase("tester")).willReturn(true);
 
@@ -109,9 +109,8 @@ class AuthServiceTest {
         @DisplayName("이미 존재하는 이메일일 경우 예외 발생")
         void givenDuplicateEmail_whenSignup_thenThrowsException() {
             // Given
-            SignupRequest signupRequest = new SignupRequest("tester", "password123", "dup@email.com");
+            SignupRequest signupRequest = new SignupRequest("dup@email.com", "password123", "tester");
 
-            given(userRepository.existsByUsernameIgnoreCase("tester")).willReturn(false);
             given(userRepository.existsByEmail("dup@email.com")).willReturn(true);
 
             // When & Then
@@ -148,7 +147,7 @@ class AuthServiceTest {
             // Then
             assertThat(loginResponse.accessToken()).isNotBlank();
             assertThat(loginResponse.refreshToken()).isNotBlank();
-            assertThat(loginResponse.user().name()).isEqualTo("tester");
+            assertThat(loginResponse.user().name()).isEqualTo("tester@email.com");
         }
 
         @Test

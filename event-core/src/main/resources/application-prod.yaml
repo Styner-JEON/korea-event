@@ -13,8 +13,6 @@ spring:
       host: my-redis-master.redis.svc.cluster.local
   kafka:
     bootstrap-servers: my-kafka.kafka.svc.cluster.local:9092
-    consumer:
-      auto-startup: true
 
 server:
   port: 8080

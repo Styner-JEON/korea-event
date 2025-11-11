@@ -17,12 +17,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.KeysetScrollPosition;
 import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Window;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.*;
@@ -64,8 +64,8 @@ class CommentServiceTest {
 
             Window<CommentEntity> commentEntityWindow = Window.<CommentEntity>from(commentEntityList, i -> ScrollPosition.keyset(), false);
 
-            CommentResponse commentResponse = new CommentResponse(1L, "내용1", 10L, 1L, "tester1", Instant.now(), Instant.now());
-            CommentResponse commentResponse2 = new CommentResponse(2L, "내용2", 10L, 2L, "tester2", Instant.now(), Instant.now());
+            CommentResponse commentResponse = new CommentResponse(1L, "내용1", 10L, 1L, "tester1", LocalDateTime.now(), LocalDateTime.now());
+            CommentResponse commentResponse2 = new CommentResponse(2L, "내용2", 10L, 2L, "tester2", LocalDateTime.now(), LocalDateTime.now());
 
             given(commentRepository.findScrollByContentId(eq(10L), any(), any(), any()))
                     .willReturn(commentEntityWindow);
@@ -102,8 +102,8 @@ class CommentServiceTest {
                     1L,
                     1L,
                     "tester",
-                    Instant.now(),
-                    Instant.now());
+                    LocalDateTime.now(),
+                    LocalDateTime.now());
 
             given(commentRepository.save(any())).willReturn(commentEntity);
             given(commentMapper.toCommentResponse(commentEntity)).willReturn(commentResponse);
@@ -138,8 +138,8 @@ class CommentServiceTest {
                             10L,
                             1L,
                             "tester",
-                            Instant.now(),
-                            Instant.now()));
+                            LocalDateTime.now(),
+                            LocalDateTime.now()));
 
             // When
             CommentResponse commentResponse = commentService.deleteComment(1L, customPrincipal);
@@ -203,8 +203,8 @@ class CommentServiceTest {
                             10L,
                             1L,
                             "tester",
-                            Instant.now(),
-                            Instant.now()));
+                            LocalDateTime.now(),
+                            LocalDateTime.now()));
 
             // When
             CommentResponse commentResponse = commentService.updateComment(1L, commentUpdateRequest, customPrincipal);
