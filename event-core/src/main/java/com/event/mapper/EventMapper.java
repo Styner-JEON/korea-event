@@ -13,6 +13,6 @@ public interface EventMapper {
 
     EventListResponse toEventListResponse(EventEntity eventEntity);
 
-    EventResponse toEventResponse(EventEntity eventEntity);
+    EventResponse toEventResponse(EventEntity eventEntity, boolean favoriteStatus);
 
 }

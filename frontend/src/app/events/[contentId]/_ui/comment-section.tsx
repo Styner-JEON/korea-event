@@ -3,9 +3,9 @@ import CommentAnalysisArticle from "./comment-analysis-article";
 import ComponentLoading from "@/app/_ui/component-loading";
 import CommentListSection from "./comment-list-section";
 
-export default async function CommentSection({ contentId, isLoggedIn, username }: {
+export default async function CommentSection({ contentId, loginStatus, username }: {
   contentId: string;
-  isLoggedIn: boolean;
+  loginStatus: boolean;
   username?: string;
 }) {
   return (
@@ -30,7 +30,7 @@ export default async function CommentSection({ contentId, isLoggedIn, username }
       <Suspense fallback={<ComponentLoading />}>
         <CommentListSection
           contentId={contentId}
-          isLoggedIn={isLoggedIn}
+          loginStatus={loginStatus}
           username={username}
         />
       </Suspense>

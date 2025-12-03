@@ -40,6 +40,9 @@ class EventServiceTest {
     @Mock
     private EventMapper eventMapper;
 
+    @Mock
+    private EventFavoriteService eventFavoriteService;
+
     @Nested
     @DisplayName("selectEventList")
     class SelectEventListTest {
@@ -88,19 +91,19 @@ class EventServiceTest {
                     1L, "행사 제목", LocalDateTime.now(), LocalDateTime.now(),
                     "주소1", "주소2", "서울", null, null,
                     0.0, 0.0, "12345", "homepage", "설명",
-                    null, null, "시간", "이용시간", "주최1", "010", "주최2", "020", Instant.now());
+                    null, null, "시간", "이용시간", "주최1", "010", "주최2", "020", Instant.now(), false);
 
             given(eventRepository.findById(contentId)).willReturn(Optional.of(eventEntity));
-            given(eventMapper.toEventResponse(eventEntity)).willReturn(eventResponse);
+            given(eventMapper.toEventResponse(eventEntity, false)).willReturn(eventResponse);
 
             // When
-            EventResponse result = eventService.selectEvent(contentId);
+            EventResponse result = eventService.selectEvent(contentId, null);
 
             // Then
             assertThat(result.contentId()).isEqualTo(contentId);
 
             then(eventRepository).should().findById(contentId);
-            then(eventMapper).should().toEventResponse(eventEntity);
+            then(eventMapper).should().toEventResponse(eventEntity, false);
         }
 
         @Test
@@ -111,7 +114,7 @@ class EventServiceTest {
             given(eventRepository.findById(contentId)).willReturn(Optional.empty());
 
             // When & Then
-            assertThatThrownBy(() -> eventService.selectEvent(contentId))
+            assertThatThrownBy(() -> eventService.selectEvent(contentId, null))
                     .isInstanceOf(CustomEventException.class);
 
             then(eventRepository).should().findById(contentId);

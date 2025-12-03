@@ -32,6 +32,9 @@ public class SecurityConfig {
     @Value("${comment-url.delete}")
     private String commentDeleteUrl;
 
+    @Value("${event-favorite-url}")
+    private String eventFavoriteUrl;
+
     private final OncePerRequestFilter jwtAuthenticationFilter;
 
     private final AuthenticationEntryPoint customAuthenticationEntryPoint;
@@ -42,10 +45,13 @@ public class SecurityConfig {
                 // CSRF 보호 비활성화 - JWT 사용 시 불필요
                 .csrf((csrf) -> csrf.disable())
                 .authorizeHttpRequests((authorize) -> authorize
-                        // 댓글 작성, 수정, 삭제는 인증된 사용자만 가능
+                        // 댓글 작성, 수정, 삭제는 인증된 유저만 가능
                         .requestMatchers(HttpMethod.POST, commentInsertUrl).authenticated()
                         .requestMatchers(HttpMethod.PATCH, commentUpdateUrl).authenticated()
                         .requestMatchers(HttpMethod.DELETE, commentDeleteUrl).authenticated()
+                        // 즐찾과 즐삭은 인증된 유저만 가능
+                        .requestMatchers(HttpMethod.POST, eventFavoriteUrl).authenticated()
+                        .requestMatchers(HttpMethod.DELETE, eventFavoriteUrl).authenticated()
                         // 나머지 모든 요청은 허용
                         .anyRequest().permitAll())
                 .httpBasic(basic -> basic.disable())

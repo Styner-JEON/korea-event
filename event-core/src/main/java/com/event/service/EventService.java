@@ -36,6 +36,8 @@ public class EventService {
 
     private final EventRepository eventRepository;
 
+    private final EventFavoriteService eventFavoriteService;
+
     /**
      * 이벤트를 데이터베이스에 upsert 합니다.
      * 동일한 contentId가 존재하면 UPDATE, 없으면 INSERT 됩니다.
@@ -69,19 +71,64 @@ public class EventService {
      * 
      * @param pageable 페이지네이션 정보
      * @param query    검색어 (선택사항)
-     * @param area     지역 필터 (쉼표로 구분된 지역 목록, 선택사항)
+     * @param areaString     지역 필터 (쉼표로 구분된 지역 목록, 선택사항)
      * @return 이벤트 목록 페이지
      */
     @Transactional(readOnly = true)
-    public Page<EventListResponse> selectEventList(Pageable pageable, String query, String area) {
-        List<String> areaList = null;
-        if (area != null && !area.trim().isEmpty()) {
-            areaList = Arrays.asList(area.split(","));
+    public Page<EventListResponse> selectEventList(Pageable pageable, String query, String areaString) {
+        String safeQuery = normalizeWhitespace(query);
+        List<String> areaList = parseAreaString(areaString);
+
+        Specification<EventEntity> eventEntitySpec = Specification.allOf(
+                EventSpecs.withQuery(safeQuery),
+                EventSpecs.withArea(areaList)
+        );
+
+        Page<EventEntity> eventEntitiyPage = eventRepository.findAll(eventEntitySpec, pageable);
+        return eventEntitiyPage.map(eventMapper::toEventListResponse);
+    }
+
+    /**
+     * 문자열의 앞뒤 공백을 제거하고,
+     * 중간의 연속된 공백을 단일 공백으로 정리합니다.
+     *
+     * 예) "  ab  cd  " -> "ab cd"
+     */
+    private String normalizeWhitespace(String query) {
+        if (query == null) {
+            return null;
         }
 
-        Specification<EventEntity> spec = EventSpecs.withQuery(query).and(EventSpecs.withArea(areaList));
-        Page<EventEntity> eventEntitiyPage = eventRepository.findAll(spec, pageable);
-        return eventEntitiyPage.map(eventMapper::toEventListResponse);
+        // 모두 공백인 경우에는 빈 문자열로 정리
+        String trimmedQuery = query.trim();
+        if (trimmedQuery.isEmpty()) {
+            return "";
+        }
+
+        // 중간 다중 공백을 한 칸으로
+        return trimmedQuery.replaceAll("\\s+", " ");
+    }
+
+    /**
+     *  지역 필터 문자열(예: "서울, 경기, 인천")을
+     *  검색에 사용할 수 있는 List<String> 형태로 파싱합니다.
+     * @param areaString
+     * @return
+     */
+    private List<String> parseAreaString(String areaString) {
+        if (areaString == null) {
+            return null;
+        }
+
+        String trimmedAreaString = areaString.trim();
+        if (trimmedAreaString.isEmpty()) {
+            return null;
+        }
+
+        return Arrays.stream(trimmedAreaString.split(","))
+                .map(String::trim)
+                .filter(area -> !area.isEmpty())
+                .toList();
     }
 
     /**
@@ -92,12 +139,40 @@ public class EventService {
      * @throws CustomEventException 해당 ID의 이벤트가 존재하지 않을 경우
      */
     @Transactional(readOnly = true)
-    public EventResponse selectEvent(Long contentId) {
+    public EventResponse selectEvent(Long contentId, Long userId) {
         EventEntity eventEntity = eventRepository.findById(contentId).orElseThrow(() -> {
             log.debug("Event not found with contentId: {}", contentId);
             return new CustomEventException(HttpStatus.NOT_FOUND, "Event not found with contentId: " + contentId);
         });
-        return eventMapper.toEventResponse(eventEntity);
+        return eventMapper.toEventResponse(eventEntity, eventFavoriteService.isFavorited(contentId, userId));
+    }
+
+    /**
+     * 유저가 즐겨찾기한 이벤트 목록을 조회합니다.
+     * @param pageable
+     * @param userId
+     * @param query
+     * @param areaString
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public Page<EventListResponse> selectFavoriteEventList(
+            Pageable pageable,
+            Long userId,
+            String query,
+            String areaString
+    ) {
+        String safeQuery = normalizeWhitespace(query);
+        List<String> areaList = parseAreaString(areaString);
+
+        Specification<EventEntity> eventEntitySpec = Specification.allOf(
+            EventSpecs.isFavoritedBy(userId),
+            EventSpecs.withQuery(safeQuery),
+            EventSpecs.withArea(areaList)
+        );
+
+        Page<EventEntity> eventEntityPage = eventRepository.findAll(eventEntitySpec, pageable);
+        return eventEntityPage.map(eventMapper::toEventListResponse);
     }
 
 }

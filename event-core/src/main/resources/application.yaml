@@ -50,10 +50,15 @@ server:
 api:
   version: v1
 
+event-select-url: /events/v1/{contentId}
+
 comment-url:
   insert: /events/v1/{contentId}/comments
   delete: /events/v1/{contentId}/comments/{commentId}
   update: /events/v1/{contentId}/comments/{commentId}
+
+event-favorite-url: /events/v1/{contentId}/favorite
+
 
 logging:
   level:
@@ -68,7 +73,7 @@ cors:
 size:
   event: 32
   comment: 10
-  ai-comment: 10
+  ai-comment: 5
 
 sort:
   event:

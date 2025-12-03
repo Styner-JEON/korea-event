@@ -101,10 +101,11 @@ class EventControllerTest {
                     "02-0000-0000",
                     "부산시",
                     "051-0000-0000",
-                    Instant.now()
+                    Instant.now(),
+                    false
             );
 
-            given(eventService.selectEvent(1L)).willReturn(eventResponse);
+            given(eventService.selectEvent(1L, null)).willReturn(eventResponse);
 
             // When
             ResultActions result = mockMvc.perform(get("/events/v1/1")
@@ -116,7 +117,7 @@ class EventControllerTest {
                     .andExpect(jsonPath("$.title").value("서울 불꽃 축제"))
                     .andExpect(jsonPath("$.area").value("서울"));
 
-            then(eventService).should().selectEvent(1L);
+            then(eventService).should().selectEvent(1L, null);
         }
     }
 

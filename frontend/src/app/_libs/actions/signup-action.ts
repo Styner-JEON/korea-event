@@ -33,8 +33,7 @@ export async function signupAction(state: SignupFormState, formData: FormData) {
         email,
         username,                
         password
-      }),      
-      cache: 'no-store',
+      }),            
     });
   } catch (error) {
     console.error('[Network ERROR]', error);

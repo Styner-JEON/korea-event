@@ -4,12 +4,15 @@ import { useActionState, useEffect } from "react";
 import { deleteCommentAction } from "../../../_libs/actions/delete-comment-action";
 import { SWRInfiniteResponse } from "swr/infinite";
 import { CommentScrollResponse } from "@/app/_types/responses/comment-scroll-response";
+import { useRouter } from "next/navigation";
 
 export default function CommentDeleteForm({ contentId, commentId, commentMutate }: {
   contentId: string;
   commentId: number;
   commentMutate: SWRInfiniteResponse<CommentScrollResponse>["mutate"];
 }) {
+  const router = useRouter();
+
   const bindedDeleteCommentAction = deleteCommentAction.bind(null, contentId, commentId);
   const [state, action, pending] = useActionState(bindedDeleteCommentAction, undefined);
 
@@ -37,6 +40,16 @@ export default function CommentDeleteForm({ contentId, commentId, commentMutate 
     }
   }, [commentResponse, commentMutate, commentId]);
 
+  useEffect(() => {
+    if (state?.beforeLoginMessage) {
+      const timer = setTimeout(() => {
+        router.push('/login');
+      }, 1500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [state?.beforeLoginMessage, router]);
+
   return (
     <form action={action}>
       <button
@@ -49,8 +62,12 @@ export default function CommentDeleteForm({ contentId, commentId, commentMutate 
       >
         <p>{pending ? '삭제 중...' : '삭제'}</p>
       </button>
+
       {state?.message && (
-        <p className="text-red-500 text-sm">{state.message}</p>
+        <p className="text-red-500 mt-2">{state.message}</p>
+      )}
+      {state?.beforeLoginMessage && (
+        <p className="text-red-500 mt-2">{state.beforeLoginMessage}</p>
       )}
     </form>
   );

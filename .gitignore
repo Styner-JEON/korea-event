@@ -38,6 +38,7 @@ out/
 
 ###
 .DS_Store
+**/.env.local
 **/.env
 
 ### Next.js ###

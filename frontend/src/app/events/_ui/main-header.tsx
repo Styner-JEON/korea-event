@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { logout } from '../../_libs/logout';
 import { redirect } from 'next/navigation';
+import EventToggleButton from './events-toggle-button';
 
 export default async function MainHeader() {
   const cookieStore = await cookies();
@@ -20,6 +21,8 @@ export default async function MainHeader() {
     redirect(`/api/refresh`);
   }
 
+  const loginStatus = !!(accessToken && username);
+
   return (
     <header className="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-gray-100">
       <div className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
@@ -27,19 +30,22 @@ export default async function MainHeader() {
           KoreaEvent
         </Link>
         <article>
-          {username && accessToken ? (
-            <form action={handleLogout} className="flex items-center gap-3">
+          {loginStatus ? (
+            <div className="flex items-center gap-3">
               <p className="text-sm text-gray-700">
                 <span className="hidden sm:inline">Welcome, </span>
                 <strong>{username}</strong>
               </p>
-              <button
-                type="submit"
-                className="rounded-md px-3 py-1.5 text-sm font-medium text-white bg-sky-400 hover:bg-sky-600 hover:cursor-pointer"
-              >
-                로그아웃
-              </button>
-            </form>
+              <EventToggleButton loginStatus={loginStatus} />
+              <form action={handleLogout}>
+                <button
+                  type="submit"
+                  className="rounded-md px-3 py-1.5 text-sm font-medium text-white bg-sky-400 hover:bg-sky-600 hover:cursor-pointer"
+                >
+                  로그아웃
+                </button>
+              </form>
+            </div>
           ) : (
             <div className="flex items-center gap-3">
               <Link href="/login" className="rounded-md px-3 py-1.5 text-sm font-medium text-white bg-sky-400 hover:bg-sky-600">
