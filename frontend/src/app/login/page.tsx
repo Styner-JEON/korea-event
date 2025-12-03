@@ -13,7 +13,7 @@ export default function LoginPage() {
       <div className="w-[520px] bg-white rounded-xl border border-gray-200 shadow-sm p-10">
         <div className="mb-6 text-center">
           <h1 className="text-[28px] font-semibold tracking-tight text-gray-900 hover:cursor-pointer">
-            <Link href="/">KoreaEvent</Link>
+            <Link href="/events">KoreaEvent</Link>
           </h1>
         </div>
         <LoginForm />

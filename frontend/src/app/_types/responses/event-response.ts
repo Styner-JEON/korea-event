@@ -22,4 +22,5 @@ export interface EventResponse {
   sponsor2: string;
   sponsor2Tel: string;
   dbUpdatedAt: string;
+  favoriteStatus: boolean;
 }

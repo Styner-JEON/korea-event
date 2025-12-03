@@ -34,8 +34,7 @@ export async function loginAction(state: LoginFormState, formData: FormData) {
       body: JSON.stringify({ 
         email, 
         password,
-      }),      
-      cache: 'no-store',
+      }),            
     });    
   } catch (error) {
     console.error('[Network ERROR]', error);

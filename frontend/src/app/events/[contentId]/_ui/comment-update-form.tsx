@@ -7,6 +7,7 @@ import { updateCommentAction } from "../../../_libs/actions/update-comment-actio
 import { useEffect } from "react";
 import { CommentScrollResponse } from "@/app/_types/responses/comment-scroll-response";
 import { SWRInfiniteResponse } from "swr/infinite";
+import { useRouter } from "next/navigation";
 
 export default function CommentUpdateForm({ comment, contentId, onCancel, commentMutate }: {
   comment: Comment;
@@ -14,6 +15,8 @@ export default function CommentUpdateForm({ comment, contentId, onCancel, commen
   onCancel: () => void;
   commentMutate: SWRInfiniteResponse<CommentScrollResponse>["mutate"];
 }) {
+  const router = useRouter();
+
   const bindedUpdateComment = updateCommentAction.bind(null, comment, contentId);
   const [state, action, pending] = useActionState(bindedUpdateComment, undefined);
 
@@ -60,6 +63,16 @@ export default function CommentUpdateForm({ comment, contentId, onCancel, commen
     }
   }, [commentResponse, onCancel, commentMutate]);
 
+  useEffect(() => {
+    if (state?.beforeLoginMessage) {
+      const timer = setTimeout(() => {
+        router.push('/login');
+      }, 1500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [state?.beforeLoginMessage, router]);
+
   return (
     <form action={action} className="border-2 border-sky-400 rounded-md">
       <TextareaAutosize
@@ -92,6 +105,9 @@ export default function CommentUpdateForm({ comment, contentId, onCancel, commen
       {state?.validationError?.content && <p>{state.validationError.content}</p>}
       {state?.message && (
         <p className="text-red-500 mt-2">{state.message}</p>
+      )}
+      {state?.beforeLoginMessage && (
+        <p className="text-red-500 mt-2">{state.beforeLoginMessage}</p>
       )}
     </form>
   );

@@ -1,6 +1,8 @@
 package com.event.security;
 
 import com.event.exception.CustomAuthenticationException;
+import com.event.repository.EventFavoriteRepository;
+import com.event.repository.EventRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
@@ -30,12 +32,14 @@ import java.util.List;
  * JWT 인증 필터 클래스
  * 
  * 요청마다 JWT 토큰을 검증하고 인증 정보를 SecurityContext에 설정합니다.
- * 댓글 관련 CUD(Create, Update, Delete) 요청에 대해서만 인증을 수행합니다.
  */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    @Value("${event-select-url}")
+    private String eventSelectUrl;
 
     @Value("${comment-url.insert}")
     private String commentInsertUrl;
@@ -46,14 +50,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Value("${comment-url.delete}")
     private String commentDeleteUrl;
 
+    @Value("${event-favorite-url}")
+    private String eventFavoritesUrl;
+
     private final JwtUtil jwtUtil;
 
     private final AuthenticationEntryPoint customAuthenticationEntryPoint;
 
     /**
      * 필터 적용 여부를 결정하는 메서드
-     * 
-     * 댓글 관련 CUD 요청이 아닌 경우 필터를 건너뜁니다.
      * 
      * @param request HTTP 요청 객체
      * @return true면 필터를 건너뛰고, false면 필터를 적용
@@ -63,30 +68,52 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         log.debug("Request URI = {}, Method = {}", request.getRequestURI(), request.getMethod());
 
+        // 상세 이벤트 요청인지 확인
+        boolean eventSelectStatus = PathPatternRequestMatcher.withDefaults()
+                .matcher(HttpMethod.GET, eventSelectUrl)
+                .matches(request);
+
         // 댓글 작성 요청인지 확인
-        boolean isInsert = PathPatternRequestMatcher.withDefaults()
+        boolean commentInsertStatus = PathPatternRequestMatcher.withDefaults()
                 .matcher(HttpMethod.POST, commentInsertUrl)
                 .matches(request);
 
         // 댓글 수정 요청인지 확인
-        boolean isUpdate = PathPatternRequestMatcher.withDefaults()
+        boolean commentUpdateStatus = PathPatternRequestMatcher.withDefaults()
                 .matcher(HttpMethod.PATCH, commentUpdateUrl)
                 .matches(request);
 
         // 댓글 삭제 요청인지 확인
-        boolean isDelete = PathPatternRequestMatcher.withDefaults()
+        boolean commentDeleteStatus = PathPatternRequestMatcher.withDefaults()
                 .matcher(HttpMethod.DELETE, commentDeleteUrl)
                 .matches(request);
 
-        // 댓글 관련 CUD 요청이 아니면 필터를 건너뜀
-        return !(isInsert || isUpdate || isDelete);
+        // 즐찾 요청인지 확인
+        boolean eventFavoriteInsertStatus = PathPatternRequestMatcher.withDefaults()
+                .matcher(HttpMethod.POST, eventFavoritesUrl)
+                .matches(request);
+
+        // 즐삭 요청인지 확인
+        boolean eventFavoriteDeleteStatus = PathPatternRequestMatcher.withDefaults()
+                .matcher(HttpMethod.DELETE, eventFavoritesUrl)
+                .matches(request);
+
+        // 위의 사안에 해당되지 않으면 필터를 건너뜀
+        return !(
+                eventSelectStatus         ||
+                commentInsertStatus       ||
+                commentUpdateStatus       ||
+                commentDeleteStatus       ||
+                eventFavoriteInsertStatus ||
+                eventFavoriteDeleteStatus
+        );
     }
 
     /**
      * JWT 인증을 수행하는 메인 필터 메서드
      * 
      * 1. 요청에서 JWT 토큰을 추출
-     * 2. 토큰을 검증하고 사용자 정보를 추출
+     * 2. 토큰을 검증하고 유저 정보를 추출
      * 3. SecurityContext에 인증 정보를 설정
      * 4. 예외 발생 시 적절한 에러 처리
      * 
@@ -105,7 +132,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // Authorization 헤더에서 JWT 토큰 추출
             String accessToken = extractToken(request);
             if (accessToken == null || accessToken.isBlank()) {
-                throw new CustomAuthenticationException("NO_ACCESS_TOKEN");
+                filterChain.doFilter(request, response);
+                return;
             }
 
             // JWT 토큰 검증 및 클레임 추출

@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { refreshAccessToken } from "./refresh-access-token";
 
 export async function checkAccessToken() {
-  const isError = true;
+  const errorStatus = true;
 
   const cookieStore = await cookies();
   let accessToken = cookieStore.get('access-token')?.value;
@@ -12,18 +12,18 @@ export async function checkAccessToken() {
     if (refreshToken) {      
       const { data, error } = await refreshAccessToken(refreshToken);
       if (error) {
-        return { isError };
+        return { errorStatus };
       }
       if (data) {
         accessToken = data;
       }
     } else {
-      return { isError };
+      return { errorStatus };
     }
   }
 
   if (!accessToken) {
-    return { isError };
+    return { errorStatus };
   }
 
   return { accessToken };

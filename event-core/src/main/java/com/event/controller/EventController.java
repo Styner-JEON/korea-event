@@ -2,6 +2,7 @@ package com.event.controller;
 
 import com.event.model.response.EventListResponse;
 import com.event.model.response.EventResponse;
+import com.event.security.CustomPrincipal;
 import com.event.service.EventService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -42,7 +44,7 @@ public class EventController {
      *
      * @param pageable 페이지네이션 정보
      * @param query    검색 쿼리 (선택사항)
-     * @param area     지역 필터 (선택사항)
+     * @param areaString     지역 필터 (선택사항)
      * @return 이벤트 목록 페이지
      */
     @GetMapping
@@ -50,16 +52,16 @@ public class EventController {
     public ResponseEntity<Page<EventListResponse>> getEventList(
             Pageable pageable,
             @RequestParam(required = false) String query,
-            @RequestParam(required = false) String area
+            @RequestParam(name = "area", required = false) String areaString
     ) {
         Sort.Direction direction = Sort.Direction.fromString(eventSortDirection);
         Pageable fixedPageable = PageRequest.of(
-                pageable.getPageNumber(),
-                eventSize,
-                Sort.by(direction, eventSortProperty)
+            pageable.getPageNumber(),
+            eventSize,
+            Sort.by(direction, eventSortProperty)
         );
 
-        return ResponseEntity.ok(eventService.selectEventList(fixedPageable, query, area));
+        return ResponseEntity.ok(eventService.selectEventList(fixedPageable, query, areaString));
     }
 
     /**
@@ -70,8 +72,39 @@ public class EventController {
      */
     @GetMapping("/{contentId}")
     @Operation(summary = "이벤트 상세 조회")
-    public ResponseEntity<EventResponse> getEvent(@PathVariable Long contentId) {
-        return ResponseEntity.ok(eventService.selectEvent(contentId));
+    public ResponseEntity<EventResponse> getEvent(
+            @PathVariable Long contentId,
+            @AuthenticationPrincipal CustomPrincipal customPrincipal
+    ) {
+        Long userId = (customPrincipal != null) ? customPrincipal.userId() : null;
+        return ResponseEntity.ok(eventService.selectEvent(contentId, userId));
+    }
+
+    /**
+     * 인증된 사용자의 즐겨찾기 이벤트 목록을 조회합니다.
+     *
+     * @param pageable
+     * @param customPrincipal
+     * @param query
+     * @param areaString
+     * @return
+     */
+    @GetMapping("/favorites")
+    @Operation(summary = "즐겨찾기 이벤트 목록 조회")
+    public ResponseEntity<Page<EventListResponse>> getFavoriteEventList(
+            Pageable pageable,
+            @AuthenticationPrincipal CustomPrincipal customPrincipal,
+            @RequestParam(required = false) String query,
+            @RequestParam(name = "areastring", required = false) String areaString
+    ) {
+        Sort.Direction direction = Sort.Direction.fromString(eventSortDirection);
+        Pageable fixedPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                eventSize,
+                Sort.by(direction, eventSortProperty)
+        );
+        Long userId = customPrincipal.userId();
+        return ResponseEntity.ok(eventService.selectFavoriteEventList(fixedPageable, userId, query, areaString));
     }
 
 }

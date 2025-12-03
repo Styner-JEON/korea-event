@@ -7,9 +7,9 @@ import { useRouter } from 'next/navigation';
 import { SWRInfiniteResponse } from 'swr/infinite';
 import { CommentScrollResponse } from '@/app/_types/responses/comment-scroll-response';
 
-export default function CommentInsertForm({ contentId, isLoggedIn, commentMutate }: {
+export default function CommentInsertForm({ contentId, loginStatus, commentMutate }: {
   contentId: string;
-  isLoggedIn: boolean;
+  loginStatus: boolean;
   commentMutate: SWRInfiniteResponse<CommentScrollResponse>["mutate"];
 }) {
   const router = useRouter();
@@ -54,8 +54,18 @@ export default function CommentInsertForm({ contentId, isLoggedIn, commentMutate
     }
   }, [commentResponse, commentMutate]);
 
+  useEffect(() => {
+    if (state?.beforeLoginMessage) {
+      const timer = setTimeout(() => {
+        router.push('/login');
+      }, 1500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [state?.beforeLoginMessage, router]);
+
   const handleFocus = () => {
-    if (!isLoggedIn) {
+    if (!loginStatus) {
       router.push('/login');
     }
   };
@@ -65,16 +75,16 @@ export default function CommentInsertForm({ contentId, isLoggedIn, commentMutate
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    if (!isLoggedIn) {
+    if (!loginStatus) {
       e.preventDefault();
       router.push('/login');
     }
   };
 
   return (
-    <form 
-      action={action} 
-      onSubmit={handleSubmit} 
+    <form
+      action={action}
+      onSubmit={handleSubmit}
       className="rounded-xl border border-gray-200 bg-white shadow-sm"
     >
       <div className="p-4">
@@ -103,6 +113,9 @@ export default function CommentInsertForm({ contentId, isLoggedIn, commentMutate
         {state?.validationError?.content && <p className="text-xs text-red-500 mt-2">{state.validationError.content}</p>}
         {state?.message && (
           <p className="text-red-500 mt-2">{state.message}</p>
+        )}
+        {state?.beforeLoginMessage && (
+          <p className="text-red-500 mt-2">{state.beforeLoginMessage}</p>
         )}
       </div>
     </form>

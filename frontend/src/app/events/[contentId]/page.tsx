@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import EmbeddedMap from "./_ui/embedded-map";
 import CommentSection from "./_ui/comment-section";
 import { formatDateToDot } from "@/libs/utils";
+import FavoriteButton from "./_ui/favorite-button";
 
 // export const dynamic = 'force-dynamic';
 
@@ -13,14 +14,15 @@ export default async function DetailPage({ params }: {
 }) {
   const { contentId } = await params;
   const { eventResponse, error } = await fetchEvent(contentId);
+  // console.log('[eventResponse]', eventResponse);
 
   const cookieStore = await cookies();
   const accessToken = cookieStore.get('access-token');
   const username = cookieStore.get('username');
 
-  let isLoggedIn = false;
+  let loginStatus = false;
   if (accessToken && username) {
-    isLoggedIn = true;
+    loginStatus = true;
   }
 
   if (error) {
@@ -44,6 +46,11 @@ export default async function DetailPage({ params }: {
   return (
     <main className="mx-auto max-w-5xl px-6 py-8 space-y-8">
       <h1 className="text-3xl font-semibold tracking-tight">{eventResponse.title}</h1>
+      <FavoriteButton
+        contentId={contentId}
+        loginStatus={loginStatus}
+        favoriteStatus={eventResponse.favoriteStatus}
+      />
       <section className="relative w-full h-96 rounded-xl overflow-hidden border border-gray-200 bg-gray-100">
         <Image
           src={eventResponse.firstImage}
@@ -143,7 +150,7 @@ export default async function DetailPage({ params }: {
       </section>
       <CommentSection
         contentId={contentId}
-        isLoggedIn={isLoggedIn}
+        loginStatus={loginStatus}
         username={username?.value}
       />
     </main>

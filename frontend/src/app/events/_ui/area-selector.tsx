@@ -39,6 +39,8 @@ export default function AreaSelector() {
     const areasParam = searchParams.get('area');
     if (areasParam) {
       setSelectedAreas(areasParam.split(','));
+    } else {
+      setSelectedAreas([]);
     }
   }, [searchParams]);
 
@@ -60,9 +62,11 @@ export default function AreaSelector() {
     params.set('page', '0');
 
     if (newSelectedAreas.length > 0) {
-      params.set('area', newSelectedAreas.join(','));
+      params.set('page', '0');
+      params.set('area', newSelectedAreas.join(','));      
     } else {
-      params.delete('area');
+      params.delete('page');
+      params.delete('area');      
     }
 
     replace(`${pathname}?${params.toString()}`);

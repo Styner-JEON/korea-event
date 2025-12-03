@@ -18,7 +18,7 @@ export default async function CommentAnalysisArticle({ contentId }: { contentId:
   if (commentCount < requiredCommentCount) {
     return (
       <div className="px-4 py-6 bg-yellow-50 border border-yellow-200 rounded-lg space-y-2">
-        <h1 className="text-lg font-semibold text-yellow-800"> AI 댓글 분석</h1>
+        <h1 className="text-lg font-semibold text-yellow-800"> AI 최신 댓글 분석</h1>
         <p className="text-yellow-700">댓글 분석은 댓글이 {requiredCommentCount}개 이상일 때 제공됩니다.</p>
         <p className="text-yellow-700">
           현재 댓글 수: <span className="font-semibold">{commentCount}</span>개

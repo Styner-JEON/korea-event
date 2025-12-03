@@ -7,6 +7,13 @@ import {
 } from 'next/navigation';
 import { useDebouncedCallback } from 'use-debounce';
 
+function normalizeQuery(value: string): string {
+  return value
+    .trim()                // 앞뒤 공백 제거
+    .replace(/\s+/g, ' ')  // 중복 공백 1개로 통일
+    .toLowerCase();        // 대소문자 통일
+}
+
 export default function Search({ placeholder }: {
   placeholder: string
 }) {
@@ -15,15 +22,29 @@ export default function Search({ placeholder }: {
   const { replace } = useRouter();
 
   // 디바운싱 처리
-  const handleSearch = useDebouncedCallback((term) => {
-    const params = new URLSearchParams(searchParams);
-    params.set('page', '0');
-    if (term) {
-      params.set('query', term);
-    } else {
-      params.delete('query');
+  const handleSearch = useDebouncedCallback((term: string) => {
+    const currentParams = new URLSearchParams(searchParams);
+    const currentUrl = `${pathname}?${currentParams.toString()}`;
+
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set('page', '0');
+
+    const normalizedTerm = normalizeQuery(term);
+    if (normalizedTerm.length > 0) {      
+      nextParams.set('page', '0');
+      nextParams.set('query', normalizedTerm);
+      
+    } else {      
+      nextParams.delete('page');
+      nextParams.delete('query');      
     }
-    replace(`${pathname}?${params.toString()}`); // push()가 아닌 replace()로 main.tsx를 요청함
+
+    const nextUrl = `${pathname}?${nextParams.toString()}`;
+    if (nextUrl === currentUrl) {
+      return;
+    }
+
+    replace(nextUrl);
   }, 100); // 0.1초 딜레이
 
   return (
@@ -35,10 +56,10 @@ export default function Search({ placeholder }: {
           onChange={(e) => {
             handleSearch(e.target.value);
           }}
-          defaultValue={searchParams.get('query')?.toString()}
+          defaultValue={searchParams.get('query') ?? ''}
         />
         {/* 돋보기 아이콘 */}
-        <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center">          
+        <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"

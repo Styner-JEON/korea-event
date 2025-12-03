@@ -8,9 +8,9 @@ import { ErrorResponse } from "../../_types/responses/error-response";
 import { CommentResponse } from "@/app/_types/responses/comment-response";
 
 export async function updateCommentAction(comment: Comment, contentId: string, prevState: CommentState, formData: FormData) {   
-  const beforeLoginMessage = '댓글을 수정하려면 로그인이 필요합니다.';
-  const { accessToken, isError } = await checkAccessToken();
-  if (isError) {
+  const beforeLoginMessage = '로그인 유지기간이 만료되어 새롭게 로그인이 필요합니다.';
+  const { accessToken, errorStatus } = await checkAccessToken();
+  if (errorStatus) {
     return { beforeLoginMessage };
   }
 
@@ -27,19 +27,22 @@ export async function updateCommentAction(comment: Comment, contentId: string, p
   const message = '지금은 댓글을 수정할 수 없습니다. 잠시 후 다시 시도해주세요.';
   const url = `${process.env.NEXT_PUBLIC_EVENT_BASE_URL}/events/${process.env.NEXT_PUBLIC_EVENT_API_VERSION}/${contentId}/comments/${comment.commentId}`;
   
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
+  }
+
   let response: Response;
 
   try {    
     response = await fetch(url, {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-      },
+      headers,
       body: JSON.stringify({ 
         content        
-      }),      
-      cache: 'no-store',
+      }),            
     });    
   } catch (error) {
     console.error('[Network ERROR]', error);

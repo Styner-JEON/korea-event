@@ -1,7 +1,7 @@
 import { EventListResponse } from "../../_types/responses/event-list-response";
 import { ErrorResponse } from "../../_types/responses/error-response";
 
-export async function fetchEventList(pageNumber: number, query: string, area?: string): Promise<{
+export async function fetchEventList(pageNumber: number, query: string, areaString?: string): Promise<{
   eventListResponse?: EventListResponse;
   error?: Error;
 }> {
@@ -15,8 +15,8 @@ export async function fetchEventList(pageNumber: number, query: string, area?: s
   if (query) {
     params.append("query", query);
   }
-  if (area) {
-    params.append("area", area);
+  if (areaString) {
+    params.append("area", areaString);
   }
   const url = `${baseUrl}?${params.toString()}`;
 
@@ -42,9 +42,6 @@ export async function fetchEventList(pageNumber: number, query: string, area?: s
     switch (httpStatus) {
       case 404:
         detailedMessage = '요청하신 데이터를 찾을 수 없습니다.'; 
-        break;
-      case 401:
-        detailedMessage = '권한이 필요합니다.'; 
         break;
       case 500:
         detailedMessage = '서버 에러가 발생했습니다. 잠시 후 다시 시도해 주세요.'; 

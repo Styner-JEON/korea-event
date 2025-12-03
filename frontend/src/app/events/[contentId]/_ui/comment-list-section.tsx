@@ -9,9 +9,9 @@ import CommentInsertForm from "./comment-insert-form";
 import { CommentScrollResponse } from "@/app/_types/responses/comment-scroll-response";
 import { CommentResponse } from "@/app/_types/responses/comment-response";
 
-export default function CommentListSection({ contentId, isLoggedIn, username }: {
+export default function CommentListSection({ contentId, loginStatus, username }: {
   contentId: string;
-  isLoggedIn: boolean;
+  loginStatus: boolean;
   username?: string;
 }) {
   const getKey = createCommentListGetKey(contentId);
@@ -87,7 +87,7 @@ export default function CommentListSection({ contentId, isLoggedIn, username }: 
     <section className="space-y-4">
       <CommentInsertForm
         contentId={contentId}
-        isLoggedIn={isLoggedIn}
+        loginStatus={loginStatus}
         commentMutate={mutate}
       />
       <article className="space-y-5">

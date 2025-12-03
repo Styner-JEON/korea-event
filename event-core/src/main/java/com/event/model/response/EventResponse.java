@@ -30,6 +30,7 @@ public record EventResponse(
     String sponsor1Tel,
     String sponsor2,
     String sponsor2Tel,
-    Instant dbUpsertedAt
+    Instant dbUpsertedAt,
+    boolean favoriteStatus
 ) {
 }
