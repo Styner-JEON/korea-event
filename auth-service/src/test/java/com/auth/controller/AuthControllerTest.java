@@ -43,7 +43,7 @@ class AuthControllerTest {
         @DisplayName("회원가입 요청이 유효하면 200 응답과 사용자 정보 반환")
         void givenValidSignupRequest_whenSignup_thenReturnsSignupResponse() throws Exception {
             // Given
-            SignupRequest signupRequest = new SignupRequest("tester@email.com", "password123", "tester");
+            SignupRequest signupRequest = new SignupRequest("tester@email.com", "tester", "password123");
             SignupResponse signupResponse = new SignupResponse("tester@email.com", "tester");
 
             given(authService.signup(any())).willReturn(signupResponse);
@@ -66,7 +66,7 @@ class AuthControllerTest {
         @DisplayName("회원가입 요청이 유효하지 않으면 400 반환")
         void givenInvalidSignupRequest_whenSignup_thenReturns400() throws Exception {
             // Given
-            SignupRequest signupRequest = new SignupRequest("", "short", "invalid-email");
+            SignupRequest signupRequest = new SignupRequest("", "tester", "short");
 
             // When
             ResultActions resultActions = mockMvc.perform(post("/auth/v1/signup")

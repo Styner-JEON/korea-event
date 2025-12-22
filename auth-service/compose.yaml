@@ -11,10 +11,20 @@ services:
     ports:
       - "35432:5432"
     networks:
-      - auth_network
+      - msa_network
     volumes:
       - /Users/styner/0main/docker-volumes/auth-service/postgresql/data:/var/lib/postgresql/data
+  auth-redis-service:
+    image: redis:7.0-alpine
+    container_name: auth-redis-container
+    ports:
+      - "36379:6379"
+    networks:
+      - msa_network
+    volumes:
+      - /Users/styner/0main/docker-volumes/auth-service/redis/data:/data
+    command: redis-server --appendonly yes # Redis가 AOF 모드로 동작
 
 networks:
-  auth_network:
-    driver: bridge
+  msa_network:
+    external: true

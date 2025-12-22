@@ -2,9 +2,7 @@ package com.auth.controller;
 
 import com.auth.model.request.LoginRequest;
 import com.auth.model.request.SignupRequest;
-import com.auth.model.response.LoginResponse;
-import com.auth.model.response.RefreshTokenResponse;
-import com.auth.model.response.SignupResponse;
+import com.auth.model.response.*;
 import com.auth.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,7 +28,7 @@ public class AuthController {
 
     /**
      * 사용자 회원가입
-     * 
+     *
      * @param signupRequest 회원가입 요청 정보 (이메일, 사용자명, 비밀번호)
      * @return 회원가입 성공 응답 (이메일, 사용자명)
      */

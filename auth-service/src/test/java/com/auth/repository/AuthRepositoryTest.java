@@ -24,7 +24,7 @@ class AuthRepositoryTest {
         @DisplayName("저장된 유저 이름이 존재하면 true를 반환한다")
         void givenUsernameExists_whenExistsByUsername_thenReturnsTrue() {
             // Given
-            UserEntity userEntity = new UserEntity("test@email.com", "pass1234", "testuser", UserRole.ROLE_USER);
+            UserEntity userEntity = new UserEntity("test@email.com", "testuser", "pass1234", UserRole.ROLE_USER);
             userRepository.save(userEntity);
 
             // When
@@ -54,7 +54,7 @@ class AuthRepositoryTest {
         @DisplayName("저장된 이메일이 존재하면 true를 반환한다")
         void givenEmailExists_whenExistsByEmail_thenReturnsTrue() {
             // Given
-            UserEntity userEntity = new UserEntity("test@example.com", "pass1234", "user", UserRole.ROLE_USER);
+            UserEntity userEntity = new UserEntity("test@example.com", "user", "pass1234", UserRole.ROLE_USER);
             userRepository.save(userEntity);
 
             // When
@@ -84,7 +84,7 @@ class AuthRepositoryTest {
         @DisplayName("유저 이름으로 조회하면 UserEntity를 반환한다")
         void givenUsernameExists_whenFindByUsername_thenReturnsUser() {
             // Given
-            UserEntity userEntity = new UserEntity("findme@example.com", "password123", "findme", UserRole.ROLE_USER);
+            UserEntity userEntity = new UserEntity("findme@example.com", "findme", "password123", UserRole.ROLE_USER);
             userRepository.save(userEntity);
 
             // When

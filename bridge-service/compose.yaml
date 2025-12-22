@@ -1,12 +1,11 @@
 services:
-
   bridge-zookeeper-service:
     image: confluentinc/cp-zookeeper:latest
     container_name: bridge-zookeeper-container
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
     networks:
-      - bridge_network
+      - msa_network
     volumes:
       - /Users/styner/0main/docker-volumes/bridge-service/zookeeper/data:/data
       - /Users/styner/0main/docker-volumes/bridge-service/zookeeper/datalog:/datalog
@@ -25,7 +24,7 @@ services:
     depends_on:
       - bridge-zookeeper-service
     networks:
-      - bridge_network
+      - msa_network
     volumes:
       - /Users/styner/0main/docker-volumes/bridge-service/kafka/data:/var/lib/kafka/data
 
@@ -41,10 +40,10 @@ services:
     ports:
       - "25432:5432"
     networks:
-      - bridge_network
+      - msa_network
     volumes:
       - /Users/styner/0main/docker-volumes/bridge-service/postgresql/data:/var/lib/postgresql/data
 
 networks:
-  bridge_network:
-    driver: bridge
+  msa_network:
+    external: true

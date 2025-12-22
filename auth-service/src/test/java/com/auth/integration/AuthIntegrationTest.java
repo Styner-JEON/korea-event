@@ -55,13 +55,6 @@ class AuthIntegrationTest {
 
     private static final String EMAIL = "test@email.com";
 
-    private String jwt;
-
-    @BeforeEach
-    void setUp() throws Exception {
-        jwt = generateJwt(1L, USERNAME, "ROLE_USER");
-    }
-
     @AfterEach
     void tearDown() {
         userRepository.deleteAll();
@@ -74,7 +67,7 @@ class AuthIntegrationTest {
         @DisplayName("유효한 요청이 주어지면 회원가입에 성공한다")
         void givenValidRequest_whenSignup_thenReturns200() throws Exception {
             // Given
-            SignupRequest signupRequest = new SignupRequest(EMAIL, PASSWORD, USERNAME);
+            SignupRequest signupRequest = new SignupRequest(EMAIL, USERNAME, PASSWORD);
 
             // When
             ResultActions resultActions = mockMvc.perform(post("/auth/" + API_VERSION + "/signup")
@@ -94,9 +87,9 @@ class AuthIntegrationTest {
         @DisplayName("중복된 사용자명일 경우 409")
         void givenDuplicateUsername_whenSignup_thenReturns409() throws Exception {
             // Given
-            SignupRequest signupRequest = new SignupRequest(EMAIL, PASSWORD, USERNAME);
+            SignupRequest signupRequest = new SignupRequest(EMAIL, USERNAME, PASSWORD);
 
-            UserEntity userEntity = new UserEntity("other@email.com", PASSWORD, USERNAME, UserRole.ROLE_USER);
+            UserEntity userEntity = new UserEntity("other@email.com", USERNAME, passwordEncoder.encode(PASSWORD), UserRole.ROLE_USER);
             userRepository.save(userEntity);
 
             // When
@@ -118,7 +111,7 @@ class AuthIntegrationTest {
             // Given
             LoginRequest loginRequest = new LoginRequest(EMAIL, PASSWORD);
 
-            UserEntity userEntity = new UserEntity(EMAIL, passwordEncoder.encode(PASSWORD), USERNAME, UserRole.ROLE_USER);
+            UserEntity userEntity = new UserEntity(EMAIL, USERNAME, passwordEncoder.encode(PASSWORD), UserRole.ROLE_USER);
             userRepository.save(userEntity);
 
             // When
@@ -140,7 +133,7 @@ class AuthIntegrationTest {
             // Given
             LoginRequest loginRequest = new LoginRequest(EMAIL, "wrongpass");
 
-            UserEntity userEntity = new UserEntity(EMAIL, passwordEncoder.encode(PASSWORD), USERNAME, UserRole.ROLE_USER);
+            UserEntity userEntity = new UserEntity(EMAIL, USERNAME, passwordEncoder.encode(PASSWORD), UserRole.ROLE_USER);
             userRepository.save(userEntity);
 
             // When

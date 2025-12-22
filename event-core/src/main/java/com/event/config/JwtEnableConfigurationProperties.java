@@ -1,5 +1,6 @@
 package com.event.config;
 
+import com.event.properties.JwtProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,5 +12,5 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(JwtProperties.class)
-public class JwtConfiguration {
+public class JwtEnableConfigurationProperties {
 }

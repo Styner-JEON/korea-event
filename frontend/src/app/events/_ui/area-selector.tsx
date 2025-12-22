@@ -83,7 +83,7 @@ export default function AreaSelector() {
               type="button"
               aria-pressed={selected}
               onClick={() => handleAreaClick(area)}
-              className={`px-3.5 py-1.5 rounded-full text-sm border transition-colors cursor-pointer ${selected
+              className={`px-2.5 py-1.5 rounded-full text-sm border transition-colors cursor-pointer ${selected
                 ? 'bg-sky-500 text-white border-sky-500'
                 : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                 }`}

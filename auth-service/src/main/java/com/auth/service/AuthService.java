@@ -1,17 +1,14 @@
 package com.auth.service;
 
-import com.auth.config.JwtProperties;
-import com.auth.exception.CustomJwtException;
-import com.auth.exception.CustomLoginException;
 import com.auth.exception.CustomSignupException;
 import com.auth.model.entity.UserEntity;
-import com.auth.model.request.LoginRequest;
 import com.auth.model.request.SignupRequest;
-import com.auth.model.response.LoginResponse;
-import com.auth.model.response.RefreshTokenResponse;
-import com.auth.model.response.SignupResponse;
-import com.auth.model.response.UserResponse;
+import com.auth.model.response.*;
 import com.auth.model.role.UserRole;
+import com.auth.properties.JwtProperties;
+import com.auth.exception.CustomJwtException;
+import com.auth.exception.CustomLoginException;
+import com.auth.model.request.LoginRequest;
 import com.auth.repository.UserRepository;
 import com.auth.security.CustomUserDetails;
 import com.auth.security.JwtUtil;
@@ -41,9 +38,9 @@ public class AuthService {
 
     private final JwtUtil jwtUtil;
 
-    private final UserRepository userRepository;
-
     private final PasswordEncoder passwordEncoder;
+
+    private final UserRepository userRepository;
 
     private final long accessTokenExpiry;
 
@@ -52,24 +49,18 @@ public class AuthService {
     public AuthService(
             AuthenticationManager authenticationManager,
             JwtUtil jwtUtil,
-            UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            JwtProperties jwtProperties) {
+            UserRepository userRepository,
+            JwtProperties jwtProperties
+    ) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
-        this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userRepository = userRepository;
         this.accessTokenExpiry = jwtProperties.getAccessTokenExpiry();
         this.refreshTokenExpiry = jwtProperties.getRefreshTokenExpiry();
     }
 
-    /**
-     * 사용자명과 이메일 중복을 확인하고, 비밀번호를 암호화하여 새 사용자를 생성합니다.
-     * 
-     * @param signupRequest 회원가입 요청 정보
-     * @return 회원가입 성공 응답
-     * @throws CustomSignupException 사용자명 또는 이메일이 이미 존재하는 경우
-     */
     @Transactional
     public SignupResponse signup(SignupRequest signupRequest) {
         String email = signupRequest.email().toLowerCase();
@@ -88,7 +79,7 @@ public class AuthService {
         String encodedPassword = passwordEncoder.encode(signupRequest.password());
         UserRole userRole = UserRole.ROLE_USER;
 
-        UserEntity userEntity = new UserEntity(email, encodedPassword, username, userRole);
+        UserEntity userEntity = new UserEntity(email, username, encodedPassword, userRole);
         userRepository.save(userEntity);
         log.info("User signed up: {}", email);
 
