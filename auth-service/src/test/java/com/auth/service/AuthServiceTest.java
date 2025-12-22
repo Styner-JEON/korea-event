@@ -1,6 +1,6 @@
 package com.auth.service;
 
-import com.auth.config.JwtProperties;
+import com.auth.properties.JwtProperties;
 import com.auth.exception.CustomJwtException;
 import com.auth.exception.CustomLoginException;
 import com.auth.exception.CustomSignupException;
@@ -14,7 +14,6 @@ import com.auth.model.role.UserRole;
 import com.auth.repository.UserRepository;
 import com.auth.security.CustomUserDetails;
 import com.auth.security.JwtUtil;
-import com.auth.security.PasswordEncoderConfig;
 import io.jsonwebtoken.io.Encoders;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.*;
@@ -25,6 +24,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -63,8 +63,8 @@ class AuthServiceTest {
         JwtProperties jwtProperties = new JwtProperties(base64UrlEncodedKey, accessTokenExpiry, refreshTokenExpiry);
 
         jwtUtil = new JwtUtil(jwtProperties);
-        passwordEncoder = new PasswordEncoderConfig().passwordEncoder();
-        authService = new AuthService(authenticationManager, jwtUtil, userRepository, passwordEncoder, jwtProperties);
+        passwordEncoder = new BCryptPasswordEncoder();
+        authService = new AuthService(authenticationManager, jwtUtil, passwordEncoder, userRepository, jwtProperties);
     }
 
     @Nested
@@ -74,8 +74,8 @@ class AuthServiceTest {
         @DisplayName("정상적으로 회원가입 시 SignupResponse 반환")
         void givenValidRequest_whenSignup_thenReturnsResponse() {
             // Given
-            SignupRequest signupRequest = new SignupRequest("tester@email.com", "password123", "tester");
-            UserEntity userEntity = new UserEntity("tester", passwordEncoder.encode("password123"), "tester@email.com", UserRole.ROLE_USER);
+            SignupRequest signupRequest = new SignupRequest("tester@email.com", "tester", "password123");
+            UserEntity userEntity = new UserEntity("tester@email.com", "tester", passwordEncoder.encode("password123"), UserRole.ROLE_USER);
 
             given(userRepository.existsByUsernameIgnoreCase("tester")).willReturn(false);
             given(userRepository.existsByEmail("tester@email.com")).willReturn(false);
@@ -95,7 +95,7 @@ class AuthServiceTest {
         @DisplayName("이미 존재하는 사용자명일 경우 예외 발생")
         void givenDuplicateUsername_whenSignup_thenThrowsException() {
             // Given
-            SignupRequest signupRequest = new SignupRequest("new@email.com", "password123", "tester");
+            SignupRequest signupRequest = new SignupRequest("new@email.com", "tester", "password123");
 
             given(userRepository.existsByUsernameIgnoreCase("tester")).willReturn(true);
 
@@ -109,7 +109,7 @@ class AuthServiceTest {
         @DisplayName("이미 존재하는 이메일일 경우 예외 발생")
         void givenDuplicateEmail_whenSignup_thenThrowsException() {
             // Given
-            SignupRequest signupRequest = new SignupRequest("dup@email.com", "password123", "tester");
+            SignupRequest signupRequest = new SignupRequest("dup@email.com", "tester", "password123");
 
             given(userRepository.existsByEmail("dup@email.com")).willReturn(true);
 
@@ -127,10 +127,10 @@ class AuthServiceTest {
         @DisplayName("정상적으로 로그인 시 LoginResponse 반환")
         void givenValidLogin_whenLogin_thenReturnsResponse() {
             // Given
-            LoginRequest loginRequest = new LoginRequest("tester", "password123");
-            Authentication unauthenticated = new UsernamePasswordAuthenticationToken("tester", "password123");
+            LoginRequest loginRequest = new LoginRequest("tester@email.com", "password123");
+            Authentication unauthenticated = UsernamePasswordAuthenticationToken.unauthenticated("tester@email.com", "password123");
 
-            UserEntity userEntity = new UserEntity("tester", "encodedPassword", "tester@email.com", UserRole.ROLE_USER);
+            UserEntity userEntity = new UserEntity("tester@email.com", "tester", "encodedPassword", UserRole.ROLE_USER);
             ReflectionTestUtils.setField(userEntity, "userId", 1L);
             CustomUserDetails customUserDetails = new CustomUserDetails(userEntity);
             Authentication authenticated = new UsernamePasswordAuthenticationToken(
@@ -147,7 +147,7 @@ class AuthServiceTest {
             // Then
             assertThat(loginResponse.accessToken()).isNotBlank();
             assertThat(loginResponse.refreshToken()).isNotBlank();
-            assertThat(loginResponse.user().name()).isEqualTo("tester@email.com");
+            assertThat(loginResponse.user().name()).isEqualTo("tester");
         }
 
         @Test

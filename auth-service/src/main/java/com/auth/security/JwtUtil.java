@@ -1,6 +1,6 @@
 package com.auth.security;
 
-import com.auth.config.JwtProperties;
+import com.auth.properties.JwtProperties;
 import com.auth.exception.CustomJwtException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;

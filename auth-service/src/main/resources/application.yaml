@@ -15,6 +15,17 @@ spring:
         format_sql: true
     hibernate:
       ddl-auto: update
+  data:
+    redis:
+      host: localhost
+      port: 36379
+      timeout: 5000 # 5초
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+    deserialization:
+      fail-on-unknown-properties: false
 
 server:
   port: 38080
@@ -23,8 +34,8 @@ api:
   version: v1
 
 auth-url:
-  login: /auth/v1/login
   signup: /auth/v1/signup
+  login: /auth/v1/login
   refresh: /auth/v1/refresh
 
 logging:
@@ -45,3 +56,9 @@ management:
       base-path: /auth/actuator
       exposure:
         include: "*"
+
+aws:
+  region: ap-northeast-2
+  ses:
+    otp:
+      from: "no-reply@koreaevent.click"

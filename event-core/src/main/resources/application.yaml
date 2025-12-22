@@ -22,9 +22,8 @@ spring:
   data:
     redis:
       host: localhost
-      port: 6379
+      port: 16379
       timeout: 5000 # 5초
-      database: 0
   cache:
     type: redis
   kafka:

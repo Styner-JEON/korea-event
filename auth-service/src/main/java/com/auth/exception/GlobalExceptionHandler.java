@@ -62,6 +62,18 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 이메일 관련 예외 처리
+     *
+     * @param e 이메일 예외
+     * @return 에러 응답
+     */
+    @ExceptionHandler(CustomEmailException.class)
+    public ResponseEntity<ErrorResponse> handleEmailException(CustomEmailException e) {
+        ErrorResponse response = new ErrorResponse(e.getMessage());
+        return ResponseEntity.status(e.getHttpStatus()).body(response);
+    }
+
+    /**
      * 일반적인 예외 처리
      * 위에서 처리되지 않은 모든 예외를 처리합니다.
      * 

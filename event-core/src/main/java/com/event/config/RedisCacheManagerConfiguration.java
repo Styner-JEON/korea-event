@@ -19,7 +19,7 @@ import java.time.Duration;
 
 /**
  * Redis 캐시 매니저 설정 클래스
- * <p>
+ *
  * Spring Cache를 사용해서 Redis를 캐쉬 저장소로 사용하기 위한 설정을 제공합니다.
  * 댓글 분석 결과(CommentAnalysisResponse)를 캐슁합니다.
  */

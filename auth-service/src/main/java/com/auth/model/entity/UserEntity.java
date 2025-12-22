@@ -6,15 +6,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "user_table")
+@Table(
+    name = "user_table",
+    uniqueConstraints = {
+        @UniqueConstraint(name = "uk_user_email", columnNames = "email"),
+        @UniqueConstraint(name = "uk_user_username", columnNames = "username")
+    }
+)
 @NoArgsConstructor
 @Getter
 public class UserEntity {
 
-    public UserEntity(String email, String password, String username, UserRole userRole) {
+    public UserEntity(String email, String username, String password, UserRole userRole) {
         this.email = email;
-        this.password = password;
         this.username = username;
+        this.password = password;
         this.userRole = userRole;
     }
 
@@ -24,9 +30,9 @@ public class UserEntity {
 
     private String email;
 
-    private String password;
-
     private String username;
+
+    private String password;
 
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
