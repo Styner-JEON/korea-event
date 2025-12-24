@@ -9,7 +9,8 @@ export async function signupAction(state: SignupFormState, formData: FormData) {
   const validatedFields = SignupFormSchema.safeParse({
     email: formData.get('email'),
     username: formData.get('username'),
-    password: formData.get('password')
+    password: formData.get('password'),
+    confirmPassword: formData.get('confirmPassword'),
   });
  
   if (!validatedFields.success) {
