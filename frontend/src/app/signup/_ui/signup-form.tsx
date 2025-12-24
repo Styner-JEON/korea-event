@@ -1,10 +1,13 @@
 'use client';
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { signupAction } from "../../_libs/actions/signup-action";
 
 export default function SignupForm() {
   const [state, action, pending] = useActionState(signupAction, undefined);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   return (
     <form action={action} className="space-y-8 max-w-sm mx-auto">
@@ -27,15 +30,45 @@ export default function SignupForm() {
             className="w-full px-4 py-3 text-sm outline-none placeholder-gray-400"
           />
         </div>
-        <div>
+        <div className="border-b border-gray-200">
           <label htmlFor="password" className="sr-only">비밀번호</label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            placeholder="비밀번호"
-            className="w-full px-4 py-3 text-sm outline-none placeholder-gray-400"
-          />
+          <div className="relative">
+            <input
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="비밀번호"
+              className="w-full px-4 py-3 pr-12 text-sm outline-none placeholder-gray-400"
+            />
+            <button
+              type="button"
+              aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+            >
+              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+            </button>
+          </div>
+        </div>
+        <div>
+          <label htmlFor="confirmPassword" className="sr-only">비밀번호 확인</label>
+          <div className="relative">
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type={showConfirmPassword ? "text" : "password"}
+              placeholder="비밀번호 확인"
+              className="w-full px-4 py-3 pr-12 text-sm outline-none placeholder-gray-400"
+            />
+            <button
+              type="button"
+              aria-label={showConfirmPassword ? "비밀번호 확인 숨기기" : "비밀번호 확인 보기"}
+              onClick={() => setShowConfirmPassword((v) => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+            >
+              {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -56,6 +89,13 @@ export default function SignupForm() {
       {state?.errors?.password && (
         <ul className="text-red-500 text-sm list-disc pl-5 space-y-1">
           {state.errors.password.map((error: string) => (
+            <li key={error}>{error}</li>
+          ))}
+        </ul>
+      )}
+      {state?.errors?.confirmPassword && (
+        <ul className="text-red-500 text-sm list-disc pl-5 space-y-1">
+          {state.errors.confirmPassword.map((error: string) => (
             <li key={error}>{error}</li>
           ))}
         </ul>

@@ -21,6 +21,19 @@ export const SignupFormSchema = z.object({
     .regex(/[0-9]/, { message: '비밀번호는 1개 이상의 숫자를 포함해야 합니다.' })
     .regex(/[^a-zA-Z0-9]/, { message: '비밀번호는 1개 이상의 특수문자를 포함해야 합니다.' })
     .refine((v) => !/\s/.test(v), { message: '비밀번호에는 공백을 사용할 수 없습니다.' }),
+  confirmPassword: z
+    .string()
+    .trim()
+    .min(1, { message: '비밀번호 확인을 입력하세요.' })
+    .refine((v) => !/\s/.test(v), { message: '비밀번호 확인에는 공백을 사용할 수 없습니다.' }),
+}).superRefine(({ password, confirmPassword }, ctx) => {
+  if (password !== confirmPassword) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['confirmPassword'],
+      message: '비밀번호가 일치하지 않습니다.',
+    });
+  }
 });
 
 export type SignupFormState = 
@@ -29,6 +42,7 @@ export type SignupFormState =
         email?: string[]; 
         username?: string[];         
         password?: string[];
+        confirmPassword?: string[];
       };
       message?: string;
     }

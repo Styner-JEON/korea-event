@@ -52,7 +52,7 @@ public-data-api:
     detail-intro: "/detailIntro2"      # 소개정보조회 API
   service-key: ${SERVICE_KEY}
   num-of-rows: 10 # 공공데이터 API 호출로 응답받을 데이터의 개수
-  minus-days: 1   # 며칠 전의 데이터를 전송할 것인지를 설정
+  minus-days: 0   # 며칠 전의 데이터를 전송할 것인지를 설정
 
 retry:
   max-attempts: 3

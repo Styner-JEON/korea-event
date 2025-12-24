@@ -36,11 +36,11 @@ public class BatchScheduler {
     private final Job eventFetchingAndSendingJob;
 
     /**
-     * 매일 새벽 3시에 실행합니다.
+     * 테스트를 위한 배칭 스케쥴러
      * 
      * @throws CustomBatchException 배치 작업 실행 실패 시 발생하는 커스텀 예외
      */
-//    @Scheduled(cron = "0 0 3 * * ?")
+//    @Scheduled(cron = "0 0 1 * * ?")
     public void scheduleEventFetchingAndSendingJob() {
         ZonedDateTime nowKST = ZonedDateTime.now(ZoneId.of("Asia/Seoul"));
         String formattedTime = nowKST.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));

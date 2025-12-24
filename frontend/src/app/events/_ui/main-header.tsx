@@ -48,11 +48,14 @@ export default async function MainHeader() {
             </div>
           ) : (
             <div className="flex items-center gap-3">
+              <Link
+                href="/signup"
+                className="rounded-md px-3 py-1.5 text-sm font-medium text-sky-700 bg-white border border-sky-300 hover:bg-sky-50 hover:border-sky-400"
+              >
+                회원가입
+              </Link>
               <Link href="/login" className="rounded-md px-3 py-1.5 text-sm font-medium text-white bg-sky-400 hover:bg-sky-600">
                 로그인
-              </Link>
-              <Link href="/signup" className="rounded-md px-3 py-1.5 text-sm font-medium text-white bg-sky-400 hover:bg-sky-600">
-                회원가입
               </Link>
             </div>
           )}

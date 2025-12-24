@@ -1,10 +1,12 @@
 'use client';
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { loginAction } from "../../_libs/actions/login-action";
 
 export default function LoginForm() {
   const [state, action, pending] = useActionState(loginAction, undefined);
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <form action={action} className="space-y-8 max-w-sm mx-auto">
@@ -23,20 +25,28 @@ export default function LoginForm() {
           <input
             id="password"
             name="password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="비밀번호"
-            className="w-full px-4 py-3 text-sm outline-none placeholder-gray-400"
+            className="w-full px-4 py-3 pr-12 text-sm outline-none placeholder-gray-400"
           />
+          <button
+            type="button"
+            aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
+            onClick={() => setShowPassword((v) => !v)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+          >
+            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+          </button>
         </div>
       </div>
-      
+
       {state?.errors?.email && (
         <ul className="text-red-500 text-sm list-disc pl-5 space-y-1">
           {state.errors.email.map((error: string) => (
             <li key={error}>{error}</li>
           ))}
         </ul>
-      )}      
+      )}
       {state?.errors?.password && (
         <ul className="text-red-500 text-sm list-disc pl-5 space-y-1">
           {state.errors.password.map((error: string) => (
