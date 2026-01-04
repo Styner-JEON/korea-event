@@ -3,7 +3,7 @@
 import { Comment } from "../../_types/responses/comment-list-response";
 import { CommentSchema, CommentState } from "./definitions/comment-definition";
 import { checkAccessToken } from "../check-access-token";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { ErrorResponse } from "../../_types/responses/error-response";
 import { CommentResponse } from "@/app/_types/responses/comment-response";
 
@@ -86,7 +86,7 @@ export async function updateCommentAction(comment: Comment, contentId: string, p
 
   console.log(`[댓글 ${responseJson.commentId} 수정 완료]`);
 
-  revalidateTag(`analysis:${contentId}`);
+  // revalidateTag(`analysis:${contentId}`);
   revalidatePath(`/events/${contentId}`, 'page');
   return { commentResponse: responseJson };
 }

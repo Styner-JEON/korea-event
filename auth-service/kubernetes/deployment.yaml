@@ -7,7 +7,7 @@ metadata:
     app.kubernetes.io/name: auth-service
     app.kubernetes.io/part-of: event
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: auth-service
@@ -22,7 +22,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: auth-service
-        image: 235704034905.dkr.ecr.ap-northeast-2.amazonaws.com/auth-service:0.0.2
+        image: 235704034905.dkr.ecr.ap-northeast-2.amazonaws.com/auth-service:0.0.9
         imagePullPolicy: Always
         ports:
         - name: http

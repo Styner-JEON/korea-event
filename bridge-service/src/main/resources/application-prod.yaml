@@ -17,8 +17,7 @@ public-data-api:
   service-key: ${SERVICE_KEY}
 
 logging:
-  level:
-    root: info
+  config: classpath:logback-prod.xml
 
 management:
   endpoint:

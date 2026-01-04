@@ -18,6 +18,7 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+	localOnly
 }
 
 repositories {
@@ -35,10 +36,12 @@ dependencies {
 	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.17.3'
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.3'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13'
+	implementation 'com.github.f4b6a3:ulid-creator:5.2.3'
 	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'org.postgresql:postgresql'
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+	runtimeOnly 'net.logstash.logback:logstash-logback-encoder:9.0'
+	runtimeOnly 'ch.qos.logback:logback-classic'
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -47,11 +50,15 @@ dependencies {
 //	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'com.h2database:h2'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
+	localOnly 'org.springframework.boot:spring-boot-devtools'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+tasks.named('bootRun') {
+	classpath = sourceSets.main.runtimeClasspath + configurations.localOnly
 }
 
 jib {
@@ -60,7 +67,7 @@ jib {
     }
     to {
         image = '235704034905.dkr.ecr.ap-northeast-2.amazonaws.com/bridge-service'
-        tags = ['0.0.2']
+        tags = ['0.0.9']
     }
     container {
     }

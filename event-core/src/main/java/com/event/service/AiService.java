@@ -35,8 +35,11 @@ public class AiService {
 
     private final ObjectMapper objectMapper;
 
+    @Value("${size.required-ai-comment}")
+    private int requiredAiCommentCount;
+
     @Value("${size.ai-comment}")
-    private int requiredCommentCount;
+    private int aiCommentCount;
 
     public AiService(
             ChatClient.Builder chatClientBuilder,
@@ -61,15 +64,18 @@ public class AiService {
     public CommentAnalysisResponse analyzeComments(Long contentId) {
         // 댓글 수 확인
         int commentCount = commentRepository.countByContentId(contentId);
-        if (commentCount < requiredCommentCount) {
-            log.warn("Not enough comments found. contentId: {}, required comment count: {}, comment count: {}", contentId, requiredCommentCount, commentCount);
+        if (commentCount < requiredAiCommentCount) {
+            log.warn("Not enough comments found. contentId: {}, required comment count: {}, comment count: {}",
+                    contentId, requiredAiCommentCount, commentCount);
             throw new CustomAiException(HttpStatus.BAD_REQUEST,
-                    "Comment analysis is available only when there are " + requiredCommentCount + " or more comments.");
+                    "Comment analysis is available only when there are " + requiredAiCommentCount + " or more comments.");
         }
 
         // 최신 댓글들 조회
-        Pageable pageable = PageRequest.of(0, requiredCommentCount);
-        List<CommentEntity> commentEntityList = commentRepository.findByContentIdOrderByUpdatedAtDesc(contentId, pageable);
+        int fetchSize = Math.min(commentCount, aiCommentCount);
+        Pageable pageable = PageRequest.of(0, fetchSize);
+        List<CommentEntity> commentEntityList = commentRepository.findByContentIdOrderByUpdatedAtDesc(contentId,
+                pageable);
 
         // 댓글 내용만 추출하여 하나의 문자열로 결합
         String commentListContent = commentEntityList.stream()
@@ -126,7 +132,7 @@ public class AiService {
         }
 
         String textContent = chatResponse.getResult().getOutput().getText().trim();
-//        log.info("Extracted AI response text: {}", textContent);
+        // log.info("Extracted AI response text: {}", textContent);
 
         // 마크다운 형식의 JSON인 경우에는, 순수 JSON로 변경
         try {

@@ -45,8 +45,8 @@ class AiIntegrationTest {
 
     private String jwt;
 
-    @Value("${size.ai-comment}")
-    private int commentSize;
+    @Value("${size.required-ai-comment}")
+    private int requiredAiCommentSize;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -65,7 +65,7 @@ class AiIntegrationTest {
         @DisplayName("댓글이 limit개 이상일 때, AI 분석 결과가 정상적으로 반환된다")
         void givenLimitComments_whenGetSummary_thenReturnsAnalysis() throws Exception {
             // Given
-            for (int i = 1; i <= commentSize; i++) {
+            for (int i = 1; i <= requiredAiCommentSize; i++) {
                 commentRepository.save(createCommentEntity("AI 댓글 " + i));
             }
 
@@ -87,7 +87,7 @@ class AiIntegrationTest {
         @DisplayName("댓글이 limit개 미만일 경우 400 반환한다")
         void givenLessThanLimitComments_whenGetSummary_thenReturns400() throws Exception {
             // Given
-            for (int i = 1; i < commentSize; i++) {
+            for (int i = 1; i < requiredAiCommentSize; i++) {
                 commentRepository.save(createCommentEntity("댓글 " + i));
             }
 

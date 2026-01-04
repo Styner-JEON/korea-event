@@ -75,7 +75,7 @@ export async function deleteCommentAction(contentId: string, commentId: number) 
   console.log(`[댓글 ${responseJson.commentId} 삭제 완료]`);
 
   revalidateTag(`event:${contentId}:commentCount`);
-  revalidateTag(`analysis:${contentId}`);
+  // revalidateTag(`analysis:${contentId}`);
   revalidatePath(`/events/${contentId}`, 'page');
   return { commentResponse: responseJson };
 }

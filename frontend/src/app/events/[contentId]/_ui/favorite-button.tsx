@@ -18,7 +18,8 @@ export default function FavoriteButton({
 
   async function handleClick() {
     if (!loginStatus) {
-      router.push(`/login`);      
+      router.push(`/login`);
+      return;
     }
 
     startTransition(async () => {
@@ -32,18 +33,32 @@ export default function FavoriteButton({
   return (
     <button
       type="button"
-      onClick={handleClick}      
+      onClick={handleClick}
       disabled={pending}
       aria-pressed={active}
-      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium cursor-pointer`}
+      title={pending ? '즐겨찾기 처리 중입니다.' : undefined}
+      className={`
+        inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5
+        text-sm font-medium transition
+        ${pending
+          ? 'cursor-not-allowed opacity-50'
+          : 'cursor-pointer hover:bg-gray-100'}
+      `}
     >
       <span
-        className={`text-base leading-none ${active ? 'text-yellow-400' : 'text-gray-300'
-          }`}
+        className={`text-base leading-none ${
+          pending
+            ? 'text-gray-400'
+            : active
+              ? 'text-yellow-400'
+              : 'text-gray-300'
+        }`}
       >
-        {active ? "★" : "☆"}
+        {active ? '★' : '☆'}
       </span>
-      <span>{active ? "즐겨찾기" : "즐겨찾기"}</span>
+      <span>
+        {pending ? '즐겨찾기 중' : '즐겨찾기'}
+      </span>
     </button>
   );
 }

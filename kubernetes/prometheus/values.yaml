@@ -37,7 +37,7 @@ extraScrapeConfigs: |
         source_labels: [ __meta_kubernetes_pod_name ]
         target_label: pod
   - job_name: "auth-service"
-    metrics_path: /events/actuator/prometheus
+    metrics_path: /auth/actuator/prometheus
     kubernetes_sd_configs:
       - role: endpoints
     relabel_configs:

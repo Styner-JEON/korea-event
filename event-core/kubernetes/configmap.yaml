@@ -7,5 +7,6 @@ metadata:
     app.kubernetes.io/name: event-core
     app.kubernetes.io/part-of: event
 data:
+  SPRING_APPLICATION_NAME: "event-core"
   SPRING_PROFILES_ACTIVE: "prod"
   SPRING_DATASOURCE_URL: "jdbc:postgresql://event-database.cxgqgiu6orpo.ap-northeast-2.rds.amazonaws.com:5432/event_db"

@@ -11,6 +11,7 @@ spring:
   data:
     redis:
       host: my-redis-master.redis.svc.cluster.local
+      port: 6379
   kafka:
     bootstrap-servers: my-kafka.kafka.svc.cluster.local:9092
 
@@ -27,7 +28,9 @@ jwt:
   secret-string: ${SECRET_STRING}
 
 cors:
-  allowed-origins: "https://www.koreaevent.click"
+  allowed-origins:
+    - "https://koreaevent.click"
+    - "https://www.koreaevent.click"
 
 management:
   endpoint:

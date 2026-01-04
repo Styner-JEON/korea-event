@@ -1,5 +1,6 @@
 package com.event.security;
 
+import com.event.logging.RequestIdFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -35,7 +36,9 @@ public class SecurityConfig {
     @Value("${event-favorite-url}")
     private String eventFavoriteUrl;
 
-    private final OncePerRequestFilter jwtAuthenticationFilter;
+    private final RequestIdFilter requestIdFilter;
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     private final AuthenticationEntryPoint customAuthenticationEntryPoint;
 
@@ -60,7 +63,7 @@ public class SecurityConfig {
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .cors(withDefaults())
-                // JWT 인증 필터를 UsernamePasswordAuthenticationFilter 이전에 추가
+                .addFilterBefore(requestIdFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 // 예외 처리 설정 - 인증 실패 시 커스텀 엔트리 포인트 사용
                 .exceptionHandling(exceptionHandling -> exceptionHandling
