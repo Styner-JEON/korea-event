@@ -18,6 +18,7 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+	localOnly
 }
 
 repositories {
@@ -40,12 +41,14 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13'
 	implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+	implementation 'com.github.f4b6a3:ulid-creator:5.2.3'
     compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'org.postgresql:postgresql'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+	runtimeOnly 'net.logstash.logback:logstash-logback-encoder:9.0'
+	runtimeOnly 'ch.qos.logback:logback-classic'
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 	annotationProcessor 'org.projectlombok:lombok'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
@@ -54,6 +57,7 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'com.h2database:h2'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	localOnly 'org.springframework.boot:spring-boot-devtools'
 }
 
 dependencyManagement {
@@ -66,13 +70,17 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
+tasks.named('bootRun') {
+	classpath = sourceSets.main.runtimeClasspath + configurations.localOnly
+}
+
 jib {
     from {
         image = 'eclipse-temurin:21-jre-noble'
     }
     to {
         image = '235704034905.dkr.ecr.ap-northeast-2.amazonaws.com/event-core'
-        tags = ['0.0.2']
+        tags = ['0.0.9']
     }
     container {
 //        jvmFlags = ['-Dmy.property=example.value', '-Xms512m', '-Xdebug']

@@ -18,6 +18,7 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+	localOnly
 }
 
 repositories {
@@ -35,22 +36,29 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation platform('software.amazon.awssdk:bom:2.27.21')
     implementation 'software.amazon.awssdk:sesv2'
+	implementation 'com.github.f4b6a3:ulid-creator:5.2.3'
 	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'org.postgresql:postgresql'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+	runtimeOnly 'net.logstash.logback:logstash-logback-encoder:9.0'
+	runtimeOnly 'ch.qos.logback:logback-classic'
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'com.h2database:h2'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	localOnly 'org.springframework.boot:spring-boot-devtools'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+tasks.named('bootRun') {
+	classpath = sourceSets.main.runtimeClasspath + configurations.localOnly
 }
 
 jib {
@@ -59,7 +67,7 @@ jib {
     }
     to {
         image = '235704034905.dkr.ecr.ap-northeast-2.amazonaws.com/auth-service'
-        tags = ['0.0.2']
+        tags = ['0.0.9']
     }
     container {
     }

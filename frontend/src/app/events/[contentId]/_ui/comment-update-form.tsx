@@ -89,14 +89,20 @@ export default function CommentUpdateForm({ comment, contentId, onCancel, commen
           type="button"
           onClick={onCancel}
           disabled={pending}
-          className="rounded-md border p-2 transition-colors hover:bg-gray-100 hover:text-gray-700 hover:cursor-pointer"
+          className={`rounded-md border p-2 transition-colors ${pending
+            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            : 'hover:bg-gray-100 hover:text-gray-700 hover:cursor-pointer'
+            }`}
         >
           수정 취소
         </button>
         <button
           type="submit"
           disabled={pending}
-          className="rounded-md border p-2 transition-colors bg-gray-200 hover:bg-gray-300 hover:cursor-pointer"
+          className={`rounded-md border p-2 transition-colors ${pending
+            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            : 'bg-gray-200 hover:bg-gray-300 hover:cursor-pointer'
+            }`}
         >
           {pending ? '수정 중…' : '댓글 수정'}
         </button>

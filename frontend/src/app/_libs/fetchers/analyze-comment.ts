@@ -9,7 +9,7 @@ export async function analyzeComment(contentId: string): Promise<{
   const url = `${process.env.NEXT_PUBLIC_AI_BASE_URL}/ai/${process.env.NEXT_PUBLIC_AI_API_VERSION}/${contentId}/analysis`;
   let response: Response;
 
-  // const revalidateSeconds = Number(process.env.NEXT_PUBLIC_COMMENT_ANALYSIS_REVALIDATE_SECONDS);
+  const revalidateSeconds = Number(process.env.NEXT_PUBLIC_COMMENT_ANALYSIS_REVALIDATE_SECONDS);
   
   try {
     response = await fetch(url, {
@@ -18,8 +18,8 @@ export async function analyzeComment(contentId: string): Promise<{
         'Content-Type': 'application/json',
       },      
       next: {        
-        // revalidate: revalidateSeconds,
-        tags: [`analysis:${contentId}`],
+        revalidate: revalidateSeconds,      
+        tags: [`analysis:${contentId}`],          
       },
     });
   } catch (error) {

@@ -3,8 +3,10 @@ kind: CronJob
 metadata:
   name: bridge-service-batch
   namespace: event
+  labels:
+    app.kubernetes.io/name: bridge-service
+    app.kubernetes.io/part-of: event
 spec:
-  #  schedule: "*/5 * * * *"
   schedule: "0 1 * * *"
   timeZone: "Asia/Seoul"
   concurrencyPolicy: Forbid
@@ -15,10 +17,14 @@ spec:
     spec:
       backoffLimit: 2
       template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: bridge-service
+            app.kubernetes.io/part-of: event
         spec:
           containers:
           - name: bridge-service
-            image: 235704034905.dkr.ecr.ap-northeast-2.amazonaws.com/bridge-service:0.0.2
+            image: 235704034905.dkr.ecr.ap-northeast-2.amazonaws.com/bridge-service:0.0.9
             imagePullPolicy: Always
             args:
             - --spring.task.scheduling.enabled=false

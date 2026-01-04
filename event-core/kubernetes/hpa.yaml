@@ -8,7 +8,7 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: event-core-deployment
-  minReplicas: 2
+  minReplicas: 1
   maxReplicas: 6
   metrics:
     - type: Resource
@@ -19,13 +19,13 @@ spec:
           averageUtilization: 70
   behavior:
     scaleDown:
-      stabilizationWindowSeconds: 300
+      stabilizationWindowSeconds: 300 # 60 * 5 = 5분간 안정화 (급격한 축소 방지)
       policies:
       - type: Pods
-        value: 1
-        periodSeconds: 30
+        value: 1          # 한 번에 1개 pod만 감
+        periodSeconds: 30 # 30초에 1개까지 감소 가능
     scaleUp:
-      stabilizationWindowSeconds: 15
+      stabilizationWindowSeconds: 15 # 확장은 비교적 빨리 설정함
       policies:
       - type: Pods
         value: 4

@@ -86,7 +86,7 @@ export async function insertCommentAction(contentId: string, prevState: CommentS
   console.log(`[댓글 ${responseJson.commentId} 작성 완료]`);
 
   revalidateTag(`event:${contentId}:commentCount`);
-  revalidateTag(`analysis:${contentId}`);
+  // revalidateTag(`analysis:${contentId}`);
   revalidatePath(`/events/${contentId}`, 'page');
   // redirect(`/events/${contentId}`);
 
