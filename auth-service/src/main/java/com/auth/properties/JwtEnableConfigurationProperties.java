@@ -1,6 +1,5 @@
-package com.auth.config;
+package com.auth.properties;
 
-import com.auth.properties.JwtProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
