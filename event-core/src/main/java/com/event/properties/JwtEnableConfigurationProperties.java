@@ -1,6 +1,5 @@
-package com.event.config;
+package com.event.properties;
 
-import com.event.properties.JwtProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 

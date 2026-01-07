@@ -1,4 +1,4 @@
-package com.auth.config;
+package com.auth.properties;
 
 //@Configuration(proxyBeanMethods = false)
 //@EnableConfigurationProperties(SignupProperties.class)
