@@ -16,9 +16,6 @@ server:
 public-data-api:
   service-key: ${SERVICE_KEY}
 
-logging:
-  config: classpath:logback-prod.xml
-
 management:
   endpoint:
     health:

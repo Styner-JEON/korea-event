@@ -68,7 +68,7 @@ comment-url:
   update: /events/v1/{contentId}/comments/{commentId}
 
 event-favorite-url: /events/v1/{contentId}/favorite
-
+event-list-favorite-url: /events/v1/favorites
 
 logging:
   level:

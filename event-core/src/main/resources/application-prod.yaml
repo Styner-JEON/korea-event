@@ -20,10 +20,6 @@ server:
   forward-headers-strategy: framework
   shutdown: graceful
 
-logging:
-  level:
-    root: info
-
 jwt:
   secret-string: ${SECRET_STRING}
 

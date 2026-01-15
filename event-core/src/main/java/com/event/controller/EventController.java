@@ -42,9 +42,9 @@ public class EventController {
     /**
      * 이벤트 목록을 페이지네이션과 함께 조회합니다.
      *
-     * @param pageable 페이지네이션 정보
-     * @param query    검색 쿼리 (선택사항)
-     * @param areaString     지역 필터 (선택사항)
+     * @param pageable   페이지네이션 정보
+     * @param query      검색 쿼리 (선택사항)
+     * @param areaString 지역 필터 (선택사항)
      * @return 이벤트 목록 페이지
      */
     @GetMapping
@@ -56,11 +56,9 @@ public class EventController {
     ) {
         Sort.Direction direction = Sort.Direction.fromString(eventSortDirection);
         Pageable fixedPageable = PageRequest.of(
-            pageable.getPageNumber(),
-            eventSize,
-            Sort.by(direction, eventSortProperty)
-        );
-
+                pageable.getPageNumber(),
+                eventSize,
+                Sort.by(direction, eventSortProperty));
         return ResponseEntity.ok(eventService.selectEventList(fixedPageable, query, areaString));
     }
 
@@ -74,8 +72,7 @@ public class EventController {
     @Operation(summary = "이벤트 상세 조회")
     public ResponseEntity<EventResponse> getEvent(
             @PathVariable Long contentId,
-            @AuthenticationPrincipal CustomPrincipal customPrincipal
-    ) {
+            @AuthenticationPrincipal CustomPrincipal customPrincipal) {
         Long userId = (customPrincipal != null) ? customPrincipal.userId() : null;
         return ResponseEntity.ok(eventService.selectEvent(contentId, userId));
     }
@@ -95,14 +92,12 @@ public class EventController {
             Pageable pageable,
             @AuthenticationPrincipal CustomPrincipal customPrincipal,
             @RequestParam(required = false) String query,
-            @RequestParam(name = "areastring", required = false) String areaString
-    ) {
+            @RequestParam(name = "areastring", required = false) String areaString) {
         Sort.Direction direction = Sort.Direction.fromString(eventSortDirection);
         Pageable fixedPageable = PageRequest.of(
                 pageable.getPageNumber(),
                 eventSize,
-                Sort.by(direction, eventSortProperty)
-        );
+                Sort.by(direction, eventSortProperty));
         Long userId = customPrincipal.userId();
         return ResponseEntity.ok(eventService.selectFavoriteEventList(fixedPageable, userId, query, areaString));
     }

@@ -1,7 +1,7 @@
 'use server';
 
 import { redirect } from "next/navigation";
-import { createSession } from "../session";
+import { createSession } from "../create-session";
 import { LoginFormSchema, LoginFormState } from "./definitions/login-form-definition";
 import { LoginResponse } from "../../_types/responses/login-response";
 import { ErrorResponse } from "../../_types/responses/error-response";

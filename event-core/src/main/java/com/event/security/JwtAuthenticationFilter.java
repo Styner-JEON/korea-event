@@ -53,6 +53,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Value("${event-favorite-url}")
     private String eventFavoritesUrl;
 
+    @Value("${event-list-favorite-url}")
+    private String eventListFavoritesUrl;
+
     private final JwtUtil jwtUtil;
 
     private final AuthenticationEntryPoint customAuthenticationEntryPoint;
@@ -98,15 +101,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 .matcher(HttpMethod.DELETE, eventFavoritesUrl)
                 .matches(request);
 
+        // 즐찾리스트 요청인지 확인
+        boolean eventListFavoriteStatus = PathPatternRequestMatcher.withDefaults()
+                .matcher(HttpMethod.GET, eventListFavoritesUrl)
+                .matches(request);
+
         // 위의 사안에 해당되지 않으면 필터를 건너뜀
-        return !(
-                eventSelectStatus         ||
+        return !(eventSelectStatus        ||
                 commentInsertStatus       ||
                 commentUpdateStatus       ||
                 commentDeleteStatus       ||
                 eventFavoriteInsertStatus ||
-                eventFavoriteDeleteStatus
-        );
+                eventFavoriteDeleteStatus ||
+                eventListFavoriteStatus);
     }
 
     /**

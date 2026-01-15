@@ -24,51 +24,56 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Value("${comment-url.insert}")
-    private String commentInsertUrl;
+        @Value("${comment-url.insert}")
+        private String commentInsertUrl;
 
-    @Value("${comment-url.update}")
-    private String commentUpdateUrl;
+        @Value("${comment-url.update}")
+        private String commentUpdateUrl;
 
-    @Value("${comment-url.delete}")
-    private String commentDeleteUrl;
+        @Value("${comment-url.delete}")
+        private String commentDeleteUrl;
 
-    @Value("${event-favorite-url}")
-    private String eventFavoriteUrl;
+        @Value("${event-favorite-url}")
+        private String eventFavoriteUrl;
 
-    private final RequestIdFilter requestIdFilter;
+        @Value("${event-list-favorite-url}")
+        private String eventListFavoriteUrl;
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+        private final RequestIdFilter requestIdFilter;
 
-    private final AuthenticationEntryPoint customAuthenticationEntryPoint;
+        private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                // CSRF 보호 비활성화 - JWT 사용 시 불필요
-                .csrf((csrf) -> csrf.disable())
-                .authorizeHttpRequests((authorize) -> authorize
-                        // 댓글 작성, 수정, 삭제는 인증된 유저만 가능
-                        .requestMatchers(HttpMethod.POST, commentInsertUrl).authenticated()
-                        .requestMatchers(HttpMethod.PATCH, commentUpdateUrl).authenticated()
-                        .requestMatchers(HttpMethod.DELETE, commentDeleteUrl).authenticated()
-                        // 즐찾과 즐삭은 인증된 유저만 가능
-                        .requestMatchers(HttpMethod.POST, eventFavoriteUrl).authenticated()
-                        .requestMatchers(HttpMethod.DELETE, eventFavoriteUrl).authenticated()
-                        // 나머지 모든 요청은 허용
-                        .anyRequest().permitAll())
-                .httpBasic(basic -> basic.disable())
-                .formLogin(form -> form.disable())
-                // 세션 관리 정책 설정 - JWT 사용으로 STATELESS 설정
-                .sessionManagement((session) -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .cors(withDefaults())
-                .addFilterBefore(requestIdFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                // 예외 처리 설정 - 인증 실패 시 커스텀 엔트리 포인트 사용
-                .exceptionHandling(exceptionHandling -> exceptionHandling
-                        .authenticationEntryPoint(customAuthenticationEntryPoint));
-        return http.build();
-    }
+        private final AuthenticationEntryPoint customAuthenticationEntryPoint;
+
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                http
+                                // CSRF 보호 비활성화 - JWT 사용 시 불필요
+                                .csrf((csrf) -> csrf.disable())
+                                .authorizeHttpRequests((authorize) -> authorize
+                                                // 댓글 작성, 수정, 삭제는 인증된 유저만 가능
+                                                .requestMatchers(HttpMethod.POST, commentInsertUrl).authenticated()
+                                                .requestMatchers(HttpMethod.PATCH, commentUpdateUrl).authenticated()
+                                                .requestMatchers(HttpMethod.DELETE, commentDeleteUrl).authenticated()
+                                                // 즐찾과 즐삭은 인증된 유저만 가능
+                                                .requestMatchers(HttpMethod.POST, eventFavoriteUrl).authenticated()
+                                                .requestMatchers(HttpMethod.DELETE, eventFavoriteUrl).authenticated()
+                                                // 즐찾 리스트 요청은 인증된 유저만 가능
+                                                .requestMatchers(HttpMethod.GET, eventListFavoriteUrl).authenticated()
+                                                // 나머지 모든 요청은 허용
+                                                .anyRequest().permitAll())
+                                .httpBasic(basic -> basic.disable())
+                                .formLogin(form -> form.disable())
+                                // 세션 관리 정책 설정 - JWT 사용으로 STATELESS 설정
+                                .sessionManagement((session) -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .cors(withDefaults())
+                                .addFilterBefore(requestIdFilter, UsernamePasswordAuthenticationFilter.class)
+                                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                                // 예외 처리 설정 - 인증 실패 시 커스텀 엔트리 포인트 사용
+                                .exceptionHandling(exceptionHandling -> exceptionHandling
+                                                .authenticationEntryPoint(customAuthenticationEntryPoint));
+                return http.build();
+        }
 
 }

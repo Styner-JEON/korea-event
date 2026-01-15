@@ -68,7 +68,8 @@ public class AiService {
             log.warn("Not enough comments found. contentId: {}, required comment count: {}, comment count: {}",
                     contentId, requiredAiCommentCount, commentCount);
             throw new CustomAiException(HttpStatus.BAD_REQUEST,
-                    "Comment analysis is available only when there are " + requiredAiCommentCount + " or more comments.");
+                    "Comment analysis is available only when there are " + requiredAiCommentCount
+                            + " or more comments.");
         }
 
         // 최신 댓글들 조회
@@ -108,7 +109,6 @@ public class AiService {
         // 유저 프롬프트
         String userText = String.format("다음은 %d개의 댓글입니다. 분석해주세요:\n\n%s", commentEntityList.size(), commentListContent);
 
-        // AI 분석 요청 수행
         ChatResponse chatResponse;
         try {
             chatResponse = chatClient.prompt()
@@ -120,6 +120,8 @@ public class AiService {
             log.error("AI analysis failed: {}", e.getMessage(), e);
             throw new CustomAiException(HttpStatus.BAD_GATEWAY, "AI analysis failed");
         }
+
+        log.info("AI analysis completed. contentId: {}", contentId);
         log.debug("AI analysis result: {}", chatResponse);
 
         // AI 응답 유효성 검증

@@ -1,7 +1,12 @@
+> 개인 포트폴리오 프로젝트입니다. 
+
 # Korea Event (korea-event)
 
-이벤트 데이터의 **수집–적재**를 분리해 안정적으로 운영하고, 사용자에게는 **이벤트 탐색/댓글/즐겨찾기** 경험을 제공합니다. 또한 댓글을 **AI로 요약·분석**해 인사이트를 빠르게 전달합니다.
-백엔드는 **Amazon Elastic Kubernetes Service(Spring Boot 3.5)** 환경에서 운영하고, 프론트엔드는 **Vercel(React 19, Next.js 15)** 에서 운영합니다.
+이벤트 데이터의 **수집–적재**를 분리해 안정적으로 운영하고, 사용자에게는 **이벤트 탐색·댓글·즐겨찾기** 경험을 제공합니다. 또한 댓글을 **AI로 요약·분석**해 인사이트를 빠르게 전달합니다. 
+
+**MSA** 로 분리·운영하여 각 도메인을 독립적으로 확장·관리합니다.
+
+백엔드는 **Amazon Elastic Kubernetes Service(Spring Boot 3.5)** 환경에서 운영하고, 프론트엔드는 **Vercel(React 19, Next.js 15)** 에서 서비스합니다.
 
 ---
 
@@ -21,13 +26,8 @@
 
 ---
 
-## URL
-
-- **Web**: [https://www.koreaevent.click](https://www.koreaevent.click)
-
----
-
-## 시스템 아키텍처
+## 시스템 아키텍처 및 URL
+**URL** : [https://www.koreaevent.click](https://www.koreaevent.click)
 
 ![System Architecture](images/architecture.png)
 
@@ -94,7 +94,7 @@
 
 - **Framework**: React 19, Next.js 15(App Router)
 - **UI**: Tailwind CSS, Radix UI, lucide-react
-- **Data Fetching**: `fetch`, SWR(무한 스크롤), Server Actions
+- **Data Fetching**: fetch, SWR(무한 스크롤), Server Actions
 - **Validation**: zod
 - **Auth UX**: 토큰 기반 인증 흐름 + Refresh 라우트로 세션 갱신
 
@@ -257,23 +257,24 @@
 
 ### Observability (로그/메트릭)
 
-- **로그**: Fluent Bit DaemonSet으로 수집 → AWS CloudWatch Logs로 전송합니다. (`kubernetes/fluent-bit-cloudwatch.yaml`)
+- **로그**: Fluent Bit DaemonSet으로 수집 → AWS CloudWatch Logs로 전송합니다. (`kubernetes/log/cloudwatch-namespace.yaml`, `kubernetes/log/fluent-bit-cluster-info.yaml`, `kubernetes/log/fluent-bit.yaml`)
 - **메트릭**: Prometheus가 Actuator를 스크레이프하고, Grafana로 시각화합니다. (`kubernetes/prometheus/values.yaml`, `kubernetes/grafana/values.yaml`)
 
 #### 로그 상세 (Fluent Bit → CloudWatch)
 
 - **배포 형태**: `amazon-cloudwatch` 네임스페이스에 DaemonSet으로 배포되어, **모든 노드에 1개 Pod씩** 올라가 노드 레벨 로그를 수집합니다.
-- **권한(보안)**: ServiceAccount에 **IRSA**(`eks.amazonaws.com/role-arn`)를 붙여 CloudWatch Logs 접근 권한을 부여합니다. Kubernetes 메타데이터 조회를 위해 `pods/namespaces` 읽기 RBAC도 포함됩니다.
-- **수집 소스**: 노드의 `/var/log/containers/*.log`를 `tail`로 읽습니다(hostPath 마운트). 재시작 시 중복/유실을 줄이기 위해 오프셋 DB(`/var/fluent-bit/state/flb_kube.db`)를 사용합니다.
-- **중복 전송 제거(핵심 설계)**:
-  - 입력 태그는 `kube.*`로 받고, Lua 필터로 `stream_name="<pod>/<container>"` 필드를 만든 뒤 `rewrite_tag`로 **새 태그(`"<pod>/<container>"`)로 재발행(emit)** 합니다.
-  - CloudWatch OUTPUT은 `Match */*`로만 받게 제한하여, 결과적으로 `kube.*` 원본은 출력에서 제외되고 **중복 전송이 방지**됩니다.
-- **CloudWatch 네이밍 규칙**:
-  - Log Group: `/eks/${ENV_NAME}/<namespace>` (`log_group_template`)
-  - Log Stream: `from-fluent-bit-<pod>/<container>` (`log_stream_prefix`)
-  - 리전: `ap-northeast-2`, 보존 기간: `7`일
+- **권한(보안)**: ServiceAccount에 **IRSA**(`eks.amazonaws.com/role-arn`)를 붙여 CloudWatch Logs 접근 권한을 부여합니다. Kubernetes 메타데이터 조회를 위해 `namespaces/pods` 읽기 RBAC도 포함됩니다.
+- **수집 소스**: 노드의 `/var/log/containers/*.log`를 `tail`로 읽습니다(hostPath 마운트). 재시작 시 중복/유실을 줄이기 위해 오프셋 DB(`/var/fluent-bit/state/*.db`)를 사용합니다.
+- **Log Group 구성**:
+  - 애플리케이션: `/aws/containerinsights/${CLUSTER_NAME}/application`
+  - 데이터플레인: `/aws/containerinsights/${CLUSTER_NAME}/dataplane`
+  - 호스트: `/aws/containerinsights/${CLUSTER_NAME}/host`
+- **Log Stream 네이밍 규칙**:
+  - 애플리케이션 로그는 Lua 필터로 `cw_stream="<namespace>/<pod>"`를 만들고 `log_stream_template`로 **네임스페이스/파드 기준**으로 기록합니다.
+  - 데이터플레인/호스트 로그는 시스템/노드 단위 특성상 `log_stream_prefix=${HOST_NAME}-`로 **노드 기준** 스트림을 유지합니다.
+- **리전**: `ap-northeast-2`
 
-### Data / Messaging
+### Data / Messaging  
 
 - **Database**: AWS RDS (PostgreSQL)
 - **Cache**: Redis (`kubernetes/redis/values.yaml`)
@@ -284,15 +285,15 @@
 
 ## License
 
-Copyright (c) 2026 Styner  
+Copyright (c) 2026 Styner-JEON  
 All rights reserved.
 
 ### 한국어
-본 저장소는 **채용 및 기술 평가 목적**으로만 공개됩니다.  
+본 저장소는 **기술 평가 목적**으로만 공개됩니다.  
 소스 코드는 열람만 가능하며, 저작권자의 명시적 허가 없이  
 사용, 복사, 수정, 배포, 상업적 이용은 금지됩니다.
 
 ### English
-This repository is published for **recruitment and technical evaluation purposes only**.  
+This repository is published for **technical evaluation purposes only**.  
 The source code is viewable but may not be used, copied, modified,
 or redistributed without explicit permission from the author.

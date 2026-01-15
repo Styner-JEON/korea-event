@@ -1,5 +1,5 @@
 
-import { createSession } from "@/app/_libs/session";
+import { createSession } from "@/app/_libs/create-session";
 import { RefreshAccessTokenResponse } from "../_types/responses/refresh-access-token-response";
 import { ErrorResponse } from "../_types/responses/error-response";
 
