@@ -11,9 +11,6 @@ server:
   forward-headers-strategy: framework
   shutdown: graceful
 
-logging:
-  config: classpath:logback-prod.xml
-
 jwt:
   secret-string: ${SECRET_STRING}
 

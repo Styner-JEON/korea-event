@@ -41,18 +41,17 @@ export default function FavoriteButton({
         inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5
         text-sm font-medium transition
         ${pending
-          ? 'cursor-not-allowed opacity-50'
+          ? 'opacity-50'
           : 'cursor-pointer hover:bg-gray-100'}
       `}
     >
       <span
-        className={`text-base leading-none ${
-          pending
+        className={`text-base leading-none ${pending
             ? 'text-gray-400'
             : active
               ? 'text-yellow-400'
               : 'text-gray-300'
-        }`}
+          }`}
       >
         {active ? '★' : '☆'}
       </span>

@@ -230,8 +230,8 @@ public class PublicDataApiClient {
             JsonNode rootJsonNode = toJsonNode(apiName, result);
             DetailIntroHttpResponse detailIntroHttpResponse = parseJsonNode(rootJsonNode,
                     DetailIntroHttpResponse.class);
-            DetailIntroItem detailIntroItem = detailIntroHttpResponse.getResponse().getBody().getItems()
-                    .getDetailIntroItemList().getFirst();
+            DetailIntroItem detailIntroItem =
+                    detailIntroHttpResponse.getResponse().getBody().getItems().getDetailIntroItemList().getFirst();
             setEventDto(eventDto, detailIntroItem);
         } else {
             processErrorResponse(apiName, response, result);
@@ -246,7 +246,7 @@ public class PublicDataApiClient {
      * @return 완전한 API 호출 URI
      */
     private URI buildAreaBasedListUri(int pageNo) {
-        String yesterday = LocalDate.now(ZoneId.of("Asia/Seoul"))
+        String modifiedTime = LocalDate.now(ZoneId.of("Asia/Seoul"))
                 .minusDays(minusDays)
                 .format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
@@ -261,7 +261,7 @@ public class PublicDataApiClient {
                 .queryParam("contentTypeId", "15")
                 .queryParam("numOfRows", String.valueOf(numOfRows))
                 .queryParam("pageNo", pageNo)
-                .queryParam("modifiedtime", yesterday)
+                .queryParam("modifiedtime", modifiedTime)
                 .build(true)
                 .toUri();
         log.info("AreaBasedList URI: {}", uri);
@@ -293,7 +293,7 @@ public class PublicDataApiClient {
                 .queryParam("contentId", contentId)
                 .build(true)
                 .toUri();
-        log.debug("DetailCommon URI: {}", uri);
+        log.info("DetailCommon URI: {}", uri);
         return uri;
     }
 
@@ -314,7 +314,7 @@ public class PublicDataApiClient {
                 .queryParam("contentId", contentId)
                 .build(true)
                 .toUri();
-        log.debug("DetailIntro URI: {}", uri);
+        log.info("DetailIntro URI: {}", uri);
         return uri;
     }
 
@@ -397,6 +397,9 @@ public class PublicDataApiClient {
      * @return 한글 지역명 (알 수 없는 코드인 경우 빈 문자열)
      */
     private String toArea(Integer areaCode) {
+        if (areaCode == null) {
+            return "";
+        }
         return switch (areaCode) {
             case 1 -> "서울";
             case 2 -> "인천";

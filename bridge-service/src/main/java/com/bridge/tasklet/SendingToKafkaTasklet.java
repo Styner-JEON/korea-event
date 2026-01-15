@@ -60,9 +60,16 @@ public class SendingToKafkaTasklet implements Tasklet {
     }
 
     private void sendWithRetry(EventDto eventDto) {
+        String firstImage = eventDto.getFirstImage();
+        if (firstImage == null || firstImage.isBlank()) {
+            log.debug("Skip sending eventDto for contentId={} (missing firstImage)", eventDto.getContentId());
+            return;
+        }
+
         // 카프카 전송에 재시도 로직 적용
         retryTemplate.execute(retryContext -> {
-            log.info("Sending eventDto for contentId={} (Retry: {})", eventDto.getContentId(), retryContext.getRetryCount());
+            log.info("Sending eventDto for contentId={} (Retry: {})", eventDto.getContentId(),
+                    retryContext.getRetryCount());
 
             // 카프카 프로듀서를 통해 EventDto 전송
             kafkaProducer.sendEventDto(eventDto);

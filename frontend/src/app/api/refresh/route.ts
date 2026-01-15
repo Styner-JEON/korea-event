@@ -1,4 +1,4 @@
-import { createSession } from "@/app/_libs/session";
+import { createSession } from "@/app/_libs/create-session";
 import { RefreshAccessTokenResponse } from "@/app/_types/responses/refresh-access-token-response";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
