@@ -24,7 +24,7 @@ spec:
         spec:
           containers:
           - name: bridge-service
-            image: 235704034905.dkr.ecr.ap-northeast-2.amazonaws.com/bridge-service:0.0.9
+            image: 235704034905.dkr.ecr.ap-northeast-2.amazonaws.com/bridge-service:0.0.10
             imagePullPolicy: Always
             args:
             - --spring.task.scheduling.enabled=false

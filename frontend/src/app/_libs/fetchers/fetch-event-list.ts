@@ -22,7 +22,9 @@ export async function fetchEventList(pageNumber: number, query: string, areaStri
 
   let response: Response;
   try {
-    response = await fetch(url);    
+    response = await fetch(url, {
+      next: { revalidate: 60 * 60 * 12 },
+    });    
   } catch (error) {
     console.error('[Network ERROR]', error);
     return { error: new Error(message) };
