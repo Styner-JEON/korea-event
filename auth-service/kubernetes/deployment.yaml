@@ -22,7 +22,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: auth-service
-        image: 235704034905.dkr.ecr.ap-northeast-2.amazonaws.com/auth-service:0.0.9
+        image: 235704034905.dkr.ecr.ap-northeast-2.amazonaws.com/auth-service:0.0.10
         imagePullPolicy: Always
         ports:
         - name: http
@@ -37,8 +37,8 @@ spec:
             name: auth-service-secret
         resources:
           requests:
-            cpu: 250m
-            memory: 512Mi
+            cpu: 100m
+            memory: 256Mi
           limits:
             cpu: "1"
             memory: "1Gi"

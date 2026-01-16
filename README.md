@@ -1,8 +1,8 @@
-> 개인 포트폴리오 프로젝트입니다. 
+> 개인 포트폴리오 프로젝트입니다.
 
 # Korea Event (korea-event)
 
-이벤트 데이터의 **수집–적재**를 분리해 안정적으로 운영하고, 사용자에게는 **이벤트 탐색·댓글·즐겨찾기** 경험을 제공합니다. 또한 댓글을 **AI로 요약·분석**해 인사이트를 빠르게 전달합니다. 
+이벤트 데이터의 **수집–적재**를 분리해 안정적으로 운영하고, 사용자에게는 **이벤트 탐색·댓글·즐겨찾기** 경험을 제공합니다. 또한 댓글을 **AI로 요약·분석**해 인사이트를 빠르게 전달합니다.
 
 **MSA** 로 분리·운영하여 각 도메인을 독립적으로 확장·관리합니다.
 
@@ -27,6 +27,7 @@
 ---
 
 ## 시스템 아키텍처 및 URL
+
 **URL** : [https://www.koreaevent.click](https://www.koreaevent.click)
 
 ![System Architecture](images/architecture.png)
@@ -74,7 +75,7 @@
 ### 프런트엔드 기능
 
 - **이벤트 탐색**: 목록/검색/지역 필터 기반 이벤트 탐색 및 상세 페이지 제공
-- **댓글**: 이벤트별 댓글 작성/수정/삭제 및 무한 스크롤 기반 조회 
+- **댓글**: 이벤트별 댓글 작성/수정/삭제 및 무한 스크롤 기반 조회
 - **즐겨찾기**: 이벤트 즐겨찾기 추가/해제 및 즐겨찾기 목록 조회
 - **AI 최신 댓글 분석**: 댓글이 일정 개수 이상일 때 요약/키워드/감정 분석 제공
 - **인증 UX**: 로그인/회원가입, 토큰 갱신(Refresh) 및 세션 쿠키 관리
@@ -168,7 +169,7 @@
 - **분석 대상 데이터**: 최신 댓글 중 최대 N개만 사용해 분석합니다. (설정: `size.ai-comment`)
 - **요청/응답 흐름**:
   - `event-core`가 Spring AI `ChatClient`로 OpenAI에 분석을 요청하고, 응답 텍스트를 JSON으로 파싱해 반환합니다.
-  - 응답이 마크다운 코드블록 형태(예: ```json ... ```)로 오더라도 순수 JSON만 추출해 파싱합니다.
+  - 응답이 마크다운 코드블록 형태(예: `json ... `)로 오더라도 순수 JSON만 추출해 파싱합니다.
 - **응답 포맷(개요)**: 요약(`summary`), 핵심 키워드 배열(`keywords`), 감정 분석(`emotion.overall`, `emotion.ratio`, `emotion.mainEmotions`)
 - **캐시**: 동일 `contentId` 요청은 Spring Cache `@Cacheable(value="comment-analysis", key=contentId)`로 캐시해 성능과 비용을 최적화합니다.
 
@@ -274,7 +275,7 @@
   - 데이터플레인/호스트 로그는 시스템/노드 단위 특성상 `log_stream_prefix=${HOST_NAME}-`로 **노드 기준** 스트림을 유지합니다.
 - **리전**: `ap-northeast-2`
 
-### Data / Messaging  
+### Data / Messaging
 
 - **Database**: AWS RDS (PostgreSQL)
 - **Cache**: Redis (`kubernetes/redis/values.yaml`)
@@ -289,11 +290,13 @@ Copyright (c) 2026 Styner-JEON
 All rights reserved.
 
 ### 한국어
+
 본 저장소는 **기술 평가 목적**으로만 공개됩니다.  
 소스 코드는 열람만 가능하며, 저작권자의 명시적 허가 없이  
 사용, 복사, 수정, 배포, 상업적 이용은 금지됩니다.
 
 ### English
+
 This repository is published for **technical evaluation purposes only**.  
 The source code is viewable but may not be used, copied, modified,
 or redistributed without explicit permission from the author.
