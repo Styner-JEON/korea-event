@@ -1,6 +1,5 @@
 package com.auth.security;
 
-import com.auth.logging.RequestIdFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -11,7 +10,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.context.SecurityContextHolderFilter;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -29,14 +27,11 @@ public class SecurityConfig {
     @Value("${auth-url.refresh}")
     private String refreshUrl;
 
-    private final RequestIdFilter requestIdFilter;
-
     private final AuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .addFilterBefore(requestIdFilter, SecurityContextHolderFilter.class)
             .csrf((csrf) -> csrf.disable())
             .authorizeHttpRequests((authorize) -> authorize
                     .requestMatchers("/auth/actuator/**").permitAll()

@@ -10,3 +10,6 @@ data:
   SPRING_APPLICATION_NAME: "auth-service"
   SPRING_PROFILES_ACTIVE: "prod"
   SPRING_DATASOURCE_URL: "jdbc:postgresql://event-database.cxgqgiu6orpo.ap-northeast-2.rds.amazonaws.com:5432/auth_db"
+  TZ: "UTC"
+  JAVA_TOOL_OPTIONS: "-Duser.timezone=UTC"
+  SPRING_JACKSON_TIME_ZONE: "UTC"

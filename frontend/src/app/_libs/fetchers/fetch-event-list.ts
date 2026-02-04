@@ -5,7 +5,9 @@ export async function fetchEventList(pageNumber: number, query: string, areaStri
   eventListResponse?: EventListResponse;
   error?: Error;
 }> {
-  const message = '지금은 이벤트 목록을 불러올 수 없습니다. 잠시 후 다시 시도해주세요.';
+  // const revalidate = Number(process.env.NEXT_PUBLIC_EVENT_LIST_REVALIDATE_SECONDS ?? 3600);
+  
+  const message = '지금은 이벤트 목록을 불러올 수 없습니다. 잠시 후 다시 시도해주세요.';  
 
   const baseUrl = `${process.env.NEXT_PUBLIC_EVENT_BASE_URL}/events/${process.env.NEXT_PUBLIC_EVENT_API_VERSION}`;
   const params = new URLSearchParams();
@@ -22,9 +24,10 @@ export async function fetchEventList(pageNumber: number, query: string, areaStri
 
   let response: Response;
   try {
-    response = await fetch(url, {
-      next: { revalidate: 60 * 60 * 12 },
-    });    
+    response = await fetch(url);
+    // response = await fetch(url, {
+    //   next: { revalidate: revalidate },
+    // });    
   } catch (error) {
     console.error('[Network ERROR]', error);
     return { error: new Error(message) };
