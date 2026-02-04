@@ -26,6 +26,8 @@ spring:
         format_sql: true
     hibernate:
       ddl-auto: update
+  jackson:
+    time-zone: UTC
   batch:
     job:
       enabled: true             # 앱 실행 시 배치 실행할 것인지 여부

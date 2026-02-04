@@ -27,6 +27,8 @@ spring:
         show_sql: false
     hibernate:
       ddl-auto: update
+  jackson:
+    time-zone: UTC
   ai:
     openai:
       api-key: ${OPENAI_API_KEY}
@@ -43,9 +45,9 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
-        spring.json.trusted.packages: "com.event.model.dto"            # 역직렬화할 객체의 패키지 지정
+        spring.json.trusted.packages: "com.event.model.dto" # 역직렬화할 객체의 패키지 지정
         spring.json.value.default.type: "com.event.model.dto.EventDto" # 역직렬화할 객체의 타입 지정
-        reconnect.backoff.ms: 1000     # 1000 * 1  = 1초 (기본값 50)
+        reconnect.backoff.ms: 1000 # 1000 * 1  = 1초 (기본값 50)
         reconnect.backoff.max.ms: 5000 # 1000 * 5 = 5초 (기본값 1000)
       group-id: event-consumer-group
       auto-offset-reset: earliest # 오프셋 정보 없으면 가장 처음 메시지부터 읽음
@@ -89,7 +91,7 @@ size:
 sort:
   event:
     direction: DESC
-#    property: modifiedTime
+    #    property: modifiedTime
     property: eventEndDate
   comment:
     direction: DESC
