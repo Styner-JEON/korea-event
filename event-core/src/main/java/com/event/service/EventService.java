@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -80,6 +81,7 @@ public class EventService {
         List<String> areaList = parseAreaString(areaString);
 
         Specification<EventEntity> eventEntitySpec = Specification.allOf(
+                EventSpecs.notEndedFrom(LocalDate.now()),
                 EventSpecs.withQuery(safeQuery),
                 EventSpecs.withArea(areaList)
         );
@@ -167,6 +169,7 @@ public class EventService {
 
         Specification<EventEntity> eventEntitySpec = Specification.allOf(
             EventSpecs.isFavoritedBy(userId),
+            EventSpecs.notEndedFrom(LocalDate.now()),
             EventSpecs.withQuery(safeQuery),
             EventSpecs.withArea(areaList)
         );

@@ -6,6 +6,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 
@@ -59,6 +60,22 @@ public class EventSpecs {
 
             // 지역 목록이 비어있지 않은 경우, 해당 지역에 속하는 EventEntity를 반환
             return root.get("area").in(areaList);
+        };
+    }
+
+    /**
+     * 오늘 날짜를 기준으로 종료되지 않은 이벤트만 조회합니다.
+     *
+     * @param today 기준 날짜
+     * @return eventEndDate가 today 이상인 이벤트
+     */
+    public static Specification<EventEntity> notEndedFrom(LocalDate today) {
+        return (root, criteriaQuery, criteriaBuilder) -> {
+            if (today == null) {
+                return criteriaBuilder.conjunction();
+            }
+
+            return criteriaBuilder.greaterThanOrEqualTo(root.get("eventEndDate"), today);
         };
     }
 

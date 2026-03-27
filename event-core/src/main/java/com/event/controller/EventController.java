@@ -33,12 +33,6 @@ public class EventController {
     @Value("${size.event}")
     private int eventSize;
 
-    @Value("${sort.event.direction}")
-    private String eventSortDirection;
-
-    @Value("${sort.event.property}")
-    private String eventSortProperty;
-
     /**
      * 이벤트 목록을 페이지네이션과 함께 조회합니다.
      *
@@ -54,11 +48,12 @@ public class EventController {
             @RequestParam(required = false) String query,
             @RequestParam(name = "area", required = false) String areaString
     ) {
-        Sort.Direction direction = Sort.Direction.fromString(eventSortDirection);
         Pageable fixedPageable = PageRequest.of(
                 pageable.getPageNumber(),
                 eventSize,
-                Sort.by(direction, eventSortProperty));
+                Sort.by(
+                        Sort.Order.asc("eventStartDate"),
+                        Sort.Order.asc("eventEndDate")));
         return ResponseEntity.ok(eventService.selectEventList(fixedPageable, query, areaString));
     }
 
@@ -93,11 +88,12 @@ public class EventController {
             @AuthenticationPrincipal CustomPrincipal customPrincipal,
             @RequestParam(required = false) String query,
             @RequestParam(name = "areastring", required = false) String areaString) {
-        Sort.Direction direction = Sort.Direction.fromString(eventSortDirection);
         Pageable fixedPageable = PageRequest.of(
                 pageable.getPageNumber(),
                 eventSize,
-                Sort.by(direction, eventSortProperty));
+                Sort.by(
+                        Sort.Order.asc("eventStartDate"),
+                        Sort.Order.asc("eventEndDate")));
         Long userId = customPrincipal.userId();
         return ResponseEntity.ok(eventService.selectFavoriteEventList(fixedPageable, userId, query, areaString));
     }

@@ -1,3 +1,4 @@
+
 > 개인 포트폴리오 프로젝트입니다.
 
 # Korea Event (korea-event)
@@ -92,32 +93,38 @@
 
 ### 프런트엔드
 
+- **Language**: TypeScript
 - **Framework**: React 19, Next.js 15(App Router)
-- **UI**: Tailwind CSS, Radix UI, lucide-react
-- **Data Fetching**: fetch, SWR(무한 스크롤), Server Actions
-- **Validation**: zod
-- **Auth UX**: 토큰 기반 인증 흐름 + Refresh 라우트로 세션 갱신
+- **UI/Style**: TailwindCSS
+- **Data Fetching**: fetch(Next.js native), SWR Infinite(댓글 커서 기반 무한 스크롤)
+- **Data Mutation**: Server Actions(댓글 CRUD, 즐겨찾기, 로그인/회원가입/로그아웃)
+- **Validation**: Zod
+- **Auth**: JWT(Access/Refresh) + HttpOnly 쿠키 기반 갱신 흐름
 
 ### 백엔드
 
-- **Language/Framework**: Java, Spring Boot 3.5
-- **Security**: Spring Security, JWT
-- **Data**: Spring Data JPA, PostgreSQL
-- **비동기/데이터 파이프라인**: Kafka
-- **Batch**: Spring Batch
-- **Caching**: Redis
-- **AI**: Spring AI(OpenAI)
-- **Ops**: Spring Boot Actuator, OpenAPI/Swagger
+- **Language**: Java 21
+- **Framework**: Spring Boot 3.5(`auth-service`, `event-core`, `bridge-service`)
+- **Security**: Spring Security + JWT(`auth-service`, `event-core` 기준)
+- **Data**: Spring Data JPA, PostgreSQL(런타임), H2(테스트), Redis(캐시)
+- **Validation**: Spring Validation
+- **Ops**: Spring Boot Actuator
+- **비동기/데이터 파이프라인**: Kafka(`bridge-service` 발행, `event-core` 소비)
+- **Batch**: Spring Batch(`bridge-service`)
+- **AI**: Spring AI(OpenAI, `event-core`)
 
 ### 인프라
 
 - **Kubernetes**: AWS EKS
-- **Database**: AWS RDS (PostgreSQL)
-- **Cache**: Redis
-- **Message queue**: Kafka
 - **Container registry**: AWS ECR
 - **Ingress**: AWS ALB Ingress Controller
-- **Auto scaling**: HPA
+- **Access Control**: AWS IAM
+- **TLS/Certificate**: AWS Certificate Manager
+- **DNS**: AWS Route 53
+- **Auto scaling**: Kubernetes HPA
+- **Database**: AWS RDS(PostgreSQL)
+- **Cache**: Redis
+- **Message queue**: Kafka
 - **Logging**: Fluent Bit DaemonSet → AWS CloudWatch Logs
 - **Metrics**: Prometheus + Grafana
 
@@ -132,9 +139,11 @@
 - **데이터 패칭**
   - 목록/상세: `fetch` 기반 호출
   - 댓글: SWR Infinite + 커서 기반 페이지네이션 + `IntersectionObserver`로 무한 스크롤 구현
-  - 작성/수정/삭제: Server Actions로 처리 후 SWR `mutate`로 캐시를 부분 갱신(`revalidate: false`)
+  - 작성/수정/삭제(댓글), 즐겨찾기 추가/해제, 로그인/회원가입/로그아웃: Server Actions로 처리
+  - 댓글 변경 반영: SWR `mutate`로 캐시를 부분 갱신(`revalidate: false`)
 - **인증 UX**
   - 토큰은 HttpOnly 쿠키로 관리
+  - 쿠키 조회/갱신은 브라우저 JS 직접 접근이 아닌 Next.js 서버(서버 액션/라우트 핸들러) 경유 방식으로 처리
   - 액세스 토큰 만료 시 Refresh 토큰 기반 갱신 흐름으로 로그인 상태 유지
 - **UI 특성**: 반응형 레이아웃
 
@@ -226,6 +235,7 @@
 ### Kubernetes (AWS EKS)
 
 - **클러스터**: `event-core`, `auth-service`, `bridge-service`를 AWS EKS에서 운영합니다.
+- **Access Control**: AWS IAM 기반으로 권한을 분리하며, 워크로드-서비스 연동은 IRSA를 사용합니다.
 - **리소스 정의 위치**
   - 공용 매니페스트: `kubernetes/`
   - 서비스별 매니페스트: `event-core/kubernetes/`, `auth-service/kubernetes/`, `bridge-service/kubernetes/`
@@ -236,6 +246,7 @@
 `kubernetes/ingress.yaml` 기준으로, 외부 트래픽은 **AWS ALB Ingress**를 통해 서비스로 라우팅됩니다.
 
 - **호스트**: `api.koreaevent.click`
+- **DNS**: AWS Route 53에서 도메인/레코드를 관리해 ALB 엔드포인트와 연결합니다.
 - **HTTPS**: ACM 인증서 + **HTTP(80) → HTTPS(443)** 리다이렉트
 - **경로 기반 라우팅**
   - `/auth` → `auth-service-service:8080`
