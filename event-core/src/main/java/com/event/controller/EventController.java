@@ -52,8 +52,8 @@ public class EventController {
                 pageable.getPageNumber(),
                 eventSize,
                 Sort.by(
-                        Sort.Order.asc("eventStartDate"),
-                        Sort.Order.asc("eventEndDate")));
+                        Sort.Order.asc("eventEndDate"),
+                        Sort.Order.asc("eventStartDate")));
         return ResponseEntity.ok(eventService.selectEventList(fixedPageable, query, areaString));
     }
 
@@ -92,8 +92,8 @@ public class EventController {
                 pageable.getPageNumber(),
                 eventSize,
                 Sort.by(
-                        Sort.Order.asc("eventStartDate"),
-                        Sort.Order.asc("eventEndDate")));
+                        Sort.Order.asc("eventEndDate"),
+                        Sort.Order.asc("eventStartDate")));
         Long userId = customPrincipal.userId();
         return ResponseEntity.ok(eventService.selectFavoriteEventList(fixedPageable, userId, query, areaString));
     }

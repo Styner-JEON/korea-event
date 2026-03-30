@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,6 +40,8 @@ public class EventService {
 
     private final EventFavoriteService eventFavoriteService;
 
+    private static final ZoneId KOREA_ZONE_ID = ZoneId.of("Asia/Seoul");
+
     /**
      * 이벤트를 데이터베이스에 upsert 합니다.
      * 동일한 contentId가 존재하면 UPDATE, 없으면 INSERT 됩니다.
@@ -54,34 +57,36 @@ public class EventService {
         log.info("DB upsert completed for contentId: {}", eventDto.getContentId());
     }
 
-//     @Transactional(readOnly = true)
-//     public Page<EventListResponse> selectEventList(Pageable pageable, String query) {
-//         Page<EventEntity> eventEntitiyPage;
-//         if (query == null || query.trim().isEmpty()) {
-//            eventEntitiyPage = eventRepository.findAll(pageable);
-//         } else {
-//            eventEntitiyPage = eventRepository.searchEvents(pageable, query);
-//         }
-//
-//         return eventEntitiyPage.map(eventMapper::toEventListResponse);
-//     }
+    // @Transactional(readOnly = true)
+    // public Page<EventListResponse> selectEventList(Pageable pageable, String
+    // query) {
+    // Page<EventEntity> eventEntitiyPage;
+    // if (query == null || query.trim().isEmpty()) {
+    // eventEntitiyPage = eventRepository.findAll(pageable);
+    // } else {
+    // eventEntitiyPage = eventRepository.searchEvents(pageable, query);
+    // }
+    //
+    // return eventEntitiyPage.map(eventMapper::toEventListResponse);
+    // }
 
     /**
      * 이벤트 목록을 조회합니다.
      * 검색어와 지역 필터를 통해 조건부 검색이 가능합니다.
      * 
-     * @param pageable 페이지네이션 정보
-     * @param query    검색어 (선택사항)
-     * @param areaString     지역 필터 (쉼표로 구분된 지역 목록, 선택사항)
+     * @param pageable   페이지네이션 정보
+     * @param query      검색어 (선택사항)
+     * @param areaString 지역 필터 (쉼표로 구분된 지역 목록, 선택사항)
      * @return 이벤트 목록 페이지
      */
     @Transactional(readOnly = true)
     public Page<EventListResponse> selectEventList(Pageable pageable, String query, String areaString) {
         String safeQuery = normalizeWhitespace(query);
         List<String> areaList = parseAreaString(areaString);
+        LocalDate todayInKorea = LocalDate.now(KOREA_ZONE_ID);
 
         Specification<EventEntity> eventEntitySpec = Specification.allOf(
-                EventSpecs.notEndedFrom(LocalDate.now()),
+                EventSpecs.notEndedFrom(todayInKorea),
                 EventSpecs.withQuery(safeQuery),
                 EventSpecs.withArea(areaList)
         );
@@ -94,7 +99,7 @@ public class EventService {
      * 문자열의 앞뒤 공백을 제거하고,
      * 중간의 연속된 공백을 단일 공백으로 정리합니다.
      *
-     * 예) "  ab  cd  " -> "ab cd"
+     * 예) " ab cd " -> "ab cd"
      */
     private String normalizeWhitespace(String query) {
         if (query == null) {
@@ -112,8 +117,9 @@ public class EventService {
     }
 
     /**
-     *  지역 필터 문자열(예: "서울, 경기, 인천")을
-     *  검색에 사용할 수 있는 List<String> 형태로 파싱합니다.
+     * 지역 필터 문자열(예: "서울, 경기, 인천")을
+     * 검색에 사용할 수 있는 List<String> 형태로 파싱합니다.
+     * 
      * @param areaString
      * @return
      */
@@ -151,6 +157,7 @@ public class EventService {
 
     /**
      * 유저가 즐겨찾기한 이벤트 목록을 조회합니다.
+     * 
      * @param pageable
      * @param userId
      * @param query
@@ -162,17 +169,16 @@ public class EventService {
             Pageable pageable,
             Long userId,
             String query,
-            String areaString
-    ) {
+            String areaString) {
         String safeQuery = normalizeWhitespace(query);
         List<String> areaList = parseAreaString(areaString);
+        LocalDate todayInKorea = LocalDate.now(KOREA_ZONE_ID);
 
         Specification<EventEntity> eventEntitySpec = Specification.allOf(
-            EventSpecs.isFavoritedBy(userId),
-            EventSpecs.notEndedFrom(LocalDate.now()),
-            EventSpecs.withQuery(safeQuery),
-            EventSpecs.withArea(areaList)
-        );
+                EventSpecs.isFavoritedBy(userId),
+                EventSpecs.notEndedFrom(todayInKorea),
+                EventSpecs.withQuery(safeQuery),
+                EventSpecs.withArea(areaList));
 
         Page<EventEntity> eventEntityPage = eventRepository.findAll(eventEntitySpec, pageable);
         return eventEntityPage.map(eventMapper::toEventListResponse);

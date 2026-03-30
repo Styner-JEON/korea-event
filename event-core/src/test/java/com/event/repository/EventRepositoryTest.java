@@ -76,7 +76,7 @@ class EventRepositoryTest {
         void givenQuery_whenFindAllWithSpec_thenReturnsMatchedEvents() {
             // Given: 제목에 "꽃"이 포함된 이벤트와 포함되지 않은 이벤트 등록
             eventRepository.save(createEventEntity("한강 불꽃놀이", "서울")); // 포함
-            eventRepository.save(createEventEntity("제주 꽃축제", "제주"));  // 포함
+            eventRepository.save(createEventEntity("제주 꽃축제", "제주")); // 포함
             eventRepository.save(createEventEntity("부산 음악회", "부산"));
 
             Pageable pageable = PageRequest.of(0, 10);
@@ -98,10 +98,10 @@ class EventRepositoryTest {
         @DisplayName("검색어와 지역이 모두 일치하는 이벤트만 반환한다")
         void givenQueryAndArea_whenFindAllWithSpec_thenReturnsMatchedEvents() {
             // Given: 검색어 "축제" + 지역 "서울", "부산"
-            eventRepository.save(createEventEntity("서울 꽃축제", "서울"));  // 포함
+            eventRepository.save(createEventEntity("서울 꽃축제", "서울")); // 포함
             eventRepository.save(createEventEntity("부산 불꽃축제", "부산")); // 포함
-            eventRepository.save(createEventEntity("제주 음악회", "제주"));  // 지역 불일치
-            eventRepository.save(createEventEntity("서울 연극제", "서울"));  // 검색어 불일치
+            eventRepository.save(createEventEntity("제주 음악회", "제주")); // 지역 불일치
+            eventRepository.save(createEventEntity("서울 연극제", "서울")); // 검색어 불일치
 
             String query = "축제";
             List<String> areaList = List.of("서울", "부산");
@@ -110,8 +110,7 @@ class EventRepositoryTest {
             // When: 검색어 + 지역 조건 모두 만족하는 이벤트 조회
             Page<EventEntity> eventEntityPage = eventRepository.findAll(
                     EventSpecs.withQuery(query).and(EventSpecs.withArea(areaList)),
-                    pageable
-            );
+                    pageable);
 
             // Then: 조건을 모두 만족하는 두 이벤트만 포함됨
             assertThat(eventEntityPage.getContent())
