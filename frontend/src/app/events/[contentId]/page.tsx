@@ -165,11 +165,20 @@ function parseOverview(overview?: string): string {
 // Homepage에 있는 <a>를 <Link>로 변경
 function parseHomepage(homepage?: string): { href: string; label: string } {
   const raw = homepage || '';
-  const hrefMatch = raw.match(/href="([^"]+)"/);
-  const textMatch = raw.match(/>([^<]+)</);
-  const href = hrefMatch ? hrefMatch[1] : raw;
-  const label = textMatch ? textMatch[1] : href;
-  return { href, label };
+  const hrefMatch = raw.match(/href="([^"]+)"/i);
+  const urlMatch = raw.match(/https?:\/\/[^\s"'<>]+/i);
+
+  // trailing punctuation/noise를 제거해서 안전한 링크로 사용
+  const extracted = (hrefMatch?.[1] || urlMatch?.[0] || raw)
+    .trim()
+    .replace(/[)\],]+$/, '');
+
+  if (!extracted) {
+    return { href: '', label: '' };
+  }
+
+  const href = extracted.startsWith('www.') ? `https://${extracted}` : extracted;
+  return { href, label: href };
 }
 
 // 일반 텍스트의 <br>를 공백 1칸으로 변경
