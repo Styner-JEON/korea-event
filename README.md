@@ -1,4 +1,3 @@
-
 > 개인 포트폴리오 프로젝트입니다.
 
 # Korea Event (korea-event)
@@ -97,7 +96,7 @@
 - **Framework**: React 19, Next.js 15(App Router)
 - **UI/Style**: TailwindCSS
 - **Data Fetching**: fetch(Next.js native), SWR Infinite(댓글 커서 기반 무한 스크롤)
-- **Data Mutation**: Server Actions(댓글 CRUD, 즐겨찾기, 로그인/회원가입/로그아웃)
+- **Data Mutation**: Server Actions(댓글 CUD, 즐겨찾기, 로그인/회원가입/로그아웃)
 - **Validation**: Zod
 - **Auth**: JWT(Access/Refresh) + HttpOnly 쿠키 기반 갱신 흐름
 
@@ -105,6 +104,7 @@
 
 - **Language**: Java 21
 - **Framework**: Spring Boot 3.5(`auth-service`, `event-core`, `bridge-service`)
+- **Architecture**: MSA
 - **Security**: Spring Security + JWT(`auth-service`, `event-core` 기준)
 - **Data**: Spring Data JPA, PostgreSQL(런타임), H2(테스트), Redis(캐시)
 - **Validation**: Spring Validation
