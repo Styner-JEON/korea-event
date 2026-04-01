@@ -380,7 +380,8 @@ public class PublicDataApiClient {
         eventDto.setModifiedTime(areaBasedListItem.getModifiedTime());
         eventDto.setAddr1(areaBasedListItem.getAddr1());
         eventDto.setAddr2(areaBasedListItem.getAddr2());
-        eventDto.setArea(toArea(areaBasedListItem.getAreaCode()));
+        String area = toArea(areaBasedListItem.getAreaCode());
+        eventDto.setArea(resolveArea(area, areaBasedListItem.getAddr1()));
         eventDto.setFirstImage(areaBasedListItem.getFirstImage());
         eventDto.setFirstImage2(areaBasedListItem.getFirstImage2());
         eventDto.setMapX(areaBasedListItem.getMapX());
@@ -420,6 +421,45 @@ public class PublicDataApiClient {
             case 39 -> "제주";
             default -> "";
         };
+    }
+
+    private String resolveArea(String area, String addr1) {
+        if (area != null && !area.isBlank()) {
+            return area;
+        }
+        return toAreaFromAddr1(addr1);
+    }
+
+    private String toAreaFromAddr1(String addr1) {
+        if (addr1 == null || addr1.isBlank()) {
+            return "";
+        }
+
+        addr1 = addr1.trim();
+
+        // 예외 케이스 + 축약형 허용
+        if (addr1.startsWith("충청북도") || addr1.startsWith("충북")) return "충북";
+        if (addr1.startsWith("충청남도") || addr1.startsWith("충남")) return "충남";
+        if (addr1.startsWith("경상북도") || addr1.startsWith("경북")) return "경북";
+        if (addr1.startsWith("경상남도") || addr1.startsWith("경남")) return "경남";
+        if (addr1.startsWith("전라북도") || addr1.startsWith("전북")) return "전북";
+        if (addr1.startsWith("전라남도") || addr1.startsWith("전남")) return "전남";
+
+        // 일반 케이스
+        if (addr1.startsWith("서울")) return "서울";
+        if (addr1.startsWith("인천")) return "인천";
+        if (addr1.startsWith("대전")) return "대전";
+        if (addr1.startsWith("대구")) return "대구";
+        if (addr1.startsWith("광주")) return "광주";
+        if (addr1.startsWith("부산")) return "부산";
+        if (addr1.startsWith("울산")) return "울산";
+        if (addr1.startsWith("세종")) return "세종";
+        if (addr1.startsWith("경기")) return "경기";
+        if (addr1.startsWith("강원")) return "강원";
+        if (addr1.startsWith("제주")) return "제주";
+
+        log.warn("Unknown addr1 area prefix. addr1={}", addr1);
+        return "";
     }
 
     /**

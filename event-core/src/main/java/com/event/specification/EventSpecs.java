@@ -81,6 +81,7 @@ public class EventSpecs {
 
     /**
      * 유저가 즐겨찾기한 이벤트만 필터링하는 Specification
+     * 
      * @param userId
      * @return
      */
@@ -95,10 +96,9 @@ public class EventSpecs {
             Root<EventFavoriteEntity> eventFavoriteEntityRoot = longSubquery.from(EventFavoriteEntity.class);
 
             longSubquery.select(criteriaBuilder.literal(1L))
-                .where(
-                    criteriaBuilder.equal(eventFavoriteEntityRoot.get("contentId"), root.get("contentId")),
-                    criteriaBuilder.equal(eventFavoriteEntityRoot.get("userId"), userId)
-                );
+                    .where(
+                            criteriaBuilder.equal(eventFavoriteEntityRoot.get("contentId"), root.get("contentId")),
+                            criteriaBuilder.equal(eventFavoriteEntityRoot.get("userId"), userId));
 
             return criteriaBuilder.exists(longSubquery);
         };
